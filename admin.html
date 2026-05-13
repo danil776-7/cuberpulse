@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>CuberPulse Admin</title><style>/* стили как на главной, но красные акценты */</style></head>
+<body>
+<h1>👑 Админ-панель</h1>
+<div>
+    <h2>Редактор товаров</h2>
+    <div id="productList"></div>
+    <h2>База клиентов</h2>
+    <div id="userList"></div>
+</div>
+<script>
+    const token = localStorage.getItem('adminToken');
+    if(!token) window.location.href = '/admin-login.html';
+    
+    async function loadUsers() {
+        let res = await fetch('/api/admin/users', { headers: { Authorization: `Bearer ${token}` } });
+        let users = await res.json();
+        document.getElementById('userList').innerHTML = users.map(u => `<div>${u.email} | Статус: <select onchange="changeStatus(${u.id}, this.value)"><option ${u.status === 'active' ? 'selected' : ''}>active</option><option ${u.status === 'blocked' ? 'selected' : ''}>blocked</option></select></div>`).join('');
+    }
+    window.changeStatus = async (id, status) => {
+        await fetch('/api/admin/change-status', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ userId: id, status }) });
+        loadUsers();
+    }
+    loadUsers();
+</script>
+</body>
+</html>

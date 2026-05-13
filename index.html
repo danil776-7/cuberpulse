@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuberPulse - Хакерское оборудование</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
+        body {
+            background: radial-gradient(circle at center, #0a0f0a 0%, #000000 100%);
+            color: #00ff41;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* Плавающий двоичный код */
+        #binary-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            pointer-events: none;
+            font-size: 14px;
+            white-space: pre;
+            overflow: hidden;
+        }
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        /* Хакерский хедер */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #00ff41; padding-bottom: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .logo { font-size: 28px; text-shadow: 0 0 5px #00ff41; letter-spacing: 3px; }
+        .logo span { background: #00ff41; color: black; padding: 2px 8px; }
+        .currency-switch { background: #111; border: 1px solid #00ff41; padding: 8px 15px; cursor: pointer; font-weight: bold; }
+        .currency-switch:hover { background: #00ff41; color: black; }
+        .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 30px; }
+        .product-card { background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; border-radius: 12px; padding: 20px; transition: all 0.3s; backdrop-filter: blur(5px); }
+        .product-card:hover { box-shadow: 0 0 20px #00ff41; transform: translateY(-5px); }
+        .product-img { width: 100%; height: 180px; background: #111; border: 1px solid #00ff41; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 15px; }
+        .price { font-size: 24px; font-weight: bold; margin: 10px 0; color: #ffaa00; }
+        .btn { background: none; border: 1px solid #00ff41; color: #00ff41; padding: 8px 16px; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 10px; }
+        .btn:hover { background: #00ff41; color: black; box-shadow: 0 0 10px #00ff41; }
+        .cart-icon { position: fixed; bottom: 20px; right: 20px; background: #00ff41; color: black; padding: 15px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 10; }
+        .admin-login { position: fixed; bottom: 20px; left: 20px; background: #222; padding: 5px 10px; font-size: 10px; color: #555; }
+    </style>
+</head>
+<body>
+<div id="binary-bg"></div>
+<div class="container">
+    <div class="header">
+        <div class="logo">&gt; <span>CuberPulse</span>_v1.0</div>
+        <div style="display: flex; gap: 15px;">
+            <button id="usdBtn" class="currency-switch">USD $</button>
+            <button id="rubBtn" class="currency-switch">RUB ₽</button>
+            <button id="loginBtn" class="currency-switch">Вход / Рег</button>
+        </div>
+    </div>
+    <h2>🔓 Доступное оборудование</h2>
+    <div id="catalog" class="catalog"></div>
+</div>
+<div id="cartIcon" class="cart-icon">🛒 <span id="cartCount">0</span></div>
+<div class="admin-login">🔐 Admin panel: /admin</div>
+
+<script>
+    // Двоичный код на фоне
+    function generateBinary() {
+        let html = '';
+        for(let i = 0; i < 200; i++) {
+            html += Math.random() > 0.5 ? '1' : '0';
+            if(i % 40 === 0) html += '<br>';
+        }
+        document.getElementById('binary-bg').innerHTML = html;
+        setTimeout(generateBinary, 3000);
+    }
+    generateBinary();
+
+    // Товары (для демо)
+    let products = [
+        { id: 1, name: "Flipper Zero", price_usd: 169, img: "🐬", desc: "Многофункциональный мультитул для пентеста" },
+        { id: 2, name: "HackRF One", price_usd: 299, img: "📡", desc: "SDR-трансивер 1 МГц – 6 ГГц" },
+        { id: 3, name: "WiFi Deauther", price_usd: 45, img: "📶", desc: "Модуль атаки на Wi-Fi сети" },
+        { id: 4, name: "Proxmark3", price_usd: 120, img: "💳", desc: "Клонирование RFID/NFC" }
+    ];
+    let currentCurrency = 'USD';
+    let rubRate = 0; // реальный курс
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    async function fetchRubRate() {
+        try {
+            let res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            let data = await res.json();
+            rubRate = data.rates.RUB;
+            document.getElementById('rubBtn').innerText = `RUB ₽ (${Math.round(rubRate)})`;
+            renderCatalog();
+        } catch(e) { rubRate = 95; renderCatalog(); }
+    }
+
+    function getPrice(product) {
+        if(currentCurrency === 'USD') return { val: product.price_usd, sym: '$' };
+        return { val: (product.price_usd * rubRate).toFixed(2), sym: '₽' };
+    }
+
+    function renderCatalog() {
+        let container = document.getElementById('catalog');
+        container.innerHTML = products.map(p => {
+            let price = getPrice(p);
+            return `<div class="product-card">
+                        <div class="product-img">${p.img}</div>
+                        <h3>${p.name}</h3>
+                        <p>${p.desc}</p>
+                        <div class="price">${price.val} ${price.sym}</div>
+                        <button class="btn" onclick="addToCart(${p.id})">📦 В корзину</button>
+                    </div>`;
+        }).join('');
+        updateCartCount();
+    }
+
+    window.addToCart = function(id) {
+        cart.push(id);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        alert('Добавлено в корзину');
+    }
+
+    function updateCartCount() {
+        document.getElementById('cartCount').innerText = cart.length;
+    }
+
+    document.getElementById('usdBtn').onclick = () => { currentCurrency = 'USD'; renderCatalog(); };
+    document.getElementById('rubBtn').onclick = () => { currentCurrency = 'RUB'; renderCatalog(); };
+    document.getElementById('loginBtn').onclick = () => { window.location.href = '/account.html'; };
+    document.getElementById('cartIcon').onclick = () => { window.location.href = '/cart.html'; };
+
+    fetchRubRate();
+</script>
+</body>
+</html>
