@@ -20,7 +20,6 @@
             overflow-x: hidden;
         }
 
-        /* Современный градиентный фон */
         .bg-gradient {
             position: fixed;
             top: 0;
@@ -31,17 +30,6 @@
             z-index: -2;
         }
 
-        /* Анимированные частицы */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.3;
-        }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -50,7 +38,7 @@
             z-index: 2;
         }
 
-        /* Header - современный */
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -72,7 +60,6 @@
             background-clip: text;
             color: transparent;
             cursor: pointer;
-            letter-spacing: -0.5px;
         }
 
         .logo p {
@@ -97,7 +84,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
         }
 
         .btn-outline:hover {
@@ -141,7 +127,6 @@
             border-radius: 48px;
             color: white;
             font-size: 15px;
-            backdrop-filter: blur(5px);
             transition: all 0.3s;
         }
 
@@ -340,7 +325,7 @@
             box-shadow: 0 5px 20px rgba(108, 99, 255, 0.4);
         }
 
-        /* Корзина виджет - УЛУЧШЕННЫЙ */
+        /* Корзина виджет */
         .cart-icon {
             position: relative;
             cursor: pointer;
@@ -377,7 +362,7 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 1001;
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -511,6 +496,7 @@
             transform: scale(1.02);
         }
 
+        /* Оверлей (затемнение) - ИСПРАВЛЕН */
         .overlay {
             display: none;
             position: fixed;
@@ -518,9 +504,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(4px);
-            z-index: 999;
+            z-index: 1000;
         }
 
         .overlay.show {
@@ -583,11 +569,6 @@
             animation: slideIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -604,7 +585,6 @@
 </head>
 <body>
 <div class="bg-gradient"></div>
-<div class="particles"></div>
 <div class="overlay" id="overlay"></div>
 <div class="container">
     <div class="header">
@@ -773,8 +753,7 @@
             localStorage.setItem('currentUser', email);
             document.getElementById('authStatus').innerHTML = "✅ Вход выполнен!";
             showToast(`Добро пожаловать, ${email}!`, "#4ADE80");
-            authModal.classList.remove('show');
-            overlay.classList.remove('show');
+            closeAllModals();
             accountBtn.innerHTML = `👤 ${email.split('@')[0]}`;
             return true;
         }
@@ -797,7 +776,7 @@
         }
     }
 
-    // ========== ВИДЖЕТ КОРЗИНЫ ==========
+    // ========== УПРАВЛЕНИЕ МОДАЛКАМИ (ИСПРАВЛЕНО) ==========
     function openCartWidget() {
         cartWidget.classList.add('show');
         overlay.classList.add('show');
@@ -809,16 +788,37 @@
         overlay.classList.remove('show');
     }
 
-    cartIcon.addEventListener('click', (e) => { e.stopPropagation(); openCartWidget(); });
+    function openAuthModal() {
+        authModal.classList.add('show');
+        overlay.classList.add('show');
+    }
+
+    function closeAuthModal() {
+        authModal.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
+    function closeAllModals() {
+        cartWidget.classList.remove('show');
+        authModal.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
+    // Обработчики
+    cartIcon.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        openCartWidget(); 
+    });
+    
     closeCartWidget.addEventListener('click', closeCartWidgetFunc);
-    overlay.addEventListener('click', closeCartWidgetFunc);
+    
+    overlay.addEventListener('click', closeAllModals);
 
     accountBtn.addEventListener('click', () => {
         if(currentUser) {
             if(confirm("Выйти из аккаунта?")) logout();
         } else {
-            authModal.classList.add('show');
-            overlay.classList.add('show');
+            openAuthModal();
         }
     });
 
@@ -827,6 +827,7 @@
         const password = prompt("Придумайте пароль (латиница, 8+ символов, цифры):");
         if(password) await registerUser(email, password);
     };
+    
     document.getElementById('loginBtn').onclick = () => {
         const email = document.getElementById('authEmail').value;
         const code = document.getElementById('authCode').value;
@@ -1002,7 +1003,7 @@
         setTimeout(() => toast.remove(), 2500);
     }
 
-    // ========== ОФОРМЛЕНИЕ ЗАКАЗА (ИСПРАВЛЕНО) ==========
+    // ========== ОФОРМЛЕНИЕ ЗАКАЗА ==========
     window.checkout = function() {
         if(cart.length === 0) {
             showToast("Корзина пуста", "#F87171");
@@ -1010,8 +1011,7 @@
         }
         if(!currentUser) {
             showToast("Войдите в аккаунт для оформления заказа", "#F87171");
-            authModal.classList.add('show');
-            overlay.classList.add('show');
+            openAuthModal();
             return;
         }
         
@@ -1024,7 +1024,6 @@
         if(confirm(`🎉 Оформить заказ на сумму ${total.val} ${total.sym}?`)) {
             alert(`✅ Заказ №${Math.floor(Math.random() * 10000)} успешно оформлен!\n\nСумма: ${total.val} ${total.sym}\nСтатус: В обработке\nОтслеживайте в личном кабинете.`);
             
-            // Сохраняем заказ в историю
             const orders = JSON.parse(localStorage.getItem('orders') || '[]');
             orders.push({
                 id: Date.now(),
@@ -1036,7 +1035,6 @@
             });
             localStorage.setItem('orders', JSON.stringify(orders));
             
-            // Очищаем корзину
             cart = [];
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
@@ -1046,7 +1044,6 @@
         }
     };
 
-    // Назначаем обработчик на кнопку в виджете
     document.getElementById('widgetCheckoutBtn').onclick = () => {
         window.checkout();
     };
@@ -1056,13 +1053,6 @@
     sortSelect.addEventListener('change', () => { sortType = sortSelect.value; renderCatalog(); });
     usdBtn.onclick = () => { currentCurrency = 'USD'; renderCatalog(); renderCartWidget(); };
     rubBtn.onclick = () => { currentCurrency = 'RUB'; renderCatalog(); renderCartWidget(); };
-
-    // Закрытие модалки по клику на оверлей
-    overlay.addEventListener('click', () => {
-        authModal.classList.remove('show');
-        cartWidget.classList.remove('show');
-        overlay.classList.remove('show');
-    });
 
     // Инициализация
     updateCartCount();
