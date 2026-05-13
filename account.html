@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuberPulse | Личный кабинет</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0F1A;
+            font-family: 'Inter', sans-serif;
+            color: #E8EDF5;
+        }
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, #0F172A, #020617);
+            z-index: -2;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 2;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #60A5FA, #3B82F6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+        .logo p { font-size: 12px; color: #6B7A8F; }
+        .nav-buttons { display: flex; gap: 12px; align-items: center; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2A3650;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: #CBD5E1;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #1E2A47;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+        }
+        .account-container {
+            max-width: 500px;
+            margin: 60px auto;
+            background: rgba(18, 25, 45, 0.6);
+            border-radius: 24px;
+            border: 1px solid #1F2A44;
+            padding: 40px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #111827;
+            border: 1px solid #2A3650;
+            border-radius: 40px;
+            color: white;
+        }
+        .error-text { color: #F87171; font-size: 12px; margin-bottom: 8px; }
+        .recommend-box {
+            background: #111827;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            border-left: 3px solid #60A5FA;
+            margin: 12px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            color: #60A5FA;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+<div class="container">
+    <div class="header">
+        <div class="logo" onclick="location.href='index.html'">
+            <h1>CuberPulse</h1>
+            <p>professional hardware · security research</p>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-outline" onclick="location.href='index.html'">🏠 Главная</button>
+            <button class="btn-outline" onclick="location.href='cart.html'">🛒 Корзина</button>
+        </div>
+    </div>
+
+    <div class="back-link" onclick="location.href='index.html'">← На главную</div>
+
+    <div class="account-container" id="accountContainer">
+        <div id="authView">
+            <h2>🔐 Вход / Регистрация</h2>
+            <input type="email" id="regEmail" placeholder="Email">
+            <input type="password" id="regPassword" placeholder="Пароль (латиница, 8+ символов, цифры)">
+            <div id="passwordError" class="error-text"></div>
+            <div class="recommend-box">
+                📌 <strong>Правила пароля:</strong> только латиница, минимум 8 символов, обязательно цифры
+            </div>
+            <button class="btn-primary" id="registerBtn" style="width:100%; margin-bottom:10px;">📝 Регистрация</button>
+            <hr style="margin: 20px 0; border-color:#1F2A44;">
+            <input type="text" id="verifyCode" placeholder="Код из письма (6 цифр)">
+            <button class="btn-primary" id="verifyBtn" style="width:100%;">✅ Войти по коду</button>
+        </div>
+        <div id="profileView" style="display:none;">
+            <h2>👤 Личный кабинет</h2>
+            <p><strong>📧 Почта:</strong> <span id="userEmailDisplay"></span></p>
+            <p><strong>📦 Статус заказа:</strong> <span id="orderStatus">Нет заказов</span></p>
+            <button id="logoutBtn" class="btn-outline" style="width:100%; margin-top:20px;">🚪 Выйти</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let authToken = localStorage.getItem('authToken');
+    let currentUserEmail = localStorage.getItem('userEmail');
+
+    function validatePassword(password) {
+        const latinOnly = /^[A-Za-z0-9_\-\.@]+$/;
+        const hasDigit = /\d/;
+        if(!latinOnly.test(password)) return "Пароль должен содержать только латиницу";
+        if(password.length < 8) return "Пароль должен быть не менее 8 символов";
+        if(!hasDigit.test(password)) return "Пароль должен содержать хотя бы одну цифру";
+        return null;
+    }
+
+    function registerUser(email, password) {
+        const error = validatePassword(password);
+        if(error) { showError(error); return false; }
+        if(!email.includes('@')) { showError("Введите корректный email"); return false; }
+        
+        const fakeCode = Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem(`pending_${email}`, fakeCode);
+        localStorage.setItem(`pending_pass_${email}`, password);
+        alert(`📧 Код подтверждения: ${fakeCode}\n(в реальном проекте придёт на почту)`);
+        return true;
+    }
+
+    function verifyCodeAndLogin(email, code) {
+        const savedCode = localStorage.getItem(`pending_${email}`);
+        if(savedCode && savedCode == code) {
+            authToken = `token_${Date.now()}`;
+            currentUserEmail = email;
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('userEmail', email);
+            updateAuthUI(true);
+            alert("✅ Вход выполнен успешно");
+            return true;
+        }
+        alert("❌ Неверный код");
+        return false;
+    }
+
+    function updateAuthUI(isLoggedIn) {
+        const authView = document.getElementById('authView');
+        const profileView = document.getElementById('profileView');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        
+        if(isLoggedIn && currentUserEmail) {
+            authView.style.display = 'none';
+            profileView.style.display = 'block';
+            userEmailDisplay.innerText = currentUserEmail;
+            
+            // Проверяем статус заказа
+            const orderStatus = localStorage.getItem(`order_${currentUserEmail}`);
+            document.getElementById('orderStatus').innerText = orderStatus || "Нет активных заказов";
+        } else {
+            authView.style.display = 'block';
+            profileView.style.display = 'none';
+        }
+    }
+
+    function logout() {
+        authToken = null;
+        currentUserEmail = null;
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userEmail');
+        updateAuthUI(false);
+        alert("🔓 Вы вышли из аккаунта");
+    }
+
+    function showError(msg) {
+        const errorDiv = document.getElementById('passwordError');
+        errorDiv.innerText = msg;
+        setTimeout(() => errorDiv.innerText = '', 3000);
+    }
+
+    document.getElementById('registerBtn').onclick = () => {
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        registerUser(email, password);
+    };
+    document.getElementById('verifyBtn').onclick = () => {
+        const email = document.getElementById('regEmail').value;
+        const code = document.getElementById('verifyCode').value;
+        verifyCodeAndLogin(email, code);
+    };
+    document.getElementById('logoutBtn').onclick = logout;
+
+    const regPassword = document.getElementById('regPassword');
+    const passwordError = document.getElementById('passwordError');
+    regPassword.addEventListener('input', () => {
+        const err = validatePassword(regPassword.value);
+        passwordError.innerText = err || "✅ Пароль подходит";
+        passwordError.style.color = err ? "#F87171" : "#4ADE80";
+    });
+
+    if(authToken && currentUserEmail) updateAuthUI(true);
+</script>
+</body>
+</html>
