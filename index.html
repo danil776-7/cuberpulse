@@ -242,6 +242,7 @@
             border-radius: 50%;
             transition: 0.2s;
             backdrop-filter: blur(5px);
+            z-index: 2;
         }
 
         .wishlist-btn.active {
@@ -352,17 +353,19 @@
             font-weight: 600;
         }
 
+        /* Виджет корзины - поверх оверлея */
         .cart-widget {
             position: fixed;
-            top: 80px;
-            right: 20px;
-            width: 420px;
-            max-width: calc(100vw - 40px);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            max-width: 90vw;
             background: #111118;
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            z-index: 1001;
+            z-index: 1002;
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -371,12 +374,12 @@
 
         .cart-widget.show {
             display: flex;
-            animation: slideIn 0.3s ease;
+            animation: fadeInScale 0.3s ease;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
         .cart-widget-header {
@@ -496,7 +499,7 @@
             transform: scale(1.02);
         }
 
-        /* Оверлей (затемнение) - ИСПРАВЛЕН */
+        /* Оверлей - только затемнение, не перекрывает клики на виджеты */
         .overlay {
             display: none;
             position: fixed;
@@ -525,14 +528,14 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
             padding: 32px;
-            z-index: 1100;
+            z-index: 1002;
             display: none;
             backdrop-filter: blur(20px);
         }
 
         .auth-modal.show {
             display: block;
-            animation: slideIn 0.3s ease;
+            animation: fadeInScale 0.3s ease;
         }
 
         .auth-modal h2 {
@@ -569,6 +572,11 @@
             animation: slideIn 0.3s ease;
         }
 
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -580,6 +588,11 @@
         ::-webkit-scrollbar-thumb {
             background: #6C63FF;
             border-radius: 4px;
+        }
+
+        /* Блокировка скролла при открытой модалке */
+        body.modal-open {
+            overflow: hidden;
         }
     </style>
 </head>
@@ -603,7 +616,7 @@
         </div>
     </div>
 
-    <!-- Виджет корзины -->
+    <!-- Виджет корзины (центрированный) -->
     <div class="cart-widget" id="cartWidget">
         <div class="cart-widget-header">
             <span class="cart-widget-title">🛒 Корзина</span>
@@ -656,11 +669,6 @@
 </div>
 
 <script>
-    // Инициализация EmailJS (замените на свои данные)
-    if(typeof emailjs !== 'undefined') {
-        emailjs.init("YOUR_PUBLIC_KEY");
-    }
-
     // ========== ТОВАРЫ ==========
     const products = [
         { id: 1, name: "Flipper Zero", price_usd: 169, desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton", category: "devices", subcategory: "Устройства", img: "🐬", rating: 4.8, reviews: 156 },
@@ -719,6 +727,65 @@
     const authModal = document.getElementById('authModal');
     const wishlistBtn = document.getElementById('wishlistBtn');
 
+    // ========== УПРАВЛЕНИЕ МОДАЛКАМИ (ИСПРАВЛЕНО) ==========
+    function disableScroll() {
+        document.body.classList.add('modal-open');
+    }
+
+    function enableScroll() {
+        document.body.classList.remove('modal-open');
+    }
+
+    function openCartWidget() {
+        cartWidget.classList.add('show');
+        overlay.classList.add('show');
+        disableScroll();
+        renderCartWidget();
+    }
+
+    function closeCartWidgetFunc() {
+        cartWidget.classList.remove('show');
+        overlay.classList.remove('show');
+        enableScroll();
+    }
+
+    function openAuthModal() {
+        authModal.classList.add('show');
+        overlay.classList.add('show');
+        disableScroll();
+    }
+
+    function closeAuthModal() {
+        authModal.classList.remove('show');
+        overlay.classList.remove('show');
+        enableScroll();
+    }
+
+    function closeAllModals() {
+        cartWidget.classList.remove('show');
+        authModal.classList.remove('show');
+        overlay.classList.remove('show');
+        enableScroll();
+    }
+
+    // Обработчики
+    cartIcon.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        openCartWidget(); 
+    });
+    
+    closeCartWidget.addEventListener('click', closeCartWidgetFunc);
+    
+    overlay.addEventListener('click', closeAllModals);
+
+    accountBtn.addEventListener('click', () => {
+        if(currentUser) {
+            if(confirm("Выйти из аккаунта?")) logout();
+        } else {
+            openAuthModal();
+        }
+    });
+
     // ========== ОТПРАВКА КОДА ==========
     async function sendCodeToEmail(email, code) {
         console.log(`📧 Код для ${email}: ${code}`);
@@ -767,60 +834,6 @@
         accountBtn.innerHTML = "👤 Войти";
         showToast("Вы вышли из аккаунта", "#9AA4BF");
     }
-
-    function updateAuthUI() {
-        if(currentUser) {
-            accountBtn.innerHTML = `👤 ${currentUser.split('@')[0]}`;
-        } else {
-            accountBtn.innerHTML = "👤 Войти";
-        }
-    }
-
-    // ========== УПРАВЛЕНИЕ МОДАЛКАМИ (ИСПРАВЛЕНО) ==========
-    function openCartWidget() {
-        cartWidget.classList.add('show');
-        overlay.classList.add('show');
-        renderCartWidget();
-    }
-
-    function closeCartWidgetFunc() {
-        cartWidget.classList.remove('show');
-        overlay.classList.remove('show');
-    }
-
-    function openAuthModal() {
-        authModal.classList.add('show');
-        overlay.classList.add('show');
-    }
-
-    function closeAuthModal() {
-        authModal.classList.remove('show');
-        overlay.classList.remove('show');
-    }
-
-    function closeAllModals() {
-        cartWidget.classList.remove('show');
-        authModal.classList.remove('show');
-        overlay.classList.remove('show');
-    }
-
-    // Обработчики
-    cartIcon.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        openCartWidget(); 
-    });
-    
-    closeCartWidget.addEventListener('click', closeCartWidgetFunc);
-    
-    overlay.addEventListener('click', closeAllModals);
-
-    accountBtn.addEventListener('click', () => {
-        if(currentUser) {
-            if(confirm("Выйти из аккаунта?")) logout();
-        } else {
-            openAuthModal();
-        }
-    });
 
     document.getElementById('sendCodeBtn').onclick = async () => {
         const email = document.getElementById('authEmail').value;
@@ -1011,6 +1024,7 @@
         }
         if(!currentUser) {
             showToast("Войдите в аккаунт для оформления заказа", "#F87171");
+            closeCartWidgetFunc();
             openAuthModal();
             return;
         }
@@ -1059,7 +1073,10 @@
     wishlistCountSpan.innerText = wishlist.length;
     renderCategories();
     fetchRubRate();
-    updateAuthUI();
+    
+    if(currentUser) {
+        accountBtn.innerHTML = `👤 ${currentUser.split('@')[0]}`;
+    }
 </script>
 </body>
 </html>
