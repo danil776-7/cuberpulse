@@ -258,34 +258,199 @@
             border-color: #60A5FA;
         }
 
-        /* Корзина плавающая */
-        .cart-fab {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #111827;
-            border: 1px solid #3B82F6;
-            border-radius: 60px;
-            padding: 12px 24px;
+        /* КНОПКА КОРЗИНЫ С БАДЖОМ */
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            gap: 8px;
+            background: #1E2A47;
+            padding: 8px 18px;
+            border-radius: 40px;
             transition: 0.2s;
         }
 
-        .cart-fab:hover {
+        .cart-icon:hover {
+            background: #2D3E6E;
             border-color: #60A5FA;
-            transform: scale(1.05);
+        }
+
+        .cart-count {
+            background: #3B82F6;
+            color: white;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* ВИДЖЕТ КОРЗИНЫ (дропдаун) */
+        .cart-widget {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 380px;
+            max-width: calc(100vw - 40px);
+            background: #0F172A;
+            border: 1px solid #2A3650;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .cart-widget.show {
+            display: flex;
+        }
+
+        .cart-widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #111827;
+            border-bottom: 1px solid #1F2A44;
+        }
+
+        .cart-widget-title {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .cart-widget-close {
+            background: none;
+            border: none;
+            color: #9AA4BF;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cart-widget-close:hover {
+            color: #F87171;
+        }
+
+        .cart-widget-items {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .cart-widget-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid #1F2A44;
+        }
+
+        .cart-item-img {
+            width: 50px;
+            height: 50px;
+            background: #111827;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .cart-item-price {
+            font-size: 12px;
+            color: #60A5FA;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-qty-btn {
+            background: #1E2A47;
+            border: 1px solid #2A3650;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .cart-item-total {
+            font-weight: 600;
+            color: #60A5FA;
+            font-size: 14px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .cart-widget-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #1F2A44;
+            background: #111827;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .cart-widget-empty {
+            text-align: center;
+            padding: 40px;
+            color: #6B7A8F;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            background: #3B82F6;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-checkout:hover {
+            background: #2563EB;
+        }
+
+        /* Затемнение фона при открытой корзине */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.show {
+            display: block;
         }
     </style>
 </head>
 <body>
 <div class="bg-gradient"></div>
+<div class="overlay" id="overlay"></div>
 <div class="container">
     <div class="header">
         <div class="logo" onclick="location.href='index.html'">
@@ -296,6 +461,27 @@
             <button class="btn-outline" id="usdBtn">USD $</button>
             <button class="btn-outline" id="rubBtn">RUB ₽</button>
             <button class="btn-primary" onclick="location.href='account.html'">👤 Личный кабинет</button>
+            <div class="cart-icon" id="cartIcon">
+                🛒 <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Виджет корзины -->
+    <div class="cart-widget" id="cartWidget">
+        <div class="cart-widget-header">
+            <span class="cart-widget-title">🛒 Корзина</span>
+            <button class="cart-widget-close" id="closeCartWidget">✕</button>
+        </div>
+        <div id="cartWidgetItems" class="cart-widget-items">
+            <div class="cart-widget-empty">Корзина пуста</div>
+        </div>
+        <div class="cart-widget-footer" id="cartWidgetFooter" style="display:none;">
+            <div class="cart-total">
+                <span>Итого:</span>
+                <span id="widgetTotal">0 $</span>
+            </div>
+            <button class="btn-checkout" id="widgetCheckoutBtn">Оформить заказ</button>
         </div>
     </div>
 
@@ -314,36 +500,17 @@
     <div id="catalog" class="catalog"></div>
 </div>
 
-<div class="cart-fab" id="cartFab">
-    🛒 Корзина · <span id="cartCount">0</span>
-</div>
-
 <script>
-    // ========== ТОВАРЫ С КАТЕГОРИЯМИ ==========
+    // ========== ТОВАРЫ ==========
     const products = [
-        // Устройства
-        { id: 1, name: "Flipper Zero", price_usd: 169, desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton", category: "devices", subcategory: "Устройства", img: "🐬", stock: true },
-        { id: 2, name: "HackRF One", price_usd: 299, desc: "SDR-трансивер 1 МГц – 6 ГГц для радиотестирования", category: "devices", subcategory: "Устройства", img: "📡", stock: true },
-        { id: 3, name: "Proxmark3 RDV4", price_usd: 145, desc: "Клонирование RFID/NFC, исследование бесконтактных карт", category: "devices", subcategory: "Устройства", img: "💳", stock: true },
-        
-        // Модули
-        { id: 4, name: "WiFi Deauther v3", price_usd: 49, desc: "Атака деавторизации, мониторинг WiFi сетей", category: "modules", subcategory: "Модули", img: "📶", stock: true },
-        { id: 5, name: "GPS/GNSS модуль", price_usd: 35, desc: "Спутниковая навигация для HackRF/Flipper", category: "modules", subcategory: "Модули", img: "🛰️", stock: true },
-        { id: 6, name: "NRF24L01+ модуль", price_usd: 12, desc: "2.4GHz беспроводной модуль для Flipper Zero", category: "modules", subcategory: "Модули", img: "📻", stock: true },
-        { id: 7, name: "CC1101 модуль", price_usd: 15, desc: "Суб-ГГц трансивер для расширения диапазонов", category: "modules", subcategory: "Модули", img: "🔘", stock: true },
-        
-        // Антенны
-        { id: 8, name: "Широкополосная антенна", price_usd: 42, desc: "300MHz – 6GHz, SMA разъём", category: "antennas", subcategory: "Антенны", img: "📡", stock: true },
-        { id: 9, name: "Направленная антенна 2.4GHz", price_usd: 38, desc: "Усиление 12dBi для WiFi атак", category: "antennas", subcategory: "Антенны", img: "📡", stock: true },
-        { id: 10, name: "HF/VHF антенна", price_usd: 55, desc: "Для работы с HackRF в низкочастотном диапазоне", category: "antennas", subcategory: "Антенны", img: "📡", stock: true },
-        
-        // Прошивки
-        { id: 11, name: "Кастомная прошивка Flipper", price_usd: 29, desc: "Расширенный функционал, новые протоколы", category: "firmware", subcategory: "Прошивки", img: "⚙️", stock: true },
-        { id: 12, name: "Marauder для Flipper", price_usd: 24, desc: "WiFi атаки, Evil Portal, Beacon Spam", category: "firmware", subcategory: "Прошивки", img: "⚙️", stock: true },
-        
-        // Руководства
-        { id: 13, name: "Видеокурс по SDR", price_usd: 89, desc: "Руководство по HackRF One: от новичка до эксперта", category: "guides", subcategory: "Руководства", img: "📚", stock: true },
-        { id: 14, name: "Руководство по пентесту", price_usd: 49, desc: "Методики тестирования с Flipper Zero", category: "guides", subcategory: "Руководства", img: "📘", stock: true }
+        { id: 1, name: "Flipper Zero", price_usd: 169, desc: "Мультитул для пентеста: RFID, IR, GPIO", category: "devices", subcategory: "Устройства", img: "🐬" },
+        { id: 2, name: "HackRF One", price_usd: 299, desc: "SDR-трансивер 1 МГц – 6 ГГц", category: "devices", subcategory: "Устройства", img: "📡" },
+        { id: 3, name: "Proxmark3 RDV4", price_usd: 145, desc: "Клонирование RFID/NFC", category: "devices", subcategory: "Устройства", img: "💳" },
+        { id: 4, name: "WiFi Deauther v3", price_usd: 49, desc: "Атака деавторизации WiFi", category: "modules", subcategory: "Модули", img: "📶" },
+        { id: 5, name: "GPS/GNSS модуль", price_usd: 35, desc: "Спутниковая навигация", category: "modules", subcategory: "Модули", img: "🛰️" },
+        { id: 6, name: "Широкополосная антенна", price_usd: 42, desc: "300MHz – 6GHz, SMA разъём", category: "antennas", subcategory: "Антенны", img: "📡" },
+        { id: 7, name: "Кастомная прошивка", price_usd: 29, desc: "Для Flipper Zero", category: "firmware", subcategory: "Прошивки", img: "⚙️" },
+        { id: 8, name: "Видеокурс по SDR", price_usd: 89, desc: "Руководство по HackRF", category: "guides", subcategory: "Руководства", img: "📚" }
     ];
 
     const categories = [
@@ -361,7 +528,7 @@
     let rubRate = 92;
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Инициализация корзины
+    // Инициализация корзины (формат: [{id, quantity}])
     if(cart.length > 0 && typeof cart[0] === 'number') {
         const oldCart = [...cart];
         const quantityMap = {};
@@ -378,9 +545,96 @@
     const cartCountSpan = document.getElementById('cartCount');
     const usdBtn = document.getElementById('usdBtn');
     const rubBtn = document.getElementById('rubBtn');
-    const cartFab = document.getElementById('cartFab');
+    const cartIcon = document.getElementById('cartIcon');
+    const cartWidget = document.getElementById('cartWidget');
+    const overlay = document.getElementById('overlay');
+    const closeCartWidget = document.getElementById('closeCartWidget');
 
-    // ========== ОТРИСОВКА КАТЕГОРИЙ ==========
+    // ========== ОТКРЫТИЕ/ЗАКРЫТИЕ ВИДЖЕТА ==========
+    function openCartWidget() {
+        cartWidget.classList.add('show');
+        overlay.classList.add('show');
+        renderCartWidget();
+    }
+
+    function closeCartWidgetFunc() {
+        cartWidget.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
+    cartIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openCartWidget();
+    });
+
+    closeCartWidget.addEventListener('click', closeCartWidgetFunc);
+    overlay.addEventListener('click', closeCartWidgetFunc);
+
+    // ========== ОТРИСОВКА ВИДЖЕТА КОРЗИНЫ ==========
+    function renderCartWidget() {
+        const container = document.getElementById('cartWidgetItems');
+        const footer = document.getElementById('cartWidgetFooter');
+        
+        if(cart.length === 0) {
+            container.innerHTML = '<div class="cart-widget-empty">🛒 Корзина пуста<br><br>Добавьте товары из каталога</div>';
+            footer.style.display = 'none';
+            return;
+        }
+
+        footer.style.display = 'block';
+        
+        container.innerHTML = cart.map(item => {
+            const product = products.find(p => p.id === item.id);
+            if(!product) return '';
+            const price = getPriceInCurrency(product.price_usd);
+            const itemTotal = getPriceInCurrency(product.price_usd * item.quantity);
+            return `
+                <div class="cart-widget-item">
+                    <div class="cart-item-img">${product.img}</div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${product.name}</div>
+                        <div class="cart-item-price">${price.val} ${price.sym}</div>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <button class="cart-qty-btn" onclick="event.stopPropagation(); changeQuantity(${item.id}, -1)">−</button>
+                        <span style="min-width: 25px; text-align: center;">${item.quantity}</span>
+                        <button class="cart-qty-btn" onclick="event.stopPropagation(); changeQuantity(${item.id}, 1)">+</button>
+                    </div>
+                    <div class="cart-item-total">${itemTotal.val} ${itemTotal.sym}</div>
+                </div>
+            `;
+        }).join('');
+
+        const totalUSD = getTotalUSD();
+        const total = getPriceInCurrency(totalUSD);
+        document.getElementById('widgetTotal').innerHTML = `${total.val} ${total.sym}`;
+    }
+
+    // ========== КУРС ВАЛЮТ ==========
+    async function fetchRubRate() {
+        try {
+            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const data = await res.json();
+            rubRate = data.rates.RUB;
+        } catch(e) { rubRate = 92; }
+        renderCatalog();
+    }
+
+    function getPriceInCurrency(priceUSD) {
+        if(currentCurrency === 'USD') return { val: priceUSD, sym: '$' };
+        return { val: (priceUSD * rubRate).toFixed(2), sym: '₽' };
+    }
+
+    function getTotalUSD() {
+        let total = 0;
+        cart.forEach(item => {
+            const product = products.find(p => p.id === item.id);
+            if(product) total += product.price_usd * item.quantity;
+        });
+        return total;
+    }
+
+    // ========== ОТРИСОВКА КАТАЛОГА ==========
     function renderCategories() {
         categoriesDiv.innerHTML = categories.map(cat => `
             <button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
@@ -397,7 +651,6 @@
         });
     }
 
-    // ========== ФИЛЬТРАЦИЯ ==========
     function getFilteredProducts() {
         let filtered = products;
         if (currentCategory !== 'all') {
@@ -414,34 +667,19 @@
         return filtered;
     }
 
-    // ========== КУРС ВАЛЮТ ==========
-    async function fetchRubRate() {
-        try {
-            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-            const data = await res.json();
-            rubRate = data.rates.RUB;
-        } catch(e) { rubRate = 92; }
-        renderCatalog();
-    }
-
-    function getPrice(product) {
-        if(currentCurrency === 'USD') return { val: product.price_usd, sym: '$' };
-        return { val: (product.price_usd * rubRate).toFixed(2), sym: '₽' };
-    }
-
     function renderCatalog() {
         const filtered = getFilteredProducts();
         productCountSpan.innerText = `Показано: ${filtered.length} из ${products.length} товаров`;
         
         if(filtered.length === 0) {
-            catalogDiv.innerHTML = `<div style="text-align:center; padding:60px; color:#6B7A8F;">🔍 Ничего не найдено. Попробуйте изменить поиск или категорию</div>`;
+            catalogDiv.innerHTML = `<div style="text-align:center; padding:60px; color:#6B7A8F;">🔍 Ничего не найдено</div>`;
             return;
         }
         
         catalogDiv.innerHTML = filtered.map(p => {
-            const price = getPrice(p);
+            const price = getPriceInCurrency(p.price_usd);
             return `
-                <div class="product-card" onclick="goToProduct(${p.id})">
+                <div class="product-card">
                     <span class="product-badge">${p.subcategory}</span>
                     <div class="product-img">${p.img}</div>
                     <div class="product-title">${p.name}</div>
@@ -453,6 +691,7 @@
         }).join('');
     }
 
+    // ========== УПРАВЛЕНИЕ КОРЗИНОЙ ==========
     function addToCart(id) {
         const existingItem = cart.find(i => i.id === id);
         if(existingItem) {
@@ -462,7 +701,34 @@
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
+        renderCartWidget();
         showToast("✓ Товар добавлен в корзину", "#4ADE80");
+    }
+
+    window.changeQuantity = function(productId, delta) {
+        const item = cart.find(i => i.id === productId);
+        if(item) {
+            const newQuantity = item.quantity + delta;
+            if(newQuantity >= 1 && newQuantity <= 99) {
+                item.quantity = newQuantity;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                renderCartWidget();
+                renderCatalog();
+            } else if(newQuantity < 1) {
+                removeItem(productId);
+            }
+        }
+    };
+
+    function removeItem(productId) {
+        cart = cart.filter(i => i.id !== productId);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        renderCartWidget();
+        renderCatalog();
+        if(cart.length === 0) closeCartWidgetFunc();
+        showToast("Товар удален", "#F87171");
     }
 
     function updateCartCount() {
@@ -486,9 +752,15 @@
         setTimeout(() => toast.remove(), 2500);
     }
 
-    function goToProduct(id) {
-        localStorage.setItem('selectedProduct', id);
-        window.location.href = 'product.html';
+    function checkout() {
+        if(cart.length === 0) return;
+        alert(`🎉 Заказ оформлен!\n\nСумма: ${getPriceInCurrency(getTotalUSD()).val} ${getPriceInCurrency(getTotalUSD()).sym}`);
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        renderCartWidget();
+        renderCatalog();
+        closeCartWidgetFunc();
     }
 
     // ========== ОБРАБОТЧИКИ ==========
@@ -497,9 +769,10 @@
         renderCatalog();
     });
     
-    usdBtn.onclick = () => { currentCurrency = 'USD'; renderCatalog(); };
-    rubBtn.onclick = () => { currentCurrency = 'RUB'; renderCatalog(); };
-    cartFab.onclick = () => { window.location.href = 'cart.html'; };
+    usdBtn.onclick = () => { currentCurrency = 'USD'; renderCatalog(); renderCartWidget(); };
+    rubBtn.onclick = () => { currentCurrency = 'RUB'; renderCatalog(); renderCartWidget(); };
+    
+    document.getElementById('widgetCheckoutBtn').addEventListener('click', checkout);
     
     updateCartCount();
     renderCategories();
