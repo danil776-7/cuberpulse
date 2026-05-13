@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CuberPulse | Главная</title>
+    <title>CuberPulse | Профессиональное оборудование</title>
+    <!-- EmailJS для отправки кода на почту -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -127,11 +129,19 @@
             border-color: #3B82F6;
         }
 
+        .filters-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
         .categories {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 20px;
         }
 
         .category-btn {
@@ -151,9 +161,13 @@
             color: white;
         }
 
-        .category-btn:hover:not(.active) {
-            border-color: #3B82F6;
-            color: #3B82F6;
+        .sort-select {
+            background: #111827;
+            border: 1px solid #2A3650;
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: #CBD5E1;
+            cursor: pointer;
         }
 
         /* Каталог */
@@ -191,11 +205,29 @@
             padding: 20px;
             transition: all 0.25s;
             cursor: pointer;
+            position: relative;
         }
 
         .product-card:hover {
             border-color: #3B82F6;
             transform: translateY(-4px);
+        }
+
+        .wishlist-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .wishlist-btn.active {
+            color: #F87171;
         }
 
         .product-badge {
@@ -206,6 +238,19 @@
             font-size: 11px;
             color: #60A5FA;
             margin-bottom: 12px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .stars {
+            color: #FBBF24;
+            letter-spacing: 2px;
         }
 
         .product-img {
@@ -258,7 +303,7 @@
             border-color: #60A5FA;
         }
 
-        /* КНОПКА КОРЗИНЫ С БАДЖОМ */
+        /* Виджет корзины */
         .cart-icon {
             position: relative;
             cursor: pointer;
@@ -273,7 +318,6 @@
 
         .cart-icon:hover {
             background: #2D3E6E;
-            border-color: #60A5FA;
         }
 
         .cart-count {
@@ -285,12 +329,11 @@
             font-weight: 600;
         }
 
-        /* ВИДЖЕТ КОРЗИНЫ (дропдаун) */
         .cart-widget {
-            position: absolute;
-            top: 70px;
+            position: fixed;
+            top: 80px;
             right: 20px;
-            width: 380px;
+            width: 400px;
             max-width: calc(100vw - 40px);
             background: #0F172A;
             border: 1px solid #2A3650;
@@ -326,11 +369,6 @@
             color: #9AA4BF;
             font-size: 24px;
             cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .cart-widget-close:hover {
-            color: #F87171;
         }
 
         .cart-widget-items {
@@ -388,14 +426,6 @@
             color: white;
         }
 
-        .cart-item-total {
-            font-weight: 600;
-            color: #60A5FA;
-            font-size: 14px;
-            min-width: 60px;
-            text-align: right;
-        }
-
         .cart-widget-footer {
             padding: 16px 20px;
             border-top: 1px solid #1F2A44;
@@ -410,12 +440,6 @@
             margin-bottom: 16px;
         }
 
-        .cart-widget-empty {
-            text-align: center;
-            padding: 40px;
-            color: #6B7A8F;
-        }
-
         .btn-checkout {
             width: 100%;
             background: #3B82F6;
@@ -427,11 +451,6 @@
             cursor: pointer;
         }
 
-        .btn-checkout:hover {
-            background: #2563EB;
-        }
-
-        /* Затемнение фона при открытой корзине */
         .overlay {
             display: none;
             position: fixed;
@@ -446,6 +465,48 @@
         .overlay.show {
             display: block;
         }
+
+        /* Модалка входа */
+        .auth-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            max-width: 90vw;
+            background: #0F172A;
+            border: 1px solid #2A3650;
+            border-radius: 24px;
+            padding: 32px;
+            z-index: 1100;
+            display: none;
+        }
+
+        .auth-modal.show {
+            display: block;
+        }
+
+        .auth-modal input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #111827;
+            border: 1px solid #2A3650;
+            border-radius: 40px;
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #111827;
+            border-left: 4px solid #3B82F6;
+            padding: 12px 20px;
+            border-radius: 12px;
+            z-index: 2000;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -453,14 +514,15 @@
 <div class="overlay" id="overlay"></div>
 <div class="container">
     <div class="header">
-        <div class="logo" onclick="location.href='index.html'">
+        <div class="logo" onclick="location.reload()">
             <h1>CuberPulse</h1>
             <p>professional hardware · security research</p>
         </div>
         <div class="nav-buttons">
             <button class="btn-outline" id="usdBtn">USD $</button>
             <button class="btn-outline" id="rubBtn">RUB ₽</button>
-            <button class="btn-primary" onclick="location.href='account.html'">👤 Личный кабинет</button>
+            <button class="btn-outline" id="wishlistBtn">❤️ Избранное (<span id="wishlistCount">0</span>)</button>
+            <button class="btn-primary" id="accountBtn">👤 Войти</button>
             <div class="cart-icon" id="cartIcon">
                 🛒 <span class="cart-count" id="cartCount">0</span>
             </div>
@@ -474,23 +536,39 @@
             <button class="cart-widget-close" id="closeCartWidget">✕</button>
         </div>
         <div id="cartWidgetItems" class="cart-widget-items">
-            <div class="cart-widget-empty">Корзина пуста</div>
+            <div style="text-align:center; padding:40px;">Корзина пуста</div>
         </div>
         <div class="cart-widget-footer" id="cartWidgetFooter" style="display:none;">
-            <div class="cart-total">
-                <span>Итого:</span>
-                <span id="widgetTotal">0 $</span>
-            </div>
+            <div class="cart-total"><span>Итого:</span><span id="widgetTotal">0 $</span></div>
             <button class="btn-checkout" id="widgetCheckoutBtn">Оформить заказ</button>
         </div>
     </div>
 
-    <!-- Поиск и категории -->
+    <!-- Модалка входа/регистрации -->
+    <div class="auth-modal" id="authModal">
+        <h2>🔐 Вход / Регистрация</h2>
+        <input type="email" id="authEmail" placeholder="Email">
+        <input type="text" id="authCode" placeholder="Код из письма">
+        <button class="btn-primary" id="sendCodeBtn" style="width:100%; margin-top:10px;">📧 Отправить код</button>
+        <button class="btn-outline" id="loginBtn" style="width:100%; margin-top:10px;">✅ Войти по коду</button>
+        <hr style="margin: 20px 0; border-color:#1F2A44;">
+        <div id="authStatus" style="font-size:13px; color:#60A5FA;"></div>
+    </div>
+
+    <!-- Поиск и фильтры -->
     <div class="search-section">
         <div class="search-bar">
             <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск устройств, модулей, прошивок...">
         </div>
-        <div class="categories" id="categories"></div>
+        <div class="filters-row">
+            <div class="categories" id="categories"></div>
+            <select id="sortSelect" class="sort-select">
+                <option value="default">По умолчанию</option>
+                <option value="price_asc">Цена: по возрастанию</option>
+                <option value="price_desc">Цена: по убыванию</option>
+                <option value="rating">По популярности</option>
+            </select>
+        </div>
     </div>
 
     <div class="catalog-header">
@@ -501,34 +579,41 @@
 </div>
 
 <script>
-    // ========== ТОВАРЫ ==========
+    // Инициализация EmailJS (замените на свои данные)
+    emailjs.init("YOUR_PUBLIC_KEY"); // Зарегистрируйтесь на emailjs.com и получите ключ
+
+    // ========== ТОВАРЫ С РЕЙТИНГАМИ ==========
     const products = [
-        { id: 1, name: "Flipper Zero", price_usd: 169, desc: "Мультитул для пентеста: RFID, IR, GPIO", category: "devices", subcategory: "Устройства", img: "🐬" },
-        { id: 2, name: "HackRF One", price_usd: 299, desc: "SDR-трансивер 1 МГц – 6 ГГц", category: "devices", subcategory: "Устройства", img: "📡" },
-        { id: 3, name: "Proxmark3 RDV4", price_usd: 145, desc: "Клонирование RFID/NFC", category: "devices", subcategory: "Устройства", img: "💳" },
-        { id: 4, name: "WiFi Deauther v3", price_usd: 49, desc: "Атака деавторизации WiFi", category: "modules", subcategory: "Модули", img: "📶" },
-        { id: 5, name: "GPS/GNSS модуль", price_usd: 35, desc: "Спутниковая навигация", category: "modules", subcategory: "Модули", img: "🛰️" },
-        { id: 6, name: "Широкополосная антенна", price_usd: 42, desc: "300MHz – 6GHz, SMA разъём", category: "antennas", subcategory: "Антенны", img: "📡" },
-        { id: 7, name: "Кастомная прошивка", price_usd: 29, desc: "Для Flipper Zero", category: "firmware", subcategory: "Прошивки", img: "⚙️" },
-        { id: 8, name: "Видеокурс по SDR", price_usd: 89, desc: "Руководство по HackRF", category: "guides", subcategory: "Руководства", img: "📚" }
+        { id: 1, name: "Flipper Zero", price_usd: 169, desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton", category: "devices", subcategory: "Устройства", img: "🐬", rating: 4.8, reviews: 156 },
+        { id: 2, name: "HackRF One", price_usd: 299, desc: "SDR-трансивер 1 МГц – 6 ГГц", category: "devices", subcategory: "Устройства", img: "📡", rating: 4.9, reviews: 89 },
+        { id: 3, name: "Proxmark3 RDV4", price_usd: 145, desc: "Клонирование RFID/NFC", category: "devices", subcategory: "Устройства", img: "💳", rating: 4.7, reviews: 67 },
+        { id: 4, name: "WiFi Deauther v3", price_usd: 49, desc: "Атака деавторизации WiFi", category: "modules", subcategory: "Модули", img: "📶", rating: 4.6, reviews: 234 },
+        { id: 5, name: "GPS/GNSS модуль", price_usd: 35, desc: "Спутниковая навигация", category: "modules", subcategory: "Модули", img: "🛰️", rating: 4.5, reviews: 45 },
+        { id: 6, name: "Широкополосная антенна", price_usd: 42, desc: "300MHz – 6GHz", category: "antennas", subcategory: "Антенны", img: "📡", rating: 4.8, reviews: 32 },
+        { id: 7, name: "Кастомная прошивка", price_usd: 29, desc: "Для Flipper Zero", category: "firmware", subcategory: "Прошивки", img: "⚙️", rating: 4.9, reviews: 78 },
+        { id: 8, name: "Видеокурс по SDR", price_usd: 89, desc: "Руководство по HackRF", category: "guides", subcategory: "Руководства", img: "📚", rating: 4.7, reviews: 123 }
     ];
 
     const categories = [
         { id: "all", name: "🏠 Все товары" },
         { id: "devices", name: "📟 Устройства" },
-        { id: "modules", name: "🔌 Доп. модули" },
+        { id: "modules", name: "🔌 Модули" },
         { id: "antennas", name: "📡 Антенны" },
         { id: "firmware", name: "⚙️ Прошивки" },
         { id: "guides", name: "📚 Руководства" }
     ];
 
+    // ========== ПЕРЕМЕННЫЕ ==========
     let currentCategory = "all";
     let searchQuery = "";
     let currentCurrency = 'USD';
     let rubRate = 92;
+    let sortType = "default";
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    let currentUser = localStorage.getItem('currentUser');
 
-    // Инициализация корзины (формат: [{id, quantity}])
+    // Инициализация корзины
     if(cart.length > 0 && typeof cart[0] === 'number') {
         const oldCart = [...cart];
         const quantityMap = {};
@@ -543,14 +628,94 @@
     const searchInput = document.getElementById('searchInput');
     const productCountSpan = document.getElementById('productCount');
     const cartCountSpan = document.getElementById('cartCount');
+    const wishlistCountSpan = document.getElementById('wishlistCount');
     const usdBtn = document.getElementById('usdBtn');
     const rubBtn = document.getElementById('rubBtn');
+    const sortSelect = document.getElementById('sortSelect');
     const cartIcon = document.getElementById('cartIcon');
     const cartWidget = document.getElementById('cartWidget');
     const overlay = document.getElementById('overlay');
     const closeCartWidget = document.getElementById('closeCartWidget');
+    const accountBtn = document.getElementById('accountBtn');
+    const authModal = document.getElementById('authModal');
+    const wishlistBtn = document.getElementById('wishlistBtn');
 
-    // ========== ОТКРЫТИЕ/ЗАКРЫТИЕ ВИДЖЕТА ==========
+    // ========== ОТПРАВКА КОДА НА ПОЧТУ (EmailJS) ==========
+    async function sendCodeToEmail(email, code) {
+        try {
+            // Раскомментируйте для реальной отправки
+            /*
+            await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+                to_email: email,
+                code: code,
+                from_name: "CuberPulse"
+            });
+            */
+            console.log(`Код для ${email}: ${code}`);
+            showToast(`📧 Код отправлен на ${email} (демо: ${code})`, "#4ADE80");
+            return true;
+        } catch(e) {
+            showToast("Ошибка отправки. Код: " + code, "#F87171");
+            return false;
+        }
+    }
+
+    // ========== ВАЛИДАЦИЯ ПАРОЛЯ ==========
+    function validatePassword(password) {
+        const latinOnly = /^[A-Za-z0-9_\-\.@]+$/;
+        const hasDigit = /\d/;
+        if(!latinOnly.test(password)) return "Только латиница";
+        if(password.length < 8) return "Минимум 8 символов";
+        if(!hasDigit.test(password)) return "Нужна хотя бы одна цифра";
+        return null;
+    }
+
+    // ========== РЕГИСТРАЦИЯ И ВХОД ==========
+    async function registerUser(email, password) {
+        const error = validatePassword(password);
+        if(error) { showToast(error, "#F87171"); return false; }
+        
+        const code = Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem(`pending_${email}`, code);
+        localStorage.setItem(`pending_pass_${email}`, password);
+        await sendCodeToEmail(email, code);
+        document.getElementById('authStatus').innerHTML = `Код отправлен на ${email}`;
+        return true;
+    }
+
+    function loginUser(email, code) {
+        const savedCode = localStorage.getItem(`pending_${email}`);
+        if(savedCode && savedCode == code) {
+            currentUser = email;
+            localStorage.setItem('currentUser', email);
+            document.getElementById('authStatus').innerHTML = "✅ Вход выполнен!";
+            showToast(`Добро пожаловать, ${email}!`, "#4ADE80");
+            authModal.classList.remove('show');
+            overlay.classList.remove('show');
+            accountBtn.innerHTML = `👤 ${email.split('@')[0]}`;
+            updateAuthUI();
+            return true;
+        }
+        showToast("❌ Неверный код", "#F87171");
+        return false;
+    }
+
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        accountBtn.innerHTML = "👤 Войти";
+        showToast("Вы вышли из аккаунта", "#9AA4BF");
+    }
+
+    function updateAuthUI() {
+        if(currentUser) {
+            accountBtn.innerHTML = `👤 ${currentUser.split('@')[0]}`;
+        } else {
+            accountBtn.innerHTML = "👤 Войти";
+        }
+    }
+
+    // ========== ОТКРЫТИЕ/ЗАКРЫТИЕ ВИДЖЕТОВ ==========
     function openCartWidget() {
         cartWidget.classList.add('show');
         overlay.classList.add('show');
@@ -562,53 +727,38 @@
         overlay.classList.remove('show');
     }
 
-    cartIcon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openCartWidget();
-    });
-
+    cartIcon.addEventListener('click', (e) => { e.stopPropagation(); openCartWidget(); });
     closeCartWidget.addEventListener('click', closeCartWidgetFunc);
     overlay.addEventListener('click', closeCartWidgetFunc);
 
-    // ========== ОТРИСОВКА ВИДЖЕТА КОРЗИНЫ ==========
-    function renderCartWidget() {
-        const container = document.getElementById('cartWidgetItems');
-        const footer = document.getElementById('cartWidgetFooter');
-        
-        if(cart.length === 0) {
-            container.innerHTML = '<div class="cart-widget-empty">🛒 Корзина пуста<br><br>Добавьте товары из каталога</div>';
-            footer.style.display = 'none';
+    accountBtn.addEventListener('click', () => {
+        if(currentUser) {
+            if(confirm("Выйти из аккаунта?")) logout();
+        } else {
+            authModal.classList.add('show');
+            overlay.classList.add('show');
+        }
+    });
+
+    document.getElementById('sendCodeBtn').onclick = async () => {
+        const email = document.getElementById('authEmail').value;
+        const password = prompt("Придумайте пароль (латиница, 8+ символов, цифры):");
+        if(password) await registerUser(email, password);
+    };
+    document.getElementById('loginBtn').onclick = () => {
+        const email = document.getElementById('authEmail').value;
+        const code = document.getElementById('authCode').value;
+        loginUser(email, code);
+    };
+
+    wishlistBtn.onclick = () => {
+        if(wishlist.length === 0) {
+            showToast("Избранное пусто", "#9AA4BF");
             return;
         }
-
-        footer.style.display = 'block';
-        
-        container.innerHTML = cart.map(item => {
-            const product = products.find(p => p.id === item.id);
-            if(!product) return '';
-            const price = getPriceInCurrency(product.price_usd);
-            const itemTotal = getPriceInCurrency(product.price_usd * item.quantity);
-            return `
-                <div class="cart-widget-item">
-                    <div class="cart-item-img">${product.img}</div>
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${product.name}</div>
-                        <div class="cart-item-price">${price.val} ${price.sym}</div>
-                    </div>
-                    <div class="cart-item-quantity">
-                        <button class="cart-qty-btn" onclick="event.stopPropagation(); changeQuantity(${item.id}, -1)">−</button>
-                        <span style="min-width: 25px; text-align: center;">${item.quantity}</span>
-                        <button class="cart-qty-btn" onclick="event.stopPropagation(); changeQuantity(${item.id}, 1)">+</button>
-                    </div>
-                    <div class="cart-item-total">${itemTotal.val} ${itemTotal.sym}</div>
-                </div>
-            `;
-        }).join('');
-
-        const totalUSD = getTotalUSD();
-        const total = getPriceInCurrency(totalUSD);
-        document.getElementById('widgetTotal').innerHTML = `${total.val} ${total.sym}`;
-    }
+        const wishlistNames = wishlist.map(id => products.find(p => p.id == id)?.name).filter(Boolean);
+        showToast(`❤️ Избранное: ${wishlistNames.join(', ')}`, "#60A5FA");
+    };
 
     // ========== КУРС ВАЛЮТ ==========
     async function fetchRubRate() {
@@ -625,23 +775,13 @@
         return { val: (priceUSD * rubRate).toFixed(2), sym: '₽' };
     }
 
-    function getTotalUSD() {
-        let total = 0;
-        cart.forEach(item => {
-            const product = products.find(p => p.id === item.id);
-            if(product) total += product.price_usd * item.quantity;
-        });
-        return total;
-    }
-
-    // ========== ОТРИСОВКА КАТАЛОГА ==========
+    // ========== ОТРИСОВКА ==========
     function renderCategories() {
         categoriesDiv.innerHTML = categories.map(cat => `
             <button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
                 ${cat.name}
             </button>
         `).join('');
-        
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 currentCategory = btn.dataset.cat;
@@ -651,38 +791,39 @@
         });
     }
 
-    function getFilteredProducts() {
+    function getFilteredAndSortedProducts() {
         let filtered = products;
         if (currentCategory !== 'all') {
             filtered = filtered.filter(p => p.category === currentCategory);
         }
         if (searchQuery.trim() !== '') {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(p => 
-                p.name.toLowerCase().includes(query) || 
-                p.desc.toLowerCase().includes(query) ||
-                p.subcategory.toLowerCase().includes(query)
-            );
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
         }
+        if (sortType === 'price_asc') filtered.sort((a,b) => a.price_usd - b.price_usd);
+        if (sortType === 'price_desc') filtered.sort((a,b) => b.price_usd - a.price_usd);
+        if (sortType === 'rating') filtered.sort((a,b) => b.rating - a.rating);
         return filtered;
     }
 
     function renderCatalog() {
-        const filtered = getFilteredProducts();
-        productCountSpan.innerText = `Показано: ${filtered.length} из ${products.length} товаров`;
-        
+        const filtered = getFilteredAndSortedProducts();
+        productCountSpan.innerText = `Показано: ${filtered.length} из ${products.length}`;
         if(filtered.length === 0) {
-            catalogDiv.innerHTML = `<div style="text-align:center; padding:60px; color:#6B7A8F;">🔍 Ничего не найдено</div>`;
+            catalogDiv.innerHTML = `<div style="text-align:center; padding:60px;">🔍 Ничего не найдено</div>`;
             return;
         }
-        
         catalogDiv.innerHTML = filtered.map(p => {
             const price = getPriceInCurrency(p.price_usd);
+            const stars = '★'.repeat(Math.floor(p.rating)) + '☆'.repeat(5-Math.floor(p.rating));
+            const isInWishlist = wishlist.includes(p.id);
             return `
                 <div class="product-card">
+                    <button class="wishlist-btn ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist(${p.id})">${isInWishlist ? '❤️' : '🤍'}</button>
                     <span class="product-badge">${p.subcategory}</span>
                     <div class="product-img">${p.img}</div>
                     <div class="product-title">${p.name}</div>
+                    <div class="product-rating"><span class="stars">${stars}</span> ${p.rating} (${p.reviews})</div>
                     <div class="product-desc">${p.desc}</div>
                     <div class="product-price">${price.val} ${price.sym}</div>
                     <button class="btn-cart" onclick="event.stopPropagation(); addToCart(${p.id})">+ В корзину</button>
@@ -691,70 +832,92 @@
         }).join('');
     }
 
-    // ========== УПРАВЛЕНИЕ КОРЗИНОЙ ==========
-    function addToCart(id) {
-        const existingItem = cart.find(i => i.id === id);
-        if(existingItem) {
-            existingItem.quantity++;
-        } else {
-            cart.push({ id: id, quantity: 1 });
+    function renderCartWidget() {
+        const container = document.getElementById('cartWidgetItems');
+        const footer = document.getElementById('cartWidgetFooter');
+        if(cart.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px;">🛒 Корзина пуста</div>';
+            footer.style.display = 'none';
+            return;
         }
+        footer.style.display = 'block';
+        let totalUSD = 0;
+        container.innerHTML = cart.map(item => {
+            const product = products.find(p => p.id === item.id);
+            if(!product) return '';
+            totalUSD += product.price_usd * item.quantity;
+            const price = getPriceInCurrency(product.price_usd);
+            const itemTotal = getPriceInCurrency(product.price_usd * item.quantity);
+            return `
+                <div class="cart-widget-item">
+                    <div class="cart-item-img">${product.img}</div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${product.name}</div>
+                        <div class="cart-item-price">${price.val} ${price.sym}</div>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <button class="cart-qty-btn" onclick="changeQuantity(${item.id}, -1)">−</button>
+                        <span style="min-width:25px;text-align:center;">${item.quantity}</span>
+                        <button class="cart-qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                    </div>
+                    <div class="cart-item-total">${itemTotal.val} ${itemTotal.sym}</div>
+                </div>
+            `;
+        }).join('');
+        const total = getPriceInCurrency(totalUSD);
+        document.getElementById('widgetTotal').innerHTML = `${total.val} ${total.sym}`;
+    }
+
+    // ========== УПРАВЛЕНИЕ ==========
+    function addToCart(id) {
+        const item = cart.find(i => i.id === id);
+        if(item) item.quantity++;
+        else cart.push({ id, quantity: 1 });
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
         renderCartWidget();
-        showToast("✓ Товар добавлен в корзину", "#4ADE80");
+        showToast("✓ Добавлено в корзину", "#4ADE80");
     }
 
-    window.changeQuantity = function(productId, delta) {
-        const item = cart.find(i => i.id === productId);
+    window.changeQuantity = function(id, delta) {
+        const item = cart.find(i => i.id === id);
         if(item) {
-            const newQuantity = item.quantity + delta;
-            if(newQuantity >= 1 && newQuantity <= 99) {
-                item.quantity = newQuantity;
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartCount();
-                renderCartWidget();
-                renderCatalog();
-            } else if(newQuantity < 1) {
-                removeItem(productId);
-            }
+            item.quantity += delta;
+            if(item.quantity < 1) cart = cart.filter(i => i.id !== id);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            renderCartWidget();
+            renderCatalog();
         }
     };
 
-    function removeItem(productId) {
-        cart = cart.filter(i => i.id !== productId);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartCount();
-        renderCartWidget();
+    function toggleWishlist(id) {
+        if(wishlist.includes(id)) wishlist = wishlist.filter(i => i !== id);
+        else wishlist.push(id);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        wishlistCountSpan.innerText = wishlist.length;
         renderCatalog();
-        if(cart.length === 0) closeCartWidgetFunc();
-        showToast("Товар удален", "#F87171");
+        showToast(wishlist.includes(id) ? "Добавлено в избранное" : "Удалено из избранного", "#60A5FA");
     }
 
     function updateCartCount() {
-        const count = cart.reduce((sum, i) => sum + i.quantity, 0);
+        const count = cart.reduce((s,i) => s + i.quantity, 0);
         cartCountSpan.innerText = count;
     }
 
-    function showToast(msg, color = "#3B82F6") {
+    function showToast(msg, color) {
         const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.borderLeftColor = color;
         toast.innerText = msg;
-        toast.style.position = 'fixed';
-        toast.style.bottom = '100px';
-        toast.style.right = '24px';
-        toast.style.backgroundColor = '#111827';
-        toast.style.borderLeft = `4px solid ${color}`;
-        toast.style.padding = '12px 20px';
-        toast.style.borderRadius = '12px';
-        toast.style.zIndex = '2000';
-        toast.style.fontSize = '14px';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2500);
     }
 
     function checkout() {
-        if(cart.length === 0) return;
-        alert(`🎉 Заказ оформлен!\n\nСумма: ${getPriceInCurrency(getTotalUSD()).val} ${getPriceInCurrency(getTotalUSD()).sym}`);
+        if(cart.length === 0) { showToast("Корзина пуста", "#F87171"); return; }
+        if(!currentUser) { showToast("Войдите в аккаунт для оформления", "#F87171"); return; }
+        alert(`🎉 Заказ оформлен!\nСумма: ${getPriceInCurrency(cart.reduce((s,i) => s + (products.find(p=>p.id===i.id)?.price_usd||0)*i.quantity,0)).val} ${getPriceInCurrency(0).sym}\nСтатус можно отслеживать в личном кабинете.`);
         cart = [];
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
@@ -763,20 +926,27 @@
         closeCartWidgetFunc();
     }
 
-    // ========== ОБРАБОТЧИКИ ==========
-    searchInput.addEventListener('input', () => {
-        searchQuery = searchInput.value;
-        renderCatalog();
-    });
-    
+    // ========== СОБЫТИЯ ==========
+    searchInput.addEventListener('input', () => { searchQuery = searchInput.value; renderCatalog(); });
+    sortSelect.addEventListener('change', () => { sortType = sortSelect.value; renderCatalog(); });
     usdBtn.onclick = () => { currentCurrency = 'USD'; renderCatalog(); renderCartWidget(); };
     rubBtn.onclick = () => { currentCurrency = 'RUB'; renderCatalog(); renderCartWidget(); };
-    
-    document.getElementById('widgetCheckoutBtn').addEventListener('click', checkout);
-    
+    document.getElementById('widgetCheckoutBtn').onclick = checkout;
+
     updateCartCount();
+    wishlistCountSpan.innerText = wishlist.length;
     renderCategories();
     fetchRubRate();
+    updateAuthUI();
+
+    // Закрытие модалки по клику на оверлей
+    document.querySelectorAll('.overlay').forEach(el => {
+        el.addEventListener('click', () => {
+            authModal.classList.remove('show');
+            cartWidget.classList.remove('show');
+            overlay.classList.remove('show');
+        });
+    });
 </script>
 </body>
 </html>
