@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuberPulse | Корзина</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0F1A;
+            font-family: 'Inter', sans-serif;
+            color: #E8EDF5;
+        }
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, #0F172A, #020617);
+            z-index: -2;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 2;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #60A5FA, #3B82F6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+        .logo p { font-size: 12px; color: #6B7A8F; }
+        .nav-buttons { display: flex; gap: 12px; align-items: center; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2A3650;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: #CBD5E1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover { border-color: #3B82F6; color: #3B82F6; }
+        .btn-primary {
+            background: #1E2A47;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+        }
+        .cart-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            margin: 40px 0 60px;
+        }
+        @media (max-width: 900px) { .cart-container { grid-template-columns: 1fr; } }
+        .cart-items {
+            background: rgba(18, 25, 45, 0.6);
+            border-radius: 24px;
+            border: 1px solid #1F2A44;
+            overflow: hidden;
+        }
+        .cart-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 120px 50px;
+            padding: 16px 20px;
+            background: #111827;
+            border-bottom: 1px solid #1F2A44;
+            font-size: 13px;
+            color: #9AA4BF;
+        }
+        .cart-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 120px 50px;
+            padding: 20px;
+            border-bottom: 1px solid #1F2A44;
+            align-items: center;
+        }
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            background: #0F172A;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        .cart-item-title { font-weight: 600; margin-bottom: 4px; }
+        .cart-item-price { color: #60A5FA; font-weight: 600; }
+        .quantity-control { display: flex; align-items: center; gap: 10px; }
+        .quantity-btn {
+            background: #1E2A47;
+            border: 1px solid #2A3650;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+        }
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            background: #111827;
+            border: 1px solid #2A3650;
+            border-radius: 8px;
+            padding: 6px;
+            color: white;
+        }
+        .item-total { font-weight: 700; color: #60A5FA; }
+        .remove-item {
+            background: none;
+            border: none;
+            color: #F87171;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .cart-summary {
+            background: rgba(18, 25, 45, 0.6);
+            border-radius: 24px;
+            border: 1px solid #1F2A44;
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #1F2A44;
+        }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #60A5FA;
+            border-top: 2px solid #3B82F6;
+            margin-top: 12px;
+        }
+        .btn-checkout {
+            width: 100%;
+            background: #3B82F6;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-top: 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-checkout:hover { background: #2563EB; }
+        .empty-cart { text-align: center; padding: 60px; color: #9AA4BF; }
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            color: #60A5FA;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+<div class="container">
+    <div class="header">
+        <div class="logo" onclick="location.href='index.html'">
+            <h1>CuberPulse</h1>
+            <p>professional hardware · security research</p>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-outline" id="usdBtn">USD $</button>
+            <button class="btn-outline" id="rubBtn">RUB ₽</button>
+            <button class="btn-primary" onclick="location.href='account.html'">👤 Личный кабинет</button>
+        </div>
+    </div>
+
+    <div class="back-link" onclick="location.href='index.html'">← Вернуться к покупкам</div>
+    <h1 style="margin: 20px 0;">🛒 Корзина</h1>
+
+    <div class="cart-container">
+        <div id="cartItemsContainer" class="cart-items"></div>
+        <div id="summaryContainer" class="cart-summary"></div>
+    </div>
+</div>
+
+<script>
+    const products = [
+        { id: 1, name: "Flipper Zero", price_usd: 169, desc: "Мультитул для пентеста", img: "🐬" },
+        { id: 2, name: "HackRF One", price_usd: 299, desc: "SDR-трансивер", img: "📡" },
+        { id: 3, name: "Proxmark3 RDV4", price_usd: 145, desc: "Клонирование RFID/NFC", img: "💳" },
+        { id: 4, name: "WiFi Deauther v3", price_usd: 49, desc: "Атака деавторизации", img: "📶" },
+        { id: 5, name: "GPS/GNSS модуль", price_usd: 35, desc: "Спутниковая навигация", img: "🛰️" },
+        { id: 6, name: "NRF24L01+ модуль", price_usd: 12, desc: "2.4GHz модуль", img: "📻" },
+        { id: 7, name: "CC1101 модуль", price_usd: 15, desc: "Суб-ГГц трансивер", img: "🔘" },
+        { id: 8, name: "Широкополосная антенна", price_usd: 42, desc: "300MHz – 6GHz", img: "📡" },
+        { id: 9, name: "Направленная антенна", price_usd: 38, desc: "Усиление 12dBi", img: "📡" },
+        { id: 10, name: "Кастомная прошивка", price_usd: 29, desc: "Для Flipper Zero", img: "⚙️" }
+    ];
+
+    let currentCurrency = 'USD';
+    let rubRate = 92;
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    async function fetchRubRate() {
+        try {
+            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const data = await res.json();
+            rubRate = data.rates.RUB;
+        } catch(e) { rubRate = 92; }
+        renderCart();
+    }
+
+    function getPriceInCurrency(priceUSD) {
+        if(currentCurrency === 'USD') return { val: priceUSD, sym: '$' };
+        return { val: (priceUSD * rubRate).toFixed(2), sym: '₽' };
+    }
+
+    function getTotalUSD() {
+        let total = 0;
+        cart.forEach(item => {
+            const product = products.find(p => p.id === item.id);
+            if(product) total += product.price_usd * item.quantity;
+        });
+        return total;
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cartItemsContainer');
+        const summaryContainer = document.getElementById('summaryContainer');
+        
+        if(cart.length === 0) {
+            container.innerHTML = `<div class="empty-cart">🛒 Корзина пуста<br><br><div class="back-link" onclick="location.href='index.html'">Перейти в каталог</div></div>`;
+            summaryContainer.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="cart-header">
+                <div></div><div>Название</div><div>Цена</div><div>Количество</div><div></div>
+            </div>
+            ${cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                if(!product) return '';
+                const price = getPriceInCurrency(product.price_usd);
+                const itemTotal = getPriceInCurrency(product.price_usd * item.quantity);
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-img">${product.img}</div>
+                        <div><div class="cart-item-title">${product.name}</div><div style="font-size:12px;">${product.desc}</div></div>
+                        <div class="cart-item-price">${price.val} ${price.sym}</div>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">−</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="99" onchange="setQuantity(${item.id}, this.value)">
+                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                        </div>
+                        <div class="item-total">${itemTotal.val} ${itemTotal.sym}</div>
+                        <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
+                    </div>
+                `;
+            }).join('')}
+        `;
+
+        const totalUSD = getTotalUSD();
+        const total = getPriceInCurrency(totalUSD);
+
+        summaryContainer.innerHTML = `
+            <h3>Сводка заказа</h3>
+            <div class="summary-row"><span>Товаров (${cart.reduce((sum, i) => sum + i.quantity, 0)} шт.)</span><span>${total.val} ${total.sym}</span></div>
+            <div class="summary-total"><span>Итого</span><span>${total.val} ${total.sym}</span></div>
+            <button class="btn-checkout" onclick="checkout()">Оформить заказ</button>
+        `;
+    }
+
+    window.changeQuantity = function(productId, delta) {
+        const item = cart.find(i => i.id === productId);
+        if(item) {
+            const newQuantity = item.quantity + delta;
+            if(newQuantity >= 1 && newQuantity <= 99) {
+                item.quantity = newQuantity;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCart();
+            }
+        }
+    };
+
+    window.setQuantity = function(productId, value) {
+        const newQuantity = parseInt(value);
+        if(!isNaN(newQuantity) && newQuantity >= 1 && newQuantity <= 99) {
+            const item = cart.find(i => i.id === productId);
+            if(item) {
+                item.quantity = newQuantity;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCart();
+            }
+        } else { renderCart(); }
+    };
+
+    window.removeItem = function(productId) {
+        cart = cart.filter(i => i.id !== productId);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    };
+
+    function checkout() {
+        if(cart.length === 0) return;
+        alert(`🎉 Заказ оформлен!\n\nСумма: ${getPriceInCurrency(getTotalUSD()).val} ${getPriceInCurrency(getTotalUSD()).sym}\n\nСтатус заказа можно отслеживать в личном кабинете.`);
+        // Очищаем корзину после заказа
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    document.getElementById('usdBtn')?.addEventListener('click', () => { currentCurrency = 'USD'; renderCart(); });
+    document.getElementById('rubBtn')?.addEventListener('click', () => { currentCurrency = 'RUB'; renderCart(); });
+
+    fetchRubRate();
+</script>
+</body>
+</html>
