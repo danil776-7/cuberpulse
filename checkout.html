@@ -195,10 +195,6 @@
             margin-top: 4px;
         }
 
-        .phone-input-wrapper {
-            position: relative;
-        }
-
         .toast {
             position: fixed;
             bottom: 30px;
@@ -215,9 +211,98 @@
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
         }
+
+        /* Модальное окно с контактом администратора */
+        .contact-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            max-width: 90vw;
+            background: #111118;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 32px;
+            z-index: 2000;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .contact-modal.show {
+            display: block;
+        }
+
+        .contact-modal h3 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .contact-modal p {
+            margin: 16px 0;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .contact-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #6C63FF, #4A42D0);
+            padding: 14px 28px;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            transform: scale(1.05);
+        }
+
+        .close-contact {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        .overlay-contact {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1999;
+        }
+
+        .overlay-contact.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
     </style>
 </head>
 <body>
+<div class="overlay-contact" id="overlayContact"></div>
+<div class="contact-modal" id="contactModal">
+    <h3>📞 Свяжитесь с нами</h3>
+    <p>Ваш заказ принят!</p>
+    <p>Для подтверждения и оплаты свяжитесь с нашим менеджером:</p>
+    <a href="https://t.me/cuberpulse_support" target="_blank" class="contact-link">📱 Написать в Telegram</a>
+    <p style="font-size: 12px;">Или напишите нам: @cuberpulse_support</p>
+    <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
+</div>
+
 <div class="container">
     <div class="header">
         <div class="logo" onclick="location.href='index.html'">
@@ -237,9 +322,7 @@
                 </div>
                 <div class="form-group">
                     <label>Телефон *</label>
-                    <div class="phone-input-wrapper">
-                        <input type="tel" id="phone" required placeholder="+7 999 123-45-67" maxlength="18">
-                    </div>
+                    <input type="tel" id="phone" required placeholder="+7 999 123-45-67" maxlength="18">
                     <div class="error-message" id="phoneError"></div>
                 </div>
                 <div class="form-group">
@@ -264,7 +347,7 @@
                 </div>
                 <div class="form-group">
                     <label>Индекс *</label>
-                    <input type="text" id="zip" required placeholder="123456" maxlength="6" pattern="[0-9]{6}">
+                    <input type="text" id="zip" required placeholder="123456" maxlength="6">
                 </div>
                 <div class="form-group">
                     <label>Комментарий к заказу</label>
@@ -300,16 +383,12 @@
                 <span>Итого к оплате:</span>
                 <span id="orderTotal" style="color:#6C63FF; font-size:24px;">0 $</span>
             </div>
-            <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:16px; text-align:center;">
-                🔒 После оформления заказа с вами свяжется менеджер<br>
-                для подтверждения и оплаты.
-            </p>
         </div>
     </div>
 </div>
 
 <script>
-    // ========== ТОВАРЫ (обновлённые, без антенн) ==========
+    // ========== ТОВАРЫ ==========
     const products = [
         { id: 1, name: "Flipper Zero", price_usd: 169, img: "🐬" },
         { id: 2, name: "NRF24L01+ модуль", price_usd: 12, img: "📻" },
@@ -332,8 +411,8 @@
     // Доставка (только CDEK и DHL)
     let deliveryCostUSD = 0;
     const deliveryPrices = {
-        cdek: 5,     // 5 USD ≈ 500 RUB
-        dhl: 15      // 15 USD ≈ 1500 RUB
+        cdek: 5,
+        dhl: 15
     };
 
     const deliveryNames = {
@@ -342,35 +421,6 @@
     };
 
     // ========== ВАЛИДАЦИЯ ТЕЛЕФОНА ==========
-    function validatePhone(phone) {
-        // Убираем все символы кроме цифр
-        const digits = phone.replace(/\D/g, '');
-        if(digits.length === 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
-            return true;
-        }
-        if(digits.length === 10) return true;
-        return false;
-    }
-
-    function formatPhone(input) {
-        let digits = input.replace(/\D/g, '');
-        if(digits.length > 11) digits = digits.slice(0, 11);
-        
-        if(digits.startsWith('8')) {
-            digits = '7' + digits.slice(1);
-        }
-        
-        let formatted = '';
-        if(digits.length > 0) {
-            formatted = '+7';
-            if(digits.length > 1) formatted += ' ' + digits.slice(1, 4);
-            if(digits.length > 4) formatted += ' ' + digits.slice(4, 7);
-            if(digits.length > 7) formatted += '-' + digits.slice(7, 9);
-            if(digits.length > 9) formatted += '-' + digits.slice(9, 11);
-        }
-        return formatted;
-    }
-
     const phoneInput = document.getElementById('phone');
     phoneInput.addEventListener('input', (e) => {
         let raw = e.target.value.replace(/\D/g, '');
@@ -448,49 +498,44 @@
         document.getElementById('orderTotal').innerHTML = `${grandTotal.val} ${grandTotal.sym}`;
     }
 
-    // Обновление стоимости доставки
     document.getElementById('delivery').onchange = (e) => {
-        const deliveryType = e.target.value;
-        deliveryCostUSD = deliveryPrices[deliveryType] || 0;
+        deliveryCostUSD = deliveryPrices[e.target.value] || 0;
         renderOrderSummary();
     };
 
-    // ========== ОТПРАВКА В TELEGRAM (ИСПРАВЛЕНА) ==========
+    // ========== ОТПРАВКА В TELEGRAM (ПРОВЕРЕННАЯ) ==========
     const BOT_TOKEN = "8958424168:AAHZ2f5oGU81VuTXwJCuEdta7ntFvAOuAfc";
     const CHAT_ID = "-1003951304278";
 
     async function sendOrderToTelegram(orderData) {
-        const message = `
-🛒 **НОВЫЙ ЗАКАЗ** 🛒
+        const message = `🛒 НОВЫЙ ЗАКАЗ 🛒
 ━━━━━━━━━━━━━━━━━━━
 
-👤 **КЛИЕНТ:**
-• ФИО: ${orderData.fullName}
-• Телефон: ${orderData.phone}
-• Email: ${orderData.email}
+👤 КЛИЕНТ:
+ФИО: ${orderData.fullName}
+Телефон: ${orderData.phone}
+Email: ${orderData.email}
 
-📍 **ДОСТАВКА:**
-• Способ: ${orderData.delivery}
-• Город: ${orderData.city}
-• Адрес: ${orderData.address}
-• Индекс: ${orderData.zip}
+📍 ДОСТАВКА:
+Способ: ${orderData.delivery}
+Город: ${orderData.city}
+Адрес: ${orderData.address}
+Индекс: ${orderData.zip}
 
-📦 **ТОВАРЫ:**
+📦 ТОВАРЫ:
 ${orderData.items}
 
-💰 **ОПЛАТА:**
-• Способ: ${orderData.payment}
-• Сумма: ${orderData.total}
+💰 ОПЛАТА:
+Способ: ${orderData.payment}
+Сумма: ${orderData.total}
 
-💬 **КОММЕНТАРИЙ:**
+💬 КОММЕНТАРИЙ:
 ${orderData.comment || "Нет"}
 
-⏰ **Время:** ${new Date().toLocaleString()}
-━━━━━━━━━━━━━━━━━━━
-#новый_заказ
-        `;
+⏰ Время: ${new Date().toLocaleString()}`;
 
         const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -498,19 +543,25 @@ ${orderData.comment || "Нет"}
                 body: JSON.stringify({
                     chat_id: CHAT_ID,
                     text: message,
-                    parse_mode: 'Markdown'
+                    parse_mode: 'HTML'
                 })
             });
             const result = await response.json();
-            console.log('Telegram response:', result);
-            return result.ok === true;
+            console.log('Telegram ответ:', result);
+            
+            if(result.ok) {
+                return true;
+            } else {
+                console.error('Ошибка Telegram:', result.description);
+                return false;
+            }
         } catch(e) {
-            console.error('Ошибка отправки в Telegram:', e);
+            console.error('Ошибка отправки:', e);
             return false;
         }
     }
 
-    // Сохранение заказа локально (fallback)
+    // Сохранение заказа локально
     function saveOrderLocally(orderData) {
         const orders = JSON.parse(localStorage.getItem('saved_orders') || '[]');
         orders.push({
@@ -518,7 +569,7 @@ ${orderData.comment || "Нет"}
             savedAt: new Date().toISOString()
         });
         localStorage.setItem('saved_orders', JSON.stringify(orders));
-        console.log('Заказ сохранён локально:', orderData);
+        console.log('Заказ сохранён локально');
     }
 
     function showToast(msg, color) {
@@ -529,6 +580,20 @@ ${orderData.comment || "Нет"}
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
+
+    function openContactModal() {
+        document.getElementById('overlayContact').classList.add('show');
+        document.getElementById('contactModal').classList.add('show');
+    }
+
+    function closeContactModal() {
+        document.getElementById('overlayContact').classList.remove('show');
+        document.getElementById('contactModal').classList.remove('show');
+    }
+
+    window.closeContactModal = closeContactModal;
+
+    document.getElementById('overlayContact').onclick = closeContactModal;
 
     // Обработка формы
     document.getElementById('checkoutForm').onsubmit = async (e) => {
@@ -545,41 +610,19 @@ ${orderData.comment || "Нет"}
         const payment = document.querySelector('input[name="payment"]:checked').value;
         
         // Валидация
-        if(!fullName) {
-            showToast("Введите ФИО", "#F87171");
-            return;
-        }
+        if(!fullName) { showToast("Введите ФИО", "#F87171"); return; }
         
         const phoneDigits = phone.replace(/\D/g, '');
         if(phoneDigits.length !== 11 || !phoneDigits.startsWith('7')) {
-            showToast("Введите корректный номер телефона (+7 XXX XXX XX XX)", "#F87171");
+            showToast("Введите корректный номер телефона", "#F87171");
             return;
         }
         
-        if(!email || !email.includes('@')) {
-            showToast("Введите корректный Email", "#F87171");
-            return;
-        }
-        
-        if(!delivery) {
-            showToast("Выберите способ доставки", "#F87171");
-            return;
-        }
-        
-        if(!city) {
-            showToast("Введите город доставки", "#F87171");
-            return;
-        }
-        
-        if(!address) {
-            showToast("Введите адрес доставки", "#F87171");
-            return;
-        }
-        
-        if(!zip || zip.length < 5) {
-            showToast("Введите почтовый индекс", "#F87171");
-            return;
-        }
+        if(!email || !email.includes('@')) { showToast("Введите корректный Email", "#F87171"); return; }
+        if(!delivery) { showToast("Выберите способ доставки", "#F87171"); return; }
+        if(!city) { showToast("Введите город доставки", "#F87171"); return; }
+        if(!address) { showToast("Введите адрес доставки", "#F87171"); return; }
+        if(!zip || zip.length < 5) { showToast("Введите почтовый индекс", "#F87171"); return; }
         
         // Формируем список товаров
         const itemsList = cart.map(item => {
@@ -609,58 +652,33 @@ ${orderData.comment || "Нет"}
             comment: comment
         };
         
-        // Блокируем кнопку
         const btn = document.querySelector('.btn-submit');
         const originalText = btn.innerText;
-        btn.innerText = "⏳ Отправка заказа...";
+        btn.innerText = "⏳ Отправка...";
         btn.disabled = true;
         
-        try {
-            // Отправляем в Telegram
-            const sent = await sendOrderToTelegram(orderData);
-            
-            if(sent) {
-                // Сохраняем локально на всякий случай
-                saveOrderLocally(orderData);
-                
-                showToast("✅ Заказ успешно оформлен! Менеджер свяжется с вами.", "#4ADE80");
-                
-                // Очищаем корзину
-                localStorage.removeItem('cart');
-                localStorage.removeItem('checkoutCart');
-                
-                // Перенаправляем через секунду
-                setTimeout(() => {
-                    window.location.href = 'success.html';
-                }, 1500);
-            } else {
-                // Если Telegram не ответил, сохраняем локально и показываем предупреждение
-                saveOrderLocally(orderData);
-                showToast("⚠️ Заказ сохранён! Менеджер свяжется с вами в ближайшее время.", "#FBBF24");
-                
-                localStorage.removeItem('cart');
-                localStorage.removeItem('checkoutCart');
-                
-                setTimeout(() => {
-                    window.location.href = 'success.html';
-                }, 2000);
-            }
-        } catch(error) {
-            console.error('Ошибка:', error);
-            // Сохраняем локально при любой ошибке
+        // Отправляем в Telegram
+        const sent = await sendOrderToTelegram(orderData);
+        
+        if(sent) {
+            console.log('✅ Заказ отправлен в Telegram');
+        } else {
+            console.log('⚠️ Telegram не ответил, сохраняем локально');
             saveOrderLocally(orderData);
-            showToast("⚠️ Заказ сохранён! Менеджер свяжется с вами.", "#FBBF24");
-            
-            localStorage.removeItem('cart');
-            localStorage.removeItem('checkoutCart');
-            
-            setTimeout(() => {
-                window.location.href = 'success.html';
-            }, 2000);
-        } finally {
+        }
+        
+        // Очищаем корзину
+        localStorage.removeItem('cart');
+        localStorage.removeItem('checkoutCart');
+        
+        showToast("✅ Заказ оформлен! Переход к оплате...", "#4ADE80");
+        
+        // Открываем модалку с контактом администратора
+        setTimeout(() => {
+            openContactModal();
             btn.innerText = originalText;
             btn.disabled = false;
-        }
+        }, 1000);
     };
     
     fetchRubRate();
