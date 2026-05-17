@@ -120,7 +120,7 @@
         /* Каталог */
         .catalog {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 24px;
             margin: 30px 0 60px;
         }
@@ -131,7 +131,7 @@
             border-radius: 20px;
             padding: 20px;
             transition: all 0.3s;
-            position: relative;
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -417,38 +417,28 @@
 </div>
 
 <script>
-    // ========== ТОВАРЫ (20 штук с описаниями) ==========
+    // ========== ТОВАРЫ ==========
     const products = [
-        { id: 1, name: "Flipper Zero", price_usd: 169, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz. Встроенный аккумулятор, OLED экран." },
-        { id: 2, name: "HackRF One", price_usd: 299, category: "devices", img: "📡", desc: "SDR-трансивер 1 МГц – 6 ГГц, полоса 20 МГц. USB 2.0, открытая архитектура." },
-        { id: 3, name: "HackRF Portapack H2", price_usd: 429, category: "devices", img: "📱", desc: "HackRF One с портативным экраном для автономной работы. Сенсорный дисплей, аккумулятор." },
-        { id: 4, name: "Proxmark3 Easy", price_usd: 89, category: "devices", img: "💳", desc: "Бюджетная версия для RFID/NFC исследований. Чтение/запись Mifare, EM4100, HID." },
-        { id: 5, name: "WiFi Deauther v3", price_usd: 49, category: "modules", img: "📶", desc: "Атака деавторизации WiFi, мониторинг сетей, создание фейковых точек доступа." },
-        { id: 6, name: "NRF24L01+ модуль", price_usd: 12, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero. Дальность до 100м без помех." },
-        { id: 7, name: "NRF24L01+ PA+LNA", price_usd: 19, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м. Для дронов и IoT." },
-        { id: 8, name: "CC1101 модуль", price_usd: 15, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц. Для работы с пультами, метеостанциями." },
-        { id: 9, name: "ESP8266 NodeMCU", price_usd: 8, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов. Arduino совместимый." },
-        { id: 10, name: "ESP32-C3 модуль", price_usd: 12, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль. Поддержка Matter, Zigbee." },
-        { id: 11, name: "GPS NEO-6M", price_usd: 35, category: "gps", img: "🛰️", desc: "Спутниковая навигация для Flipper/HackRF. EEPROM для сохранения настроек." },
-        { id: 12, name: "GPS NEO-8M", price_usd: 45, category: "gps", img: "🛰️", desc: "Высокоточный GPS модуль с поддержкой ГЛОНАСС, Galileo, BeiDou." },
-        { id: 13, name: "Антенна широкополосная", price_usd: 42, category: "antennas", img: "📡", desc: "300MHz – 6GHz, SMA разъём, усиление 3dBi. Для HackRF, SDR." },
-        { id: 14, name: "Антенна направленная 2.4GHz", price_usd: 38, category: "antennas", img: "📡", desc: "Усиление 12dBi для WiFi атак, дальность до 3км." },
-        { id: 15, name: "Антенна HF/VHF", price_usd: 55, category: "antennas", img: "📡", desc: "Для работы с HackRF в диапазоне 3-300 МГц. Радиолюбительская." },
-        { id: 16, name: "Кастомная прошивка Flipper", price_usd: 29, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы, BadUSB пейлоады." },
-        { id: 17, name: "Marauder для Flipper", price_usd: 24, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam, деавторизация." },
-        { id: 18, name: "Mifare Classic 1K", price_usd: 15, category: "rfid", img: "💳", desc: "10 шт. RFID карт для тестирования. UID 4 байта." },
-        { id: 19, name: "RTLSDR v3", price_usd: 35, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz. SMA разъём." },
-        { id: 20, name: "Видеокурс по SDR", price_usd: 89, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта. 15 часов видео." }
+        { id: 1, name: "Flipper Zero", price_usd: 169, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz. Встроенный аккумулятор, OLED экран.", fullDesc: "Flipper Zero — это портативный многофункциональный инструмент для пентестеров и энтузиастов безопасности. Поддерживает RFID, NFC, инфракрасный порт, GPIO, iButton и Sub-GHz. Имеет встроенный аккумулятор 2000mAh, OLED дисплей и MicroSD слот.", specs: ["OLED дисплей 128x64", "Аккумулятор 2000mAh", "Поддержка RFID/NFC", "Инфракрасный порт", "GPIO пины", "Sub-GHz трансивер"], images: ["🐬", "🛠️", "📱"] },
+        { id: 2, name: "NRF24L01+ модуль", price_usd: 12, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero. Дальность до 100м.", fullDesc: "NRF24L01+ — это маломощный 2.4GHz беспроводной модуль, идеально подходящий для Flipper Zero. Позволяет перехватывать и анализировать сигналы пультов, мышек, дронов и других устройств.", specs: ["Частота 2.4GHz", "Дальность до 100м", "Скорость до 2Mbps", "SPI интерфейс"], images: ["📻", "🔘", "📡"] },
+        { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", fullDesc: "Усиленная версия NRF24L01+ с внешней антенной и усилителем. Обеспечивает дальность связи до 1000 метров на открытой местности.", specs: ["Частота 2.4GHz", "Дальность до 1000м", "Внешняя антенна SMA", "Усилитель PA+LNA"], images: ["📡", "🔋", "📻"] },
+        { id: 4, name: "CC1101 модуль", price_usd: 15, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", fullDesc: "CC1101 — это суб-ГГц трансивер для работы с частотами 315, 433, 868, 915 МГц. Используется для анализа сигналов пультов, метеостанций, датчиков.", specs: ["Частоты 315-915MHz", "Скорость до 500kbps", "SPI интерфейс", "Малый ток потребления"], images: ["🔘", "📡", "🔋"] },
+        { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", fullDesc: "ESP8266 NodeMCU — популярный WiFi модуль для IoT проектов. Совместим с Arduino IDE, имеет встроенный WiFi, GPIO пины.", specs: ["WiFi 802.11 b/g/n", "Частота 80MHz", "4MB flash", "MicroUSB"], images: ["🔵", "📶", "⚙️"] },
+        { id: 6, name: "ESP32-C3 модуль", price_usd: 12, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль. Поддержка Matter.", fullDesc: "ESP32-C3 — современный чип с поддержкой WiFi и Bluetooth LE. Подходит для проектов Matter, Zigbee, Thread.", specs: ["WiFi + BLE 5.0", "RISC-V архитектура", "400KB SRAM", "USB-C"], images: ["🔵", "📶", "⚡"] },
+        { id: 7, name: "Антенна широкополосная", price_usd: 42, category: "antennas", img: "📡", desc: "300MHz – 6GHz, SMA разъём, усиление 3dBi.", fullDesc: "Широкополосная антенна для HackRF и SDR приёмников. Покрывает диапазон от 300MHz до 6GHz.", specs: ["Диапазон 300MHz-6GHz", "Усиление 3dBi", "Разъём SMA", "Длина 15см"], images: ["📡", "🔌", "📻"] },
+        { id: 8, name: "Антенна направленная 2.4GHz", price_usd: 38, category: "antennas", img: "📡", desc: "Усиление 12dBi для WiFi атак, дальность до 3км.", fullDesc: "Направленная антенна для WiFi атак и дальних соединений. Усиление 12dBi обеспечивает дальность до 3 км на открытой местности.", specs: ["Частота 2.4GHz", "Усиление 12dBi", "Разъём RP-SMA", "Угол 30°"], images: ["📡", "📶", "🔋"] },
+        { id: 9, name: "Кастомная прошивка Flipper", price_usd: 29, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", fullDesc: "Кастомная прошивка для Flipper Zero с расширенным функционалом: поддержка новых протоколов, бэкапы, дополнительные BadUSB пейлоады.", specs: ["Поддержка новых протоколов", "BadUSB пейлоады", "Бэкапы", "Улучшенный интерфейс"], images: ["⚙️", "📱", "🔧"] },
+        { id: 10, name: "Marauder для Flipper", price_usd: 24, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", fullDesc: "Marauder — прошивка для Flipper Zero с набором инструментов для WiFi атак: деавторизация, Evil Portal, Beacon Spam, захват рукопожатий.", specs: ["WiFi Deauth", "Evil Portal", "Beacon Spam", "Pcap захват"], images: ["⚙️", "📶", "🛡️"] },
+        { id: 11, name: "RTLSDR v3", price_usd: 35, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", fullDesc: "RTLSDR v3 — популярный бюджетный SDR приёмник для радиолюбителей. Принимает сигналы от 100kHz до 1.7GHz.", specs: ["Диапазон 100kHz-1.7GHz", "RTL2832U чип", "SMA разъём", "Поддержка HF"], images: ["📻", "📡", "🔌"] },
+        { id: 12, name: "Видеокурс по SDR", price_usd: 89, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта.", fullDesc: "Полный видеокурс по SDR и HackRF One. 15 часов теории и практики. Научитесь принимать и анализировать сигналы.", specs: ["15 часов видео", "Доступ навсегда", "Практические задания", "Чат с преподавателем"], images: ["📚", "🎥", "📡"] }
     ];
 
     const categories = [
         { id: "all", name: "🏠 Все товары" },
         { id: "devices", name: "📟 Устройства" },
         { id: "modules", name: "🔌 Модули" },
-        { id: "gps", name: "🛰️ GPS" },
         { id: "antennas", name: "📡 Антенны" },
         { id: "firmware", name: "⚙️ Прошивки" },
-        { id: "rfid", name: "💳 RFID/NFC" },
         { id: "sdr", name: "📻 SDR" },
         { id: "guides", name: "📚 Обучение" }
     ];
@@ -534,7 +524,7 @@
         }, 0);
     }
 
-    // ========== ФИЛЬТРАЦИЯ И СОРТИРОВКА ==========
+    // ========== ФИЛЬТРАЦИЯ ==========
     function getFilteredProducts() {
         let filtered = products;
         if(currentCategory !== 'all') {
@@ -558,15 +548,21 @@
             const price = getPrice(p.price_usd);
             const inCart = cart.find(i => i.id === p.id);
             return `
-                <div class="product-card">
+                <div class="product-card" onclick="goToProduct(${p.id})">
                     <div class="product-img">${p.img}</div>
                     <div class="product-title">${p.name}</div>
-                    <div class="product-desc">${p.desc}</div>
+                    <div class="product-desc">${p.desc.substring(0, 80)}...</div>
                     <div class="product-price">${price.val} ${price.sym}</div>
-                    <button class="btn-cart" onclick="addToCart(${p.id})">${inCart ? '✓ В корзине' : '+ В корзину'}</button>
+                    <button class="btn-cart" onclick="event.stopPropagation(); addToCart(${p.id})">${inCart ? '✓ В корзине' : '+ В корзину'}</button>
                 </div>
             `;
         }).join('');
+    }
+
+    // ========== ПЕРЕХОД НА СТРАНИЦУ ТОВАРА ==========
+    function goToProduct(id) {
+        localStorage.setItem('currentProduct', JSON.stringify(products.find(p => p.id === id)));
+        window.location.href = 'product.html';
     }
 
     // ========== ОТРИСОВКА КОРЗИНЫ ==========
