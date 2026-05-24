@@ -212,7 +212,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* Модальное окно с контактом администратора */
         .contact-modal {
             display: none;
             position: fixed;
@@ -290,16 +289,22 @@
             from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
             to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
+
+        .success-icon {
+            font-size: 50px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
 <div class="overlay-contact" id="overlayContact"></div>
 <div class="contact-modal" id="contactModal">
-    <h3>📞 Свяжитесь с нами</h3>
-    <p>Ваш заказ принят!</p>
-    <p>Для подтверждения и оплаты свяжитесь с нашим менеджером:</p>
-    <a href="https://t.me/cuberpulse_support" target="_blank" class="contact-link">📱 Написать в Telegram</a>
-    <p style="font-size: 12px;">Или напишите нам: @cuberpulse_support</p>
+    <div class="success-icon">✅</div>
+    <h3>Заказ оформлен!</h3>
+    <p>Ваш заказ №<span id="orderNumber"></span> принят.</p>
+    <p>Для подтверждения и оплаты свяжитесь с менеджером:</p>
+    <a href="https://t.me/ваш_username" target="_blank" class="contact-link">📱 Написать в Telegram</a>
+    <p style="font-size: 12px;">Или напишите нам: @ваш_username</p>
     <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
 </div>
 
@@ -337,7 +342,7 @@
                         <option value="dhl">✈️ DHL Express (1500 ₽)</option>
                     </select>
                 </div>
-                <div class="form-group" id="addressGroup">
+                <div class="form-group">
                     <label>Адрес доставки *</label>
                     <textarea id="address" rows="3" placeholder="Город, улица, дом, квартира, почтовый индекс"></textarea>
                 </div>
@@ -357,10 +362,10 @@
                 <div class="payment-options">
                     <p style="margin-bottom: 12px;">💳 Способы оплаты:</p>
                     <label>
-                        <input type="radio" name="payment" value="card" checked> Оплата картой онлайн (Visa/Mastercard/МИР)
+                        <input type="radio" name="payment" value="card" checked> Оплата картой онлайн
                     </label>
                     <label>
-                        <input type="radio" name="payment" value="crypto"> Криптовалюта (USDT, TRC20)
+                        <input type="radio" name="payment" value="crypto"> Криптовалюта (USDT)
                     </label>
                 </div>
 
@@ -402,25 +407,16 @@
         { id: 10, name: "Видеокурс по SDR", price_usd: 89, img: "📚" }
     ];
 
-    // Получаем данные корзины
     let cart = JSON.parse(localStorage.getItem('checkoutCart')) || [];
     let currency = localStorage.getItem('checkoutCurrency') || 'USD';
     let totalUSD = parseFloat(localStorage.getItem('checkoutTotal')) || 0;
     let rubRate = 92;
 
-    // Доставка (только CDEK и DHL)
     let deliveryCostUSD = 0;
-    const deliveryPrices = {
-        cdek: 5,
-        dhl: 15
-    };
+    const deliveryPrices = { cdek: 5, dhl: 15 };
+    const deliveryNames = { cdek: "📦 CDEK", dhl: "✈️ DHL Express" };
 
-    const deliveryNames = {
-        cdek: "📦 CDEK",
-        dhl: "✈️ DHL Express"
-    };
-
-    // ========== ВАЛИДАЦИЯ ТЕЛЕФОНА ==========
+    // Валидация телефона
     const phoneInput = document.getElementById('phone');
     phoneInput.addEventListener('input', (e) => {
         let raw = e.target.value.replace(/\D/g, '');
@@ -438,15 +434,10 @@
         e.target.value = formatted;
         
         const errorDiv = document.getElementById('phoneError');
-        if(raw.length === 11 && raw.startsWith('7')) {
-            errorDiv.textContent = '';
-        } else if(raw.length === 10) {
-            errorDiv.textContent = '';
-        } else if(raw.length > 0) {
-            errorDiv.textContent = 'Введите корректный номер (11 цифр)';
-        } else {
-            errorDiv.textContent = '';
-        }
+        if(raw.length === 11 && raw.startsWith('7')) errorDiv.textContent = '';
+        else if(raw.length === 10) errorDiv.textContent = '';
+        else if(raw.length > 0) errorDiv.textContent = 'Введите корректный номер (11 цифр)';
+        else errorDiv.textContent = '';
     });
 
     async function fetchRubRate() {
@@ -481,7 +472,7 @@
                         <span class="order-item-img">${product.img}</span>
                         <div>
                             <div style="font-weight:500;">${product.name}</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.5);">${price.val} ${price.sym} × ${item.quantity}</div>
+                            <div style="font-size:12px;">${price.val} ${price.sym} × ${item.quantity}</div>
                         </div>
                     </div>
                     <div style="color:#6C63FF;">${total.val} ${total.sym}</div>
@@ -503,7 +494,8 @@
         renderOrderSummary();
     };
 
-    // ========== ОТПРАВКА В TELEGRAM (ПРОВЕРЕННАЯ) ==========
+    // ========== ОТПРАВКА В TELEGRAM через прокси ==========
+    // Используем сервис api.telegram.org (он работает с GitHub Pages)
     const BOT_TOKEN = "8958424168:AAHZ2f5oGU81VuTXwJCuEdta7ntFvAOuAfc";
     const CHAT_ID = "-1003951304278";
 
@@ -534,20 +526,21 @@ ${orderData.comment || "Нет"}
 
 ⏰ Время: ${new Date().toLocaleString()}`;
 
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        // Используем encodeURIComponent для правильной отправки
+        const encodedMessage = encodeURIComponent(message);
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodedMessage}&parse_mode=HTML`;
         
         try {
+            console.log('Отправка запроса в Telegram...');
             const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: message,
-                    parse_mode: 'HTML'
-                })
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             const result = await response.json();
-            console.log('Telegram ответ:', result);
+            console.log('Ответ Telegram:', result);
             
             if(result.ok) {
                 return true;
@@ -561,7 +554,6 @@ ${orderData.comment || "Нет"}
         }
     }
 
-    // Сохранение заказа локально
     function saveOrderLocally(orderData) {
         const orders = JSON.parse(localStorage.getItem('saved_orders') || '[]');
         orders.push({
@@ -581,7 +573,8 @@ ${orderData.comment || "Нет"}
         setTimeout(() => toast.remove(), 3000);
     }
 
-    function openContactModal() {
+    function openContactModal(orderId) {
+        document.getElementById('orderNumber').innerText = orderId;
         document.getElementById('overlayContact').classList.add('show');
         document.getElementById('contactModal').classList.add('show');
     }
@@ -589,10 +582,10 @@ ${orderData.comment || "Нет"}
     function closeContactModal() {
         document.getElementById('overlayContact').classList.remove('show');
         document.getElementById('contactModal').classList.remove('show');
+        window.location.href = 'index.html';
     }
 
     window.closeContactModal = closeContactModal;
-
     document.getElementById('overlayContact').onclick = closeContactModal;
 
     // Обработка формы
@@ -609,7 +602,6 @@ ${orderData.comment || "Нет"}
         const comment = document.getElementById('comment').value.trim();
         const payment = document.querySelector('input[name="payment"]:checked').value;
         
-        // Валидация
         if(!fullName) { showToast("Введите ФИО", "#F87171"); return; }
         
         const phoneDigits = phone.replace(/\D/g, '');
@@ -624,32 +616,25 @@ ${orderData.comment || "Нет"}
         if(!address) { showToast("Введите адрес доставки", "#F87171"); return; }
         if(!zip || zip.length < 5) { showToast("Введите почтовый индекс", "#F87171"); return; }
         
-        // Формируем список товаров
         const itemsList = cart.map(item => {
             const product = products.find(p => p.id === item.id);
             const price = getPrice(product.price_usd);
             return `• ${product.name} × ${item.quantity} = ${price.val * item.quantity} ${price.sym}`;
         }).join('\n');
         
-        const paymentNames = {
-            card: "💳 Оплата картой онлайн",
-            crypto: "🪙 Криптовалюта (USDT)"
-        };
-        
+        const paymentNames = { card: "💳 Оплата картой онлайн", crypto: "🪙 Криптовалюта (USDT)" };
         const grandTotal = getPrice(totalUSD + deliveryCostUSD);
         
+        const orderId = Math.floor(Math.random() * 1000000);
+        
         const orderData = {
-            fullName: fullName,
-            phone: phone,
-            email: email,
+            fullName, phone, email,
             delivery: deliveryNames[delivery] || delivery,
-            city: city,
-            address: address,
-            zip: zip,
+            city, address, zip,
             items: itemsList,
             payment: paymentNames[payment],
             total: `${grandTotal.val} ${grandTotal.sym}`,
-            comment: comment
+            comment
         };
         
         const btn = document.querySelector('.btn-submit');
@@ -657,7 +642,7 @@ ${orderData.comment || "Нет"}
         btn.innerText = "⏳ Отправка...";
         btn.disabled = true;
         
-        // Отправляем в Telegram
+        // Пытаемся отправить в Telegram
         const sent = await sendOrderToTelegram(orderData);
         
         if(sent) {
@@ -665,20 +650,18 @@ ${orderData.comment || "Нет"}
         } else {
             console.log('⚠️ Telegram не ответил, сохраняем локально');
             saveOrderLocally(orderData);
+            showToast("Заказ сохранён локально", "#FBBF24");
         }
         
         // Очищаем корзину
         localStorage.removeItem('cart');
         localStorage.removeItem('checkoutCart');
         
-        showToast("✅ Заказ оформлен! Переход к оплате...", "#4ADE80");
+        // Открываем модалку с контактом
+        openContactModal(orderId);
         
-        // Открываем модалку с контактом администратора
-        setTimeout(() => {
-            openContactModal();
-            btn.innerText = originalText;
-            btn.disabled = false;
-        }, 1000);
+        btn.innerText = originalText;
+        btn.disabled = false;
     };
     
     fetchRubRate();
