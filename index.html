@@ -53,6 +53,7 @@
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .btn-outline {
@@ -68,6 +69,21 @@
         .btn-outline:hover {
             border-color: #6C63FF;
             color: #6C63FF;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6C63FF, #4A42D0);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
         }
 
         /* Поиск */
@@ -166,6 +182,21 @@
             font-weight: 700;
             color: #6C63FF;
             margin: 12px 0;
+        }
+
+        .old-price {
+            font-size: 14px;
+            color: rgba(255,255,255,0.4);
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+
+        .sale-badge {
+            background: #FF4D4D;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 11px;
+            margin-left: 8px;
         }
 
         .btn-cart {
@@ -362,6 +393,64 @@
             animation: slideIn 0.3s ease;
         }
 
+        /* Модалка контакта */
+        .contact-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 380px;
+            max-width: 90vw;
+            background: #111118;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 32px;
+            z-index: 2000;
+            text-align: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .contact-modal.show {
+            display: block;
+        }
+
+        .contact-modal h3 {
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .contact-modal p {
+            color: rgba(255,255,255,0.7);
+            margin: 16px 0;
+        }
+
+        .contact-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #6C63FF, #4A42D0);
+            padding: 12px 28px;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 8px 0;
+            transition: all 0.2s;
+        }
+
+        .contact-link:hover {
+            transform: scale(1.02);
+        }
+
+        .close-contact {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
@@ -379,6 +468,7 @@
         <div class="nav-buttons">
             <button class="btn-outline" id="usdBtn">USD $</button>
             <button class="btn-outline" id="rubBtn">RUB ₽</button>
+            <button class="btn-outline" id="contactBtn">📞 Контакт</button>
             <div class="cart-icon" id="cartIcon">
                 🛒 <span class="cart-count" id="cartCount">0</span>
             </div>
@@ -416,28 +506,47 @@
     </div>
 </div>
 
+<!-- Модалка контакта -->
+<div class="contact-modal" id="contactModal">
+    <h3>📞 Свяжитесь с нами</h3>
+    <p>По всем вопросам обращайтесь к нашему менеджеру:</p>
+    <a href="https://t.me/cuberpulse" target="_blank" class="contact-link">@cuberpulse</a>
+    <p style="font-size: 12px;">Или нажмите на кнопку выше</p>
+    <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
+</div>
+
 <script>
-    // ========== ТОВАРЫ ==========
-    const products = [
-        { id: 1, name: "Flipper Zero", price_usd: 169, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz. Встроенный аккумулятор, OLED экран.", fullDesc: "Flipper Zero — это портативный многофункциональный инструмент для пентестеров и энтузиастов безопасности. Поддерживает RFID, NFC, инфракрасный порт, GPIO, iButton и Sub-GHz. Имеет встроенный аккумулятор 2000mAh, OLED дисплей и MicroSD слот.", specs: ["OLED дисплей 128x64", "Аккумулятор 2000mAh", "Поддержка RFID/NFC", "Инфракрасный порт", "GPIO пины", "Sub-GHz трансивер"], images: ["🐬", "🛠️", "📱"] },
-        { id: 2, name: "NRF24L01+ модуль", price_usd: 12, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero. Дальность до 100м.", fullDesc: "NRF24L01+ — это маломощный 2.4GHz беспроводной модуль, идеально подходящий для Flipper Zero. Позволяет перехватывать и анализировать сигналы пультов, мышек, дронов и других устройств.", specs: ["Частота 2.4GHz", "Дальность до 100м", "Скорость до 2Mbps", "SPI интерфейс"], images: ["📻", "🔘", "📡"] },
-        { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", fullDesc: "Усиленная версия NRF24L01+ с внешней антенной и усилителем. Обеспечивает дальность связи до 1000 метров на открытой местности.", specs: ["Частота 2.4GHz", "Дальность до 1000м", "Внешняя антенна SMA", "Усилитель PA+LNA"], images: ["📡", "🔋", "📻"] },
-        { id: 4, name: "CC1101 модуль", price_usd: 15, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", fullDesc: "CC1101 — это суб-ГГц трансивер для работы с частотами 315, 433, 868, 915 МГц. Используется для анализа сигналов пультов, метеостанций, датчиков.", specs: ["Частоты 315-915MHz", "Скорость до 500kbps", "SPI интерфейс", "Малый ток потребления"], images: ["🔘", "📡", "🔋"] },
-        { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", fullDesc: "ESP8266 NodeMCU — популярный WiFi модуль для IoT проектов. Совместим с Arduino IDE, имеет встроенный WiFi, GPIO пины.", specs: ["WiFi 802.11 b/g/n", "Частота 80MHz", "4MB flash", "MicroUSB"], images: ["🔵", "📶", "⚙️"] },
-        { id: 6, name: "ESP32-C3 модуль", price_usd: 12, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль. Поддержка Matter.", fullDesc: "ESP32-C3 — современный чип с поддержкой WiFi и Bluetooth LE. Подходит для проектов Matter, Zigbee, Thread.", specs: ["WiFi + BLE 5.0", "RISC-V архитектура", "400KB SRAM", "USB-C"], images: ["🔵", "📶", "⚡"] },
-        { id: 7, name: "Антенна широкополосная", price_usd: 42, category: "antennas", img: "📡", desc: "300MHz – 6GHz, SMA разъём, усиление 3dBi.", fullDesc: "Широкополосная антенна для HackRF и SDR приёмников. Покрывает диапазон от 300MHz до 6GHz.", specs: ["Диапазон 300MHz-6GHz", "Усиление 3dBi", "Разъём SMA", "Длина 15см"], images: ["📡", "🔌", "📻"] },
-        { id: 8, name: "Антенна направленная 2.4GHz", price_usd: 38, category: "antennas", img: "📡", desc: "Усиление 12dBi для WiFi атак, дальность до 3км.", fullDesc: "Направленная антенна для WiFi атак и дальних соединений. Усиление 12dBi обеспечивает дальность до 3 км на открытой местности.", specs: ["Частота 2.4GHz", "Усиление 12dBi", "Разъём RP-SMA", "Угол 30°"], images: ["📡", "📶", "🔋"] },
-        { id: 9, name: "Кастомная прошивка Flipper", price_usd: 29, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", fullDesc: "Кастомная прошивка для Flipper Zero с расширенным функционалом: поддержка новых протоколов, бэкапы, дополнительные BadUSB пейлоады.", specs: ["Поддержка новых протоколов", "BadUSB пейлоады", "Бэкапы", "Улучшенный интерфейс"], images: ["⚙️", "📱", "🔧"] },
-        { id: 10, name: "Marauder для Flipper", price_usd: 24, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", fullDesc: "Marauder — прошивка для Flipper Zero с набором инструментов для WiFi атак: деавторизация, Evil Portal, Beacon Spam, захват рукопожатий.", specs: ["WiFi Deauth", "Evil Portal", "Beacon Spam", "Pcap захват"], images: ["⚙️", "📶", "🛡️"] },
-        { id: 11, name: "RTLSDR v3", price_usd: 35, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", fullDesc: "RTLSDR v3 — популярный бюджетный SDR приёмник для радиолюбителей. Принимает сигналы от 100kHz до 1.7GHz.", specs: ["Диапазон 100kHz-1.7GHz", "RTL2832U чип", "SMA разъём", "Поддержка HF"], images: ["📻", "📡", "🔌"] },
-        { id: 12, name: "Видеокурс по SDR", price_usd: 89, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта.", fullDesc: "Полный видеокурс по SDR и HackRF One. 15 часов теории и практики. Научитесь принимать и анализировать сигналы.", specs: ["15 часов видео", "Доступ навсегда", "Практические задания", "Чат с преподавателем"], images: ["📚", "🎥", "📡"] }
-    ];
+    // ========== ТОВАРЫ (загружаем из админки или дефолтные) ==========
+    let products = [];
+
+    // Загрузка товаров из localStorage (админ-панель)
+    function loadProductsFromStorage() {
+        const saved = localStorage.getItem('admin_products');
+        if(saved && JSON.parse(saved).length > 0) {
+            products = JSON.parse(saved);
+        } else {
+            // Дефолтные товары
+            products = [
+                { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент для пентестеров.", specs: ["OLED дисплей", "Аккумулятор 2000mAh", "RFID/NFC"], images: [] },
+                { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", fullDesc: "", specs: ["2.4GHz", "Дальность до 100м"], images: [] },
+                { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", fullDesc: "", specs: ["2.4GHz", "Дальность до 1000м"], images: [] },
+                { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", fullDesc: "", specs: ["315-915MHz"], images: [] },
+                { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", fullDesc: "", specs: ["WiFi", "Arduino"], images: [] },
+                { id: 6, name: "ESP32-C3 модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", fullDesc: "", specs: ["WiFi", "BLE"], images: [] },
+                { id: 7, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", fullDesc: "", specs: ["Новые протоколы", "BadUSB"], images: [] },
+                { id: 8, name: "Marauder для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", fullDesc: "", specs: ["WiFi Deauth", "Evil Portal"], images: [] },
+                { id: 9, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", fullDesc: "", specs: ["100kHz-1.7GHz"], images: [] },
+                { id: 10, name: "Видеокурс по SDR", price_usd: 89, salePrice: null, category: "guides", img: "📚", desc: "Полное руководство по HackRF One.", fullDesc: "", specs: ["15 часов видео"], images: [] }
+            ];
+        }
+        renderCategories();
+        renderCatalog();
+    }
 
     const categories = [
         { id: "all", name: "🏠 Все товары" },
         { id: "devices", name: "📟 Устройства" },
         { id: "modules", name: "🔌 Модули" },
-        { id: "antennas", name: "📡 Антенны" },
         { id: "firmware", name: "⚙️ Прошивки" },
         { id: "sdr", name: "📻 SDR" },
         { id: "guides", name: "📚 Обучение" }
@@ -460,6 +569,8 @@
     const cartModal = document.getElementById('cartModal');
     const overlay = document.getElementById('overlay');
     const closeCartBtn = document.getElementById('closeCartBtn');
+    const contactBtn = document.getElementById('contactBtn');
+    const contactModal = document.getElementById('contactModal');
 
     // ========== ФУНКЦИИ КОРЗИНЫ ==========
     function updateCartCount() {
@@ -512,15 +623,17 @@
         renderCatalog();
     }
 
-    function getPrice(priceUSD) {
-        if(currentCurrency === 'USD') return { val: priceUSD, sym: '$' };
-        return { val: Math.round(priceUSD * rubRate), sym: '₽' };
+    function getPrice(product) {
+        const basePrice = product.salePrice ? product.salePrice : product.price_usd;
+        if(currentCurrency === 'USD') return { val: basePrice, sym: '$', oldVal: product.salePrice ? product.price_usd : null };
+        return { val: Math.round(basePrice * rubRate), sym: '₽', oldVal: product.salePrice ? Math.round(product.price_usd * rubRate) : null };
     }
 
     function getTotalUSD() {
         return cart.reduce((sum, item) => {
             const product = products.find(p => p.id === item.id);
-            return sum + (product ? product.price_usd * item.quantity : 0);
+            const price = product ? (product.salePrice || product.price_usd) : 0;
+            return sum + (price * item.quantity);
         }, 0);
     }
 
@@ -533,8 +646,8 @@
         if(searchQuery) {
             filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.desc.toLowerCase().includes(searchQuery.toLowerCase()));
         }
-        if(sortType === 'price_asc') filtered.sort((a,b) => a.price_usd - b.price_usd);
-        if(sortType === 'price_desc') filtered.sort((a,b) => b.price_usd - a.price_usd);
+        if(sortType === 'price_asc') filtered.sort((a,b) => (a.salePrice || a.price_usd) - (b.salePrice || b.price_usd));
+        if(sortType === 'price_desc') filtered.sort((a,b) => (b.salePrice || b.price_usd) - (a.salePrice || a.price_usd));
         return filtered;
     }
 
@@ -545,21 +658,25 @@
             return;
         }
         catalogDiv.innerHTML = filtered.map(p => {
-            const price = getPrice(p.price_usd);
+            const price = getPrice(p);
             const inCart = cart.find(i => i.id === p.id);
+            const hasSale = p.salePrice && p.salePrice < p.price_usd;
             return `
                 <div class="product-card" onclick="goToProduct(${p.id})">
-                    <div class="product-img">${p.img}</div>
+                    <div class="product-img">${p.img || '📦'}</div>
                     <div class="product-title">${p.name}</div>
                     <div class="product-desc">${p.desc.substring(0, 80)}...</div>
-                    <div class="product-price">${price.val} ${price.sym}</div>
+                    <div class="product-price">
+                        ${price.val} ${price.sym}
+                        ${price.oldVal ? `<span class="old-price">${price.oldVal} ${price.sym}</span>` : ''}
+                        ${hasSale ? `<span class="sale-badge">🔥 Скидка</span>` : ''}
+                    </div>
                     <button class="btn-cart" onclick="event.stopPropagation(); addToCart(${p.id})">${inCart ? '✓ В корзине' : '+ В корзину'}</button>
                 </div>
             `;
         }).join('');
     }
 
-    // ========== ПЕРЕХОД НА СТРАНИЦУ ТОВАРА ==========
     function goToProduct(id) {
         localStorage.setItem('currentProduct', JSON.stringify(products.find(p => p.id === id)));
         window.location.href = 'product.html';
@@ -582,12 +699,13 @@
         container.innerHTML = cart.map(item => {
             const product = products.find(p => p.id === item.id);
             if(!product) return '';
-            totalUSD += product.price_usd * item.quantity;
-            const price = getPrice(product.price_usd);
-            const itemTotal = getPrice(product.price_usd * item.quantity);
+            const price = getPrice(product);
+            const itemTotalUSD = (product.salePrice || product.price_usd) * item.quantity;
+            totalUSD += itemTotalUSD;
+            const itemTotal = getPrice({ ...product, price_usd: (product.salePrice || product.price_usd) });
             return `
                 <div class="cart-item">
-                    <div class="cart-item-img">${product.img}</div>
+                    <div class="cart-item-img">${product.img || '📦'}</div>
                     <div class="cart-item-info">
                         <div class="cart-item-name">${product.name}</div>
                         <div class="cart-item-price">${price.val} ${price.sym}</div>
@@ -598,12 +716,12 @@
                         <button class="cart-qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
                         <button class="cart-qty-btn" onclick="removeFromCart(${item.id})" style="background:#FF4D4D20;">✕</button>
                     </div>
-                    <div style="min-width:60px;text-align:right;color:#6C63FF;">${itemTotal.val} ${itemTotal.sym}</div>
+                    <div style="min-width:60px;text-align:right;color:#6C63FF;">${itemTotal.val * item.quantity} ${itemTotal.sym}</div>
                 </div>
             `;
         }).join('');
         
-        const total = getPrice(totalUSD);
+        const total = getPrice({ price_usd: totalUSD });
         document.getElementById('cartTotal').innerHTML = `${total.val} ${total.sym}`;
     }
 
@@ -621,9 +739,24 @@
         document.body.style.overflow = '';
     }
 
+    function openContactModal() {
+        contactModal.classList.add('show');
+        overlay.classList.add('show');
+    }
+
+    function closeContactModal() {
+        contactModal.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
     cartIcon.onclick = () => openCartModal();
     closeCartBtn.onclick = () => closeCartModal();
-    overlay.onclick = () => closeCartModal();
+    overlay.onclick = () => {
+        closeCartModal();
+        closeContactModal();
+    };
+    contactBtn.onclick = () => openContactModal();
+    window.closeContactModal = closeContactModal;
 
     // ========== ОФОРМЛЕНИЕ ЗАКАЗА ==========
     document.getElementById('checkoutBtn').onclick = () => {
@@ -686,7 +819,7 @@
     };
 
     // ========== ЗАПУСК ==========
-    renderCategories();
+    loadProductsFromStorage();
     fetchRubRate();
     updateCartCount();
 </script>
