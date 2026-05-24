@@ -24,7 +24,6 @@
             padding: 0 32px;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -79,14 +78,8 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .btn-primary:hover {
-            transform: scale(1.02);
-        }
-
-        /* Поиск */
         .search-input {
             width: 100%;
             max-width: 400px;
@@ -98,7 +91,6 @@
             margin: 30px 0 20px;
         }
 
-        /* Категории */
         .categories {
             display: flex;
             gap: 10px;
@@ -122,7 +114,6 @@
             color: white;
         }
 
-        /* Сортировка */
         .sort-select {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
@@ -133,7 +124,6 @@
             cursor: pointer;
         }
 
-        /* Каталог */
         .catalog {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -215,7 +205,6 @@
             transform: scale(1.02);
         }
 
-        /* Кнопка корзины */
         .cart-icon {
             position: relative;
             cursor: pointer;
@@ -225,11 +214,6 @@
             background: rgba(108, 99, 255, 0.2);
             padding: 8px 18px;
             border-radius: 40px;
-            transition: all 0.2s;
-        }
-
-        .cart-icon:hover {
-            background: rgba(108, 99, 255, 0.3);
         }
 
         .cart-count {
@@ -237,10 +221,8 @@
             border-radius: 20px;
             padding: 2px 8px;
             font-size: 12px;
-            font-weight: 600;
         }
 
-        /* Модалка корзины */
         .cart-modal {
             display: none;
             position: fixed;
@@ -255,7 +237,6 @@
             border-radius: 24px;
             z-index: 1001;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
         .cart-modal.show {
@@ -364,7 +345,6 @@
             cursor: pointer;
         }
 
-        /* Оверлей */
         .overlay {
             display: none;
             position: fixed;
@@ -393,7 +373,6 @@
             animation: slideIn 0.3s ease;
         }
 
-        /* Модалка контакта */
         .contact-modal {
             display: none;
             position: fixed;
@@ -401,28 +380,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 380px;
-            max-width: 90vw;
             background: #111118;
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
             padding: 32px;
             z-index: 2000;
             text-align: center;
-            animation: fadeIn 0.2s ease;
         }
 
         .contact-modal.show {
             display: block;
-        }
-
-        .contact-modal h3 {
-            margin-bottom: 16px;
-            font-size: 24px;
-        }
-
-        .contact-modal p {
-            color: rgba(255,255,255,0.7);
-            margin: 16px 0;
+            animation: fadeIn 0.2s ease;
         }
 
         .contact-link {
@@ -432,13 +400,7 @@
             border-radius: 40px;
             color: white;
             text-decoration: none;
-            font-weight: 600;
             margin: 8px 0;
-            transition: all 0.2s;
-        }
-
-        .contact-link:hover {
-            transform: scale(1.02);
         }
 
         .close-contact {
@@ -488,7 +450,6 @@
     <div id="catalog" class="catalog"></div>
 </div>
 
-<!-- Модалка корзины -->
 <div class="cart-modal" id="cartModal">
     <div class="cart-header">
         <span style="font-weight:600;">🛒 Корзина</span>
@@ -506,43 +467,24 @@
     </div>
 </div>
 
-<!-- Модалка контакта -->
 <div class="contact-modal" id="contactModal">
     <h3>📞 Свяжитесь с нами</h3>
     <p>По всем вопросам обращайтесь к нашему менеджеру:</p>
     <a href="https://t.me/cuberpulse" target="_blank" class="contact-link">@cuberpulse</a>
-    <p style="font-size: 12px;">Или нажмите на кнопку выше</p>
     <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
 </div>
 
 <script>
-    // ========== ТОВАРЫ (загружаем из админки или дефолтные) ==========
+    // ========== ТОВАРЫ (ЗАГРУЗКА ИЗ АДМИНКИ) ==========
     let products = [];
+    let currentCategory = "all";
+    let searchQuery = "";
+    let currentCurrency = 'USD';
+    let rubRate = 92;
+    let sortType = "default";
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Загрузка товаров из localStorage (админ-панель)
-    function loadProductsFromStorage() {
-        const saved = localStorage.getItem('admin_products');
-        if(saved && JSON.parse(saved).length > 0) {
-            products = JSON.parse(saved);
-        } else {
-            // Дефолтные товары
-            products = [
-                { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент для пентестеров.", specs: ["OLED дисплей", "Аккумулятор 2000mAh", "RFID/NFC"], images: [] },
-                { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", fullDesc: "", specs: ["2.4GHz", "Дальность до 100м"], images: [] },
-                { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", fullDesc: "", specs: ["2.4GHz", "Дальность до 1000м"], images: [] },
-                { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", fullDesc: "", specs: ["315-915MHz"], images: [] },
-                { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", fullDesc: "", specs: ["WiFi", "Arduino"], images: [] },
-                { id: 6, name: "ESP32-C3 модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", fullDesc: "", specs: ["WiFi", "BLE"], images: [] },
-                { id: 7, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", fullDesc: "", specs: ["Новые протоколы", "BadUSB"], images: [] },
-                { id: 8, name: "Marauder для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", fullDesc: "", specs: ["WiFi Deauth", "Evil Portal"], images: [] },
-                { id: 9, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", fullDesc: "", specs: ["100kHz-1.7GHz"], images: [] },
-                { id: 10, name: "Видеокурс по SDR", price_usd: 89, salePrice: null, category: "guides", img: "📚", desc: "Полное руководство по HackRF One.", fullDesc: "", specs: ["15 часов видео"], images: [] }
-            ];
-        }
-        renderCategories();
-        renderCatalog();
-    }
-
+    // Категории
     const categories = [
         { id: "all", name: "🏠 Все товары" },
         { id: "devices", name: "📟 Устройства" },
@@ -552,13 +494,44 @@
         { id: "guides", name: "📚 Обучение" }
     ];
 
-    // ========== ПЕРЕМЕННЫЕ ==========
-    let currentCategory = "all";
-    let searchQuery = "";
-    let currentCurrency = 'USD';
-    let rubRate = 92;
-    let sortType = "default";
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    // Загрузка товаров из админ-панели
+    function loadProductsFromAdmin() {
+        const saved = localStorage.getItem('admin_products');
+        if(saved && saved !== 'undefined' && saved !== 'null') {
+            try {
+                const parsed = JSON.parse(saved);
+                if(parsed && parsed.length > 0) {
+                    products = parsed;
+                } else {
+                    setDefaultProducts();
+                }
+            } catch(e) {
+                setDefaultProducts();
+            }
+        } else {
+            setDefaultProducts();
+        }
+        renderCatalog();
+        renderCategories();
+    }
+
+    // Дефолтные товары (если в админке пусто)
+    function setDefaultProducts() {
+        products = [
+            { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", specs: ["OLED дисплей", "Аккумулятор 2000mAh"] },
+            { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", specs: ["2.4GHz", "Дальность до 100м"] },
+            { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", specs: ["2.4GHz", "Дальность до 1000м"] },
+            { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", specs: ["315-915MHz"] },
+            { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", specs: ["WiFi", "Arduino"] },
+            { id: 6, name: "ESP32-C3 модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", specs: ["WiFi", "BLE"] },
+            { id: 7, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", specs: ["Новые протоколы", "BadUSB"] },
+            { id: 8, name: "Marauder для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", specs: ["WiFi Deauth", "Evil Portal"] },
+            { id: 9, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", specs: ["100kHz-1.7GHz"] },
+            { id: 10, name: "Видеокурс по SDR", price_usd: 89, salePrice: null, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта.", specs: ["15 часов видео"] }
+        ];
+        // Сохраняем в localStorage для админки
+        localStorage.setItem('admin_products', JSON.stringify(products));
+    }
 
     // DOM элементы
     const catalogDiv = document.getElementById('catalog');
@@ -664,8 +637,8 @@
             return `
                 <div class="product-card" onclick="goToProduct(${p.id})">
                     <div class="product-img">${p.img || '📦'}</div>
-                    <div class="product-title">${p.name}</div>
-                    <div class="product-desc">${p.desc.substring(0, 80)}...</div>
+                    <div class="product-title">${escapeHtml(p.name)}</div>
+                    <div class="product-desc">${escapeHtml(p.desc.substring(0, 80))}...</div>
                     <div class="product-price">
                         ${price.val} ${price.sym}
                         ${price.oldVal ? `<span class="old-price">${price.oldVal} ${price.sym}</span>` : ''}
@@ -678,8 +651,18 @@
     }
 
     function goToProduct(id) {
-        localStorage.setItem('currentProduct', JSON.stringify(products.find(p => p.id === id)));
-        window.location.href = 'product.html';
+        const product = products.find(p => p.id === id);
+        if(product) {
+            localStorage.setItem('currentProduct', JSON.stringify(product));
+            window.location.href = 'product.html';
+        }
+    }
+
+    function escapeHtml(text) {
+        if(!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // ========== ОТРИСОВКА КОРЗИНЫ ==========
@@ -702,12 +685,12 @@
             const price = getPrice(product);
             const itemTotalUSD = (product.salePrice || product.price_usd) * item.quantity;
             totalUSD += itemTotalUSD;
-            const itemTotal = getPrice({ ...product, price_usd: (product.salePrice || product.price_usd) });
+            const itemTotal = getPrice({ price_usd: (product.salePrice || product.price_usd) });
             return `
                 <div class="cart-item">
                     <div class="cart-item-img">${product.img || '📦'}</div>
                     <div class="cart-item-info">
-                        <div class="cart-item-name">${product.name}</div>
+                        <div class="cart-item-name">${escapeHtml(product.name)}</div>
                         <div class="cart-item-price">${price.val} ${price.sym}</div>
                     </div>
                     <div class="cart-item-controls">
@@ -770,7 +753,7 @@
         window.location.href = 'checkout.html';
     };
 
-    // ========== ФИЛЬТРЫ ==========
+    // ========== КАТЕГОРИИ ==========
     function renderCategories() {
         categoriesDiv.innerHTML = categories.map(cat => `
             <button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
@@ -819,7 +802,7 @@
     };
 
     // ========== ЗАПУСК ==========
-    loadProductsFromStorage();
+    loadProductsFromAdmin();
     fetchRubRate();
     updateCartCount();
 </script>
