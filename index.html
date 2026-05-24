@@ -490,6 +490,8 @@
         { id: "devices", name: "📟 Устройства" },
         { id: "modules", name: "🔌 Модули" },
         { id: "firmware", name: "⚙️ Прошивки" },
+        { id: "antennas", name: "📡 Антенны" },
+        { id: "accessories", name: "🔧 Аксессуары" },
         { id: "sdr", name: "📻 SDR" },
         { id: "guides", name: "📚 Обучение" }
     ];
@@ -502,35 +504,34 @@
                 const parsed = JSON.parse(saved);
                 if(parsed && parsed.length > 0) {
                     products = parsed;
-                } else {
-                    setDefaultProducts();
+                    renderCategories();
+                    renderCatalog();
+                    return;
                 }
             } catch(e) {
-                setDefaultProducts();
+                console.log('Ошибка парсинга товаров:', e);
             }
-        } else {
-            setDefaultProducts();
         }
-        renderCatalog();
-        renderCategories();
+        
+        // Если товаров нет - создаём дефолтные
+        setDefaultProducts();
     }
 
     // Дефолтные товары (если в админке пусто)
     function setDefaultProducts() {
         products = [
             { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", specs: ["OLED дисплей", "Аккумулятор 2000mAh"] },
-            { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", specs: ["2.4GHz", "Дальность до 100м"] },
-            { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", specs: ["2.4GHz", "Дальность до 1000м"] },
-            { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", specs: ["315-915MHz"] },
-            { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", specs: ["WiFi", "Arduino"] },
-            { id: 6, name: "ESP32-C3 модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", specs: ["WiFi", "BLE"] },
-            { id: 7, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", specs: ["Новые протоколы", "BadUSB"] },
-            { id: 8, name: "Marauder для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", specs: ["WiFi Deauth", "Evil Portal"] },
-            { id: 9, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", specs: ["100kHz-1.7GHz"] },
-            { id: 10, name: "Видеокурс по SDR", price_usd: 89, salePrice: null, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта.", specs: ["15 часов видео"] }
+            { id: 2, name: "HackRF One", price_usd: 299, salePrice: null, category: "devices", img: "📡", desc: "SDR-трансивер 1 МГц – 6 ГГц, полоса 20 МГц.", specs: ["1MHz-6GHz", "20MHz полоса"] },
+            { id: 3, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", specs: ["2.4GHz", "Дальность до 100м"] },
+            { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер для Flipper Zero.", specs: ["315/433/868/915MHz"] },
+            { id: 5, name: "ESP8266 WiFi модуль", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "WiFi модуль для Flipper Zero.", specs: ["WiFi", "Arduino"] },
+            { id: 6, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", specs: ["Новые протоколы", "BadUSB"] },
+            { id: 7, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", specs: ["100kHz-1.7GHz"] },
+            { id: 8, name: "Видеокурс по SDR", price_usd: 89, salePrice: 69, category: "guides", img: "📚", desc: "Полное руководство по SDR и HackRF.", specs: ["15 часов видео"] }
         ];
-        // Сохраняем в localStorage для админки
         localStorage.setItem('admin_products', JSON.stringify(products));
+        renderCategories();
+        renderCatalog();
     }
 
     // DOM элементы
