@@ -532,29 +532,15 @@
         { id: "guides", name: "📚 Обучение" }
     ];
 
-    // Загрузка товаров
+    // ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА 20 ТОВАРОВ
     function loadProducts() {
-        // Пытаемся загрузить из localStorage
-        const saved = localStorage.getItem('admin_products');
-        if(saved && saved !== 'undefined' && saved !== 'null') {
-            try {
-                const parsed = JSON.parse(saved);
-                if(parsed && parsed.length > 0) {
-                    products = parsed;
-                    console.log('Товары загружены из админки:', products.length);
-                    renderCategories();
-                    renderCatalog();
-                    return;
-                }
-            } catch(e) {
-                console.log('Ошибка загрузки товаров из админки:', e);
-            }
-        }
-        
-        // Если нет - используем дефолтные и сохраняем в localStorage
-        console.log('Загружаем дефолтные товары');
+        // Очищаем старые данные и принудительно сохраняем 20 товаров
+        console.log('Загружаем 20 товаров...');
         products = [...DEFAULT_PRODUCTS];
+        // Сохраняем в localStorage для синхронизации с админкой
         localStorage.setItem('admin_products', JSON.stringify(products));
+        console.log('Сохранено товаров:', products.length);
+        
         renderCategories();
         renderCatalog();
     }
@@ -578,7 +564,7 @@
         localStorage.setItem('cart', JSON.stringify(cart));
     }
 
-    function addToCart(id) {
+    window.addToCart = function(id) {
         const existing = cart.find(item => item.id === id);
         if(existing) {
             existing.quantity++;
@@ -591,7 +577,7 @@
         showToast("✓ Добавлено в корзину", "#4ADE80");
     }
 
-    function removeFromCart(id) {
+    window.removeFromCart = function(id) {
         cart = cart.filter(item => item.id !== id);
         updateCartCount();
         renderCartModal();
@@ -599,7 +585,7 @@
         showToast("✗ Удалено из корзины", "#F87171");
     }
 
-    function changeQuantity(id, delta) {
+    window.changeQuantity = function(id, delta) {
         const item = cart.find(i => i.id === id);
         if(item) {
             item.quantity += delta;
