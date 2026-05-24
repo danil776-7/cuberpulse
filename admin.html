@@ -226,42 +226,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        .specs-input {
-            margin-bottom: 8px;
-        }
-        
-        .specs-input input {
-            margin-bottom: 8px;
-        }
-        
-        .add-spec-btn {
-            background: rgba(108,99,255,0.2);
-            border: 1px dashed #6C63FF;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .image-input {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .image-input input {
-            flex: 1;
-        }
-        
-        .remove-image {
-            background: none;
-            border: none;
-            color: #F87171;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
         .category-badge {
             display: inline-block;
             background: rgba(108,99,255,0.2);
@@ -269,9 +233,6 @@
             border-radius: 20px;
             font-size: 11px;
             margin-top: 6px;
-        }
-
-        select, input, textarea {
         }
     </style>
 </head>
@@ -295,8 +256,8 @@
         </div>
         <button class="btn" id="loginBtn" style="width:100%;">Войти</button>
         <p style="margin-top: 16px; font-size: 12px; text-align:center; color:rgba(255,255,255,0.5);">
-            📝 Логин: <strong>admin</strong><br>
-            🔑 Пароль: <strong>admin123</strong>
+            🔒 Логин: <strong>admin</strong><br>
+            📌 Пароль: <strong>admin123</strong>
         </p>
     </div>
 
@@ -312,13 +273,11 @@
         </div>
 
         <div class="content">
-            <!-- Вкладка: Список товаров -->
             <div id="tab-products" class="tab-content">
                 <h2>📦 Управление товарами</h2>
                 <div id="productsList" class="products-grid"></div>
             </div>
 
-            <!-- Вкладка: Добавить/Редактировать товар -->
             <div id="tab-add" class="tab-content" style="display:none;">
                 <h2 id="formTitle">➕ Добавить товар</h2>
                 <form id="productForm">
@@ -353,9 +312,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Иконка / Эмодзи (или ссылка на фото)</label>
-                        <input type="text" id="prodImg" placeholder="🐬 или https://example.com/photo.jpg">
-                        <small style="color:rgba(255,255,255,0.4);">Можно использовать эмодзи или прямую ссылку на фото</small>
+                        <label>Иконка / Эмодзи</label>
+                        <input type="text" id="prodImg" placeholder="🐬">
                     </div>
 
                     <div class="form-group">
@@ -364,21 +322,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Полное описание</label>
-                        <textarea id="prodFullDesc" rows="3" placeholder="Подробное описание товара"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Характеристики</label>
-                        <div id="specsContainer"></div>
-                        <button type="button" class="add-spec-btn" onclick="addSpecField()">+ Добавить характеристику</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Фотографии (ссылки)</label>
-                        <div id="imagesContainer"></div>
-                        <button type="button" class="add-spec-btn" onclick="addImageField()">+ Добавить фото</button>
-                        <small style="color:rgba(255,255,255,0.4); display:block; margin-top:8px;">Вставляйте прямые ссылки на фото (imgur, postimages и т.д.)</small>
+                        <label>Характеристики (через запятую)</label>
+                        <input type="text" id="prodSpecs" placeholder="OLED экран, Аккумулятор, RFID">
                     </div>
 
                     <div style="display: flex; gap: 12px; margin-top: 20px;">
@@ -388,7 +333,6 @@
                 </form>
             </div>
 
-            <!-- Вкладка: Заказы -->
             <div id="tab-orders" class="tab-content" style="display:none;">
                 <h2>📋 История заказов</h2>
                 <div id="ordersList"></div>
@@ -400,14 +344,14 @@
 <script>
     // ========== ДАННЫЕ ==========
     let products = [];
-    let editingId = null;
 
     // ========== АВТОРИЗАЦИЯ ==========
     const ADMIN_LOGIN = "admin";
     const ADMIN_PASSWORD = "admin123";
 
     function checkAuth() {
-        if(localStorage.getItem('admin_auth') === 'true') {
+        const isAuth = localStorage.getItem('admin_auth') === 'true';
+        if(isAuth) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'grid';
             document.getElementById('logoutBtn').style.display = 'block';
@@ -438,58 +382,68 @@
         showToast("🔓 Выход выполнен", "#9AA4BF");
     };
 
-    // ========== ЗАГРУЗКА ТОВАРОВ ИЗ LOCALSTORAGE ==========
+    // ========== ЗАГРУЗКА ТОВАРОВ ==========
     function loadProducts() {
+        // Загружаем товары из localStorage
         const saved = localStorage.getItem('admin_products');
-        if(saved) {
-            products = JSON.parse(saved);
-        } else {
-            // Дефолтные товары
+        if(saved && saved !== 'undefined') {
+            try {
+                products = JSON.parse(saved);
+            } catch(e) {
+                products = [];
+            }
+        }
+        
+        // Если товаров нет - создаём тестовые
+        if(!products || products.length === 0) {
             products = [
-                { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент для пентестеров и энтузиастов безопасности.", specs: ["OLED дисплей 128x64", "Аккумулятор 2000mAh", "Поддержка RFID/NFC", "Инфракрасный порт", "GPIO пины"], images: [] },
-                { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", fullDesc: "NRF24L01+ — маломощный 2.4GHz беспроводной модуль, идеально подходящий для Flipper Zero.", specs: ["Частота 2.4GHz", "Дальность до 100м", "Скорость до 2Mbps"], images: [] },
-                { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", fullDesc: "Усиленная версия NRF24L01+ с внешней антенной и усилителем.", specs: ["Частота 2.4GHz", "Дальность до 1000м", "Внешняя антенна SMA"], images: [] },
-                { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", fullDesc: "CC1101 — суб-ГГц трансивер для работы с частотами 315, 433, 868, 915 МГц.", specs: ["Частоты 315-915MHz", "Скорость до 500kbps"], images: [] },
-                { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", fullDesc: "ESP8266 NodeMCU — популярный WiFi модуль для IoT проектов.", specs: ["WiFi 802.11 b/g/n", "Частота 80MHz", "4MB flash"], images: [] },
-                { id: 6, name: "ESP32-C3 модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", fullDesc: "ESP32-C3 — современный чип с поддержкой WiFi и Bluetooth LE.", specs: ["WiFi + BLE 5.0", "RISC-V архитектура"], images: [] },
-                { id: 7, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", fullDesc: "Кастомная прошивка для Flipper Zero с расширенным функционалом.", specs: ["Поддержка новых протоколов", "BadUSB пейлоады", "Бэкапы"], images: [] },
-                { id: 8, name: "Marauder для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", fullDesc: "Marauder — прошивка для Flipper Zero с набором инструментов для WiFi атак.", specs: ["WiFi Deauth", "Evil Portal", "Beacon Spam"], images: [] },
-                { id: 9, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", fullDesc: "RTLSDR v3 — популярный бюджетный SDR приёмник для радиолюбителей.", specs: ["Диапазон 100kHz-1.7GHz", "RTL2832U чип", "SMA разъём"], images: [] },
-                { id: 10, name: "Видеокурс по SDR", price_usd: 89, salePrice: null, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта.", fullDesc: "Полный видеокурс по SDR и HackRF One. 15 часов теории и практики.", specs: ["15 часов видео", "Доступ навсегда", "Практические задания"], images: [] }
+                { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", specs: ["OLED дисплей", "Аккумулятор 2000mAh", "RFID/NFC"] },
+                { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", specs: ["2.4GHz", "Дальность до 100м"] },
+                { id: 3, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", specs: ["2.4GHz", "Дальность до 1000м"] },
+                { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер 315/433/868/915 МГц.", specs: ["315-915MHz"] },
+                { id: 5, name: "ESP8266 NodeMCU", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "Дешёвый WiFi модуль для IoT проектов.", specs: ["WiFi", "Arduino"] },
+                { id: 6, name: "ESP32-C3 модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", specs: ["WiFi", "BLE"] },
+                { id: 7, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы.", specs: ["Новые протоколы", "BadUSB"] },
+                { id: 8, name: "Marauder для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки, Evil Portal, Beacon Spam.", specs: ["WiFi Deauth", "Evil Portal"] },
+                { id: 9, name: "RTLSDR v3", price_usd: 35, salePrice: null, category: "sdr", img: "📻", desc: "Бюджетный SDR приёмник 100kHz – 1.7GHz.", specs: ["100kHz-1.7GHz"] },
+                { id: 10, name: "Видеокурс по SDR", price_usd: 89, salePrice: null, category: "guides", img: "📚", desc: "Полное руководство по HackRF One: от новичка до эксперта.", specs: ["15 часов видео"] }
             ];
             localStorage.setItem('admin_products', JSON.stringify(products));
         }
+        
         renderProductsList();
     }
 
     // ========== ОТОБРАЖЕНИЕ СПИСКА ТОВАРОВ ==========
     function renderProductsList() {
         const container = document.getElementById('productsList');
-        if(products.length === 0) {
+        if(!products || products.length === 0) {
             container.innerHTML = '<div style="text-align:center; padding:40px;">📦 Нет товаров. Нажмите "Добавить товар"</div>';
             return;
         }
         
-        container.innerHTML = products.map(p => {
+        container.innerHTML = '';
+        products.forEach(p => {
             const displayPrice = p.salePrice ? `${p.salePrice}$ (было ${p.price_usd}$)` : `${p.price_usd}$`;
             const categoryName = getCategoryName(p.category);
-            return `
-                <div class="product-card-admin">
-                    <div class="product-header">
-                        <div class="product-img-admin">${p.img || '📦'}</div>
-                        <div class="product-info-admin">
-                            <div class="product-name-admin">${escapeHtml(p.name)}</div>
-                            <div class="product-price-admin">💰 ${displayPrice}</div>
-                            <div class="category-badge">${categoryName}</div>
-                        </div>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn-outline btn-small" onclick="editProduct(${p.id})">✏️ Редактировать</button>
-                        <button class="btn-outline btn-small" onclick="deleteProduct(${p.id})" style="border-color:#F87171; color:#F87171;">🗑️ Удалить</button>
+            const card = document.createElement('div');
+            card.className = 'product-card-admin';
+            card.innerHTML = `
+                <div class="product-header">
+                    <div class="product-img-admin">${p.img || '📦'}</div>
+                    <div class="product-info-admin">
+                        <div class="product-name-admin">${escapeHtml(p.name)}</div>
+                        <div class="product-price-admin">💰 ${displayPrice}</div>
+                        <div class="category-badge">${categoryName}</div>
                     </div>
                 </div>
+                <div class="product-actions">
+                    <button class="btn-outline btn-small" onclick="editProduct(${p.id})">✏️ Редактировать</button>
+                    <button class="btn-outline btn-small" onclick="deleteProduct(${p.id})" style="border-color:#F87171; color:#F87171;">🗑️ Удалить</button>
+                </div>
             `;
-        }).join('');
+            container.appendChild(card);
+        });
     }
 
     function getCategoryName(catId) {
@@ -504,17 +458,17 @@
     }
 
     function escapeHtml(text) {
+        if(!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
     // ========== ДОБАВЛЕНИЕ/РЕДАКТИРОВАНИЕ ТОВАРА ==========
-    function editProduct(id) {
+    window.editProduct = function(id) {
         const product = products.find(p => p.id === id);
         if(!product) return;
         
-        editingId = id;
         document.getElementById('formTitle').innerHTML = '✏️ Редактировать товар';
         document.getElementById('editId').value = id;
         document.getElementById('prodName').value = product.name;
@@ -523,75 +477,23 @@
         document.getElementById('prodCategory').value = product.category;
         document.getElementById('prodImg').value = product.img || '';
         document.getElementById('prodDesc').value = product.desc;
-        document.getElementById('prodFullDesc').value = product.fullDesc || '';
+        document.getElementById('prodSpecs').value = (product.specs || []).join(', ');
         
-        // Характеристики
-        const specsContainer = document.getElementById('specsContainer');
-        specsContainer.innerHTML = '';
-        if(product.specs && product.specs.length) {
-            product.specs.forEach(spec => addSpecField(spec));
-        } else {
-            addSpecField('');
-        }
-        
-        // Фотографии
-        const imagesContainer = document.getElementById('imagesContainer');
-        imagesContainer.innerHTML = '';
-        if(product.images && product.images.length) {
-            product.images.forEach(img => addImageField(img));
-        } else {
-            addImageField('');
-        }
-        
+        // Переключаемся на вкладку добавления
         document.querySelector('[data-tab="add"]').click();
-    }
+    };
 
-    function cancelEdit() {
-        editingId = null;
+    window.cancelEdit = function() {
         document.getElementById('formTitle').innerHTML = '➕ Добавить товар';
         document.getElementById('productForm').reset();
         document.getElementById('editId').value = '';
-        document.getElementById('specsContainer').innerHTML = '';
-        document.getElementById('imagesContainer').innerHTML = '';
-        addSpecField('');
-        addImageField('');
-    }
-
-    function addSpecField(value = '') {
-        const container = document.getElementById('specsContainer');
-        const div = document.createElement('div');
-        div.className = 'specs-input';
-        div.innerHTML = `
-            <input type="text" class="spec-input" value="${escapeHtml(value)}" placeholder="Например: OLED экран">
-            <button type="button" class="remove-spec" onclick="this.parentElement.remove()" style="background:none; border:none; color:#F87171; cursor:pointer; margin-left:8px;">✕</button>
-        `;
-        container.appendChild(div);
-    }
-
-    function addImageField(value = '') {
-        const container = document.getElementById('imagesContainer');
-        const div = document.createElement('div');
-        div.className = 'image-input';
-        div.innerHTML = `
-            <input type="text" class="image-input-field" value="${escapeHtml(value)}" placeholder="https://example.com/photo.jpg">
-            <button type="button" class="remove-image" onclick="this.parentElement.remove()">✕</button>
-        `;
-        container.appendChild(div);
-    }
+    };
 
     // Сохранение товара
     document.getElementById('productForm').onsubmit = (e) => {
         e.preventDefault();
         
-        const specs = [];
-        document.querySelectorAll('.spec-input').forEach(input => {
-            if(input.value.trim()) specs.push(input.value.trim());
-        });
-        
-        const images = [];
-        document.querySelectorAll('.image-input-field').forEach(input => {
-            if(input.value.trim()) images.push(input.value.trim());
-        });
+        const specs = document.getElementById('prodSpecs').value.split(',').map(s => s.trim()).filter(s => s);
         
         const productData = {
             name: document.getElementById('prodName').value.trim(),
@@ -600,9 +502,7 @@
             category: document.getElementById('prodCategory').value,
             img: document.getElementById('prodImg').value.trim() || '📦',
             desc: document.getElementById('prodDesc').value.trim(),
-            fullDesc: document.getElementById('prodFullDesc').value.trim(),
-            specs: specs,
-            images: images
+            specs: specs
         };
         
         const editId = document.getElementById('editId').value;
@@ -627,7 +527,7 @@
     };
 
     // Удаление товара
-    window.deleteProduct = (id) => {
+    window.deleteProduct = function(id) {
         const product = products.find(p => p.id === id);
         if(confirm(`Удалить товар "${product.name}"?`)) {
             products = products.filter(p => p.id !== id);
@@ -647,8 +547,11 @@
             return;
         }
 
-        container.innerHTML = savedOrders.reverse().map((order, index) => `
-            <div class="product-card-admin">
+        container.innerHTML = '';
+        savedOrders.reverse().forEach((order, index) => {
+            const card = document.createElement('div');
+            card.className = 'product-card-admin';
+            card.innerHTML = `
                 <div class="product-header">
                     <div class="product-img-admin" style="font-size:32px;">👤</div>
                     <div class="product-info-admin">
@@ -664,11 +567,12 @@
                 <div class="product-actions">
                     <button class="btn-outline btn-small" onclick="copyOrder(${index})">📋 Копировать</button>
                 </div>
-            </div>
-        `).join('');
+            `;
+            container.appendChild(card);
+        });
     }
 
-    window.copyOrder = (index) => {
+    window.copyOrder = function(index) {
         const orders = JSON.parse(localStorage.getItem('saved_orders') || '[]');
         const order = orders.reverse()[index];
         const text = `Заказ: ${order.fullName}\nТелефон: ${order.phone}\nАдрес: ${order.city}, ${order.address}\nСумма: ${order.total}`;
@@ -700,11 +604,6 @@
     }
 
     // ========== ИНИЦИАЛИЗАЦИЯ ==========
-    window.addSpecField = addSpecField;
-    window.addImageField = addImageField;
-    window.cancelEdit = cancelEdit;
-    window.editProduct = editProduct;
-    
     checkAuth();
 </script>
 </body>
