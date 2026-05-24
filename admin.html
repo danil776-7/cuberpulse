@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuberPulse | Админ-панель</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0A0F;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(135deg, #FFFFFF, #6C63FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #6C63FF, #4A42D0);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+        }
+
+        .admin-panel {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            margin: 32px 0 60px;
+        }
+
+        @media (max-width: 800px) {
+            .admin-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 12px 0;
+            cursor: pointer;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-menu li:hover, .sidebar-menu li.active {
+            color: #6C63FF;
+        }
+
+        .content {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .content h2 {
+            margin-bottom: 24px;
+        }
+
+        .product-form, .product-list {
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .product-card-admin {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .product-info-admin {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .product-img-admin {
+            font-size: 32px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #111118;
+            border-left: 4px solid #6C63FF;
+            padding: 12px 20px;
+            border-radius: 12px;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 32px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1>⚙️ CuberPulse | Админ-панель</h1>
+        </div>
+        <div>
+            <button class="btn-outline" id="logoutBtn" style="display:none;">🚪 Выйти</button>
+        </div>
+    </div>
+
+    <div id="loginSection" class="login-form">
+        <h2>🔐 Вход в админ-панель</h2>
+        <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" id="adminPassword" placeholder="Введите пароль">
+        </div>
+        <button class="btn" id="loginBtn">Войти</button>
+        <p style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.5);">Пароль по умолчанию: <strong>admin123</strong></p>
+    </div>
+
+    <div id="adminSection" class="admin-panel" style="display:none;">
+        <div class="sidebar">
+            <h3>📋 Меню</h3>
+            <ul class="sidebar-menu">
+                <li data-tab="products" class="active">📦 Товары</li>
+                <li data-tab="add">➕ Добавить товар</li>
+                <li data-tab="orders">📋 Заказы</li>
+                <li data-tab="settings">⚙️ Настройки</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <!-- Вкладка: Список товаров -->
+            <div id="tab-products" class="tab-content">
+                <h2>📦 Управление товарами</h2>
+                <div id="productsList"></div>
+            </div>
+
+            <!-- Вкладка: Добавить товар -->
+            <div id="tab-add" class="tab-content" style="display:none;">
+                <h2>➕ Добавить новый товар</h2>
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label>Название товара *</label>
+                        <input type="text" id="prodName" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Цена (USD) *</label>
+                            <input type="number" id="prodPrice" step="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Цена со скидкой (USD)</label>
+                            <input type="number" id="prodSalePrice" step="1" placeholder="Оставьте пустым если нет скидки">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Категория *</label>
+                        <select id="prodCategory">
+                            <option value="devices">📟 Устройства</option>
+                            <option value="modules">🔌 Модули</option>
+                            <option value="antennas">📡 Антенны</option>
+                            <option value="firmware">⚙️ Прошивки</option>
+                            <option value="sdr">📻 SDR</option>
+                            <option value="guides">📚 Обучение</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Иконка/Эмодзи (или ссылка на фото)</label>
+                        <input type="text" id="prodImg" placeholder="🐬 или https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Краткое описание *</label>
+                        <textarea id="prodDesc" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Полное описание</label>
+                        <textarea id="prodFullDesc" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Характеристики (через запятую)</label>
+                        <input type="text" id="prodSpecs" placeholder="OLED экран, Аккумулятор 2000mAh, RFID">
+                    </div>
+                    <div class="form-group">
+                        <label>Фотографии (ссылки через запятую)</label>
+                        <input type="text" id="prodImages" placeholder="https://пример.com/photo1.jpg, https://пример.com/photo2.jpg">
+                    </div>
+                    <button type="submit" class="btn">➕ Добавить товар</button>
+                </form>
+            </div>
+
+            <!-- Вкладка: Заказы -->
+            <div id="tab-orders" class="tab-content" style="display:none;">
+                <h2>📋 История заказов</h2>
+                <div id="ordersList"></div>
+            </div>
+
+            <!-- Вкладка: Настройки -->
+            <div id="tab-settings" class="tab-content" style="display:none;">
+                <h2>⚙️ Настройки магазина</h2>
+                <div class="form-group">
+                    <label>Контакт менеджера (Telegram)</label>
+                    <input type="text" id="contactManager" placeholder="@username">
+                </div>
+                <div class="form-group">
+                    <label>Ссылка на Telegram менеджера</label>
+                    <input type="text" id="contactLink" placeholder="https://t.me/username">
+                </div>
+                <div class="form-group">
+                    <label>Курс USD к RUB (по умолчанию)</label>
+                    <input type="number" id="defaultRubRate" step="1">
+                </div>
+                <button class="btn" id="saveSettingsBtn">💾 Сохранить настройки</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== ПЕРЕМЕННЫЕ ==========
+    let products = JSON.parse(localStorage.getItem('admin_products')) || [];
+    let orders = JSON.parse(localStorage.getItem('saved_orders')) || [];
+    let settings = JSON.parse(localStorage.getItem('admin_settings')) || {
+        contactManager: "@cuberpulse",
+        contactLink: "https://t.me/cuberpulse",
+        defaultRubRate: 92
+    };
+
+    // ========== АВТОРИЗАЦИЯ ==========
+    const ADMIN_PASSWORD = "admin123";
+
+    function checkAuth() {
+        const isAuth = localStorage.getItem('admin_auth') === 'true';
+        if(isAuth) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'grid';
+            document.getElementById('logoutBtn').style.display = 'block';
+            loadProducts();
+            loadOrders();
+            loadSettings();
+        } else {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+        }
+    }
+
+    document.getElementById('loginBtn').onclick = () => {
+        const password = document.getElementById('adminPassword').value;
+        if(password === ADMIN_PASSWORD) {
+            localStorage.setItem('admin_auth', 'true');
+            checkAuth();
+            showToast("✅ Вход выполнен", "#4ADE80");
+        } else {
+            showToast("❌ Неверный пароль", "#F87171");
+        }
+    };
+
+    document.getElementById('logoutBtn').onclick = () => {
+        localStorage.removeItem('admin_auth');
+        checkAuth();
+        showToast("🔓 Выход выполнен", "#9AA4BF");
+    };
+
+    // ========== ВКЛАДКИ ==========
+    document.querySelectorAll('.sidebar-menu li').forEach(item => {
+        item.onclick = () => {
+            document.querySelectorAll('.sidebar-menu li').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const tab = item.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.getElementById(`tab-${tab}`).style.display = 'block';
+        };
+    });
+
+    // ========== ЗАГРУЗКА ТОВАРОВ ==========
+    function loadProducts() {
+        const container = document.getElementById('productsList');
+        if(products.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px;">Нет товаров. Добавьте первый!</div>';
+            return;
+        }
+
+        container.innerHTML = products.map((p, index) => {
+            const displayPrice = p.salePrice ? `${p.salePrice} $ (было ${p.price}$)` : `${p.price} $`;
+            return `
+                <div class="product-card-admin">
+                    <div class="product-info-admin">
+                        <div class="product-img-admin">${p.img || '📦'}</div>
+                        <div>
+                            <strong>${p.name}</strong><br>
+                            <small style="color:#6C63FF;">${displayPrice}</small><br>
+                            <small style="color:rgba(255,255,255,0.5);">${p.category}</small>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-outline btn-small" onclick="editProduct(${index})">✏️ Ред.</button>
+                        <button class="btn-outline btn-small" onclick="deleteProduct(${index})" style="border-color:#F87171; color:#F87171;">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ========== ДОБАВЛЕНИЕ ТОВАРА ==========
+    document.getElementById('addProductForm').onsubmit = (e) => {
+        e.preventDefault();
+        
+        const newProduct = {
+            id: Date.now(),
+            name: document.getElementById('prodName').value,
+            price_usd: parseInt(document.getElementById('prodPrice').value),
+            salePrice: document.getElementById('prodSalePrice').value ? parseInt(document.getElementById('prodSalePrice').value) : null,
+            category: document.getElementById('prodCategory').value,
+            img: document.getElementById('prodImg').value || '📦',
+            desc: document.getElementById('prodDesc').value,
+            fullDesc: document.getElementById('prodFullDesc').value || document.getElementById('prodDesc').value,
+            specs: document.getElementById('prodSpecs').value.split(',').map(s => s.trim()),
+            images: document.getElementById('prodImages').value.split(',').map(s => s.trim())
+        };
+        
+        products.push(newProduct);
+        localStorage.setItem('admin_products', JSON.stringify(products));
+        
+        // Обновляем основную БД товаров
+        updateMainProductsDB();
+        
+        document.getElementById('addProductForm').reset();
+        loadProducts();
+        showToast("✅ Товар добавлен", "#4ADE80");
+        
+        // Переключаемся на список товаров
+        document.querySelector('[data-tab="products"]').click();
+    };
+
+    // ========== РЕДАКТИРОВАНИЕ ТОВАРА ==========
+    window.editProduct = (index) => {
+        const p = products[index];
+        document.getElementById('prodName').value = p.name;
+        document.getElementById('prodPrice').value = p.price_usd;
+        document.getElementById('prodSalePrice').value = p.salePrice || '';
+        document.getElementById('prodCategory').value = p.category;
+        document.getElementById('prodImg').value = p.img;
+        document.getElementById('prodDesc').value = p.desc;
+        document.getElementById('prodFullDesc').value = p.fullDesc || '';
+        document.getElementById('prodSpecs').value = p.specs ? p.specs.join(', ') : '';
+        document.getElementById('prodImages').value = p.images ? p.images.join(', ') : '';
+        
+        // Удаляем старый и добавим отредактированный
+        products.splice(index, 1);
+        localStorage.setItem('admin_products', JSON.stringify(products));
+        
+        showToast("✏️ Теперь отредактируйте товар и нажмите 'Добавить'", "#FBBF24");
+        document.querySelector('[data-tab="add"]').click();
+    };
+
+    // ========== УДАЛЕНИЕ ТОВАРА ==========
+    window.deleteProduct = (index) => {
+        if(confirm(`Удалить товар "${products[index].name}"?`)) {
+            products.splice(index, 1);
+            localStorage.setItem('admin_products', JSON.stringify(products));
+            updateMainProductsDB();
+            loadProducts();
+            showToast("🗑️ Товар удалён", "#F87171");
+        }
+    };
+
+    // ========== ОБНОВЛЕНИЕ ОСНОВНОЙ БД ==========
+    function updateMainProductsDB() {
+        // Сохраняем актуальный список товаров для главного сайта
+        localStorage.setItem('shop_products', JSON.stringify(products));
+        
+        // Также обновляем products в sessionStorage для текущей сессии
+        sessionStorage.setItem('current_products', JSON.stringify(products));
+    }
+
+    // ========== ЗАГРУЗКА ЗАКАЗОВ ==========
+    function loadOrders() {
+        const container = document.getElementById('ordersList');
+        const savedOrders = JSON.parse(localStorage.getItem('saved_orders') || '[]');
+        
+        if(savedOrders.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px;">Нет заказов</div>';
+            return;
+        }
+
+        container.innerHTML = savedOrders.reverse().map((order, index) => `
+            <div class="product-card-admin">
+                <div class="product-info-admin">
+                    <div>
+                        <strong>👤 ${order.fullName}</strong><br>
+                        <small>📞 ${order.phone}</small><br>
+                        <small>📧 ${order.email}</small><br>
+                        <small>📍 ${order.city}, ${order.address}</small><br>
+                        <small>📦 ${order.delivery}</small><br>
+                        <small>💰 ${order.total}</small>
+                    </div>
+                </div>
+                <div class="product-actions">
+                    <button class="btn-outline btn-small" onclick="copyOrder(${index})">📋 Копировать</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.copyOrder = (index) => {
+        const orders = JSON.parse(localStorage.getItem('saved_orders') || '[]');
+        const order = orders.reverse()[index];
+        const text = `Заказ: ${order.fullName}\nТелефон: ${order.phone}\nАдрес: ${order.city}, ${order.address}\nСумма: ${order.total}`;
+        navigator.clipboard.writeText(text);
+        showToast("📋 Заказ скопирован", "#4ADE80");
+    };
+
+    // ========== НАСТРОЙКИ ==========
+    function loadSettings() {
+        document.getElementById('contactManager').value = settings.contactManager;
+        document.getElementById('contactLink').value = settings.contactLink;
+        document.getElementById('defaultRubRate').value = settings.defaultRubRate;
+    }
+
+    document.getElementById('saveSettingsBtn').onclick = () => {
+        settings = {
+            contactManager: document.getElementById('contactManager').value,
+            contactLink: document.getElementById('contactLink').value,
+            defaultRubRate: parseInt(document.getElementById('defaultRubRate').value) || 92
+        };
+        localStorage.setItem('admin_settings', JSON.stringify(settings));
+        showToast("💾 Настройки сохранены", "#4ADE80");
+    };
+
+    // ========== TOAST ==========
+    function showToast(msg, color) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.borderLeftColor = color;
+        toast.innerHTML = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    // Загружаем товары из localStorage или создаём тестовые
+    if(products.length === 0) {
+        products = [
+            { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста", fullDesc: "Flipper Zero — портативный инструмент для пентестеров", specs: ["OLED экран", "Аккумулятор 2000mAh"], images: [] },
+            { id: 2, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz модуль", fullDesc: "", specs: [], images: [] }
+        ];
+        localStorage.setItem('admin_products', JSON.stringify(products));
+    }
+    
+    checkAuth();
+</script>
+</body>
+</html>
