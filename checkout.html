@@ -149,14 +149,74 @@
 
     document.getElementById('delivery').onchange = (e) => { deliveryCostUSD = deliveryPrices[e.target.value] || 0; renderOrderSummary(); };
 
-    // ========== TELEGRAM ОТПРАВКА ==========
+    // ========== TELEGRAM ОТПРАВКА С ПОДДЕРЖКОЙ ТОПИКОВ ==========
     const BOT_TOKEN = "8958424168:AAHZ2f5oGU81VuTXwJCuEdta7ntFvAOuAfc";
     const CHAT_ID = "-1003951304278";
+    
+    // ID топиков в вашей группе (нужно настроить в Telegram)
+    // Как получить ID топика: добавить бота @ShowTopicBot в группу
+    const TOPIC_IDS = {
+        devices: 1,      // Топик для устройств
+        modules: 2,      // Топик для модулей
+        firmware: 3,     // Топик для прошивок
+        other: 4         // Топик для остального
+    };
+
+    // Функция определения топика по товарам в заказе
+    function getTopicByProducts(cartItems) {
+        // Проверяем категории товаров
+        const hasDevices = cartItems.some(item => {
+            const p = products.find(p => p.id === item.id);
+            return p && (p.name.includes("Flipper") || p.name.includes("HackRF") || p.name.includes("RTLSDR"));
+        });
+        const hasModules = cartItems.some(item => {
+            const p = products.find(p => p.id === item.id);
+            return p && (p.name.includes("NRF") || p.name.includes("CC1101") || p.name.includes("ESP"));
+        });
+        const hasFirmware = cartItems.some(item => {
+            const p = products.find(p => p.id === item.id);
+            return p && (p.name.includes("прошивка") || p.name.includes("Marauder"));
+        });
+        
+        if(hasDevices) return TOPIC_IDS.devices;
+        if(hasModules) return TOPIC_IDS.modules;
+        if(hasFirmware) return TOPIC_IDS.firmware;
+        return TOPIC_IDS.other;
+    }
+
+    // Форматирование сообщения с эмодзи для разных топиков
+    function getTopicEmoji(topicId) {
+        const emojis = {
+            [TOPIC_IDS.devices]: "📟",
+            [TOPIC_IDS.modules]: "🔌", 
+            [TOPIC_IDS.firmware]: "⚙️",
+            [TOPIC_IDS.other]: "📦"
+        };
+        return emojis[topicId] || "📦";
+    }
 
     async function sendOrderToTelegram(orderData) {
-        const message = `🛒 НОВЫЙ ЗАКАЗ 🛒\n━━━━━━━━━━━━━━\n👤 ${orderData.fullName}\n📞 ${orderData.phone}\n📧 ${orderData.email}\n📍 ${orderData.city}, ${orderData.address}\n📦 ${orderData.delivery}\n📦 Товары:\n${orderData.items}\n💰 ${orderData.total}\n💬 ${orderData.comment || "Нет"}`;
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
-        try { const res = await fetch(url); const data = await res.json(); return data.ok; } catch(e) { return false; }
+        const topicId = getTopicByProducts(cart);
+        const topicEmoji = getTopicEmoji(topicId);
+        
+        const message = `${topicEmoji} **НОВЫЙ ЗАКАЗ** ${topicEmoji}\n━━━━━━━━━━━━━━━━━━━\n\n👤 **КЛИЕНТ:**\n• ФИО: ${orderData.fullName}\n• Телефон: ${orderData.phone}\n• Email: ${orderData.email}\n\n📍 **ДОСТАВКА:**\n• Способ: ${orderData.delivery}\n• Город: ${orderData.city}\n• Адрес: ${orderData.address}\n• Индекс: ${orderData.zip}\n\n📦 **ТОВАРЫ:**\n${orderData.items}\n\n💰 **ОПЛАТА:**\n• Способ: ${orderData.payment}\n• Сумма: ${orderData.total}\n\n💬 **КОММЕНТАРИЙ:**\n${orderData.comment || "Нет"}\n\n⏰ **Время:** ${new Date().toLocaleString()}\n━━━━━━━━━━━━━━━━━━━\n#новый_заказ`;
+        
+        // Отправляем в конкретный топик
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&message_thread_id=${topicId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+        
+        // Также отправляем копию в общий чат (опционально)
+        const generalUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(`📢 Новый заказ в топик ${topicEmoji}`)}`;
+        
+        try { 
+            const res = await fetch(url); 
+            const data = await res.json();
+            // Отправляем уведомление в общий чат (необязательно)
+            await fetch(generalUrl);
+            return data.ok; 
+        } catch(e) { 
+            console.error('Ошибка:', e);
+            return false; 
+        }
     }
 
     function saveOrderLocally(orderData) {
@@ -185,21 +245,47 @@
         const zip = document.getElementById('zip').value.trim();
         const comment = document.getElementById('comment').value.trim();
         const payment = document.querySelector('input[name="payment"]:checked').value;
+        
         if(!fullName || !phone || !email || !delivery || !city || !address || !zip) { showToast("Заполните все поля", "#F87171"); return; }
         const phoneDigits = phone.replace(/\D/g, '');
         if(phoneDigits.length !== 11) { showToast("Неверный номер телефона", "#F87171"); return; }
-        const itemsList = cart.map(item => { const p = products.find(pp => pp.id === item.id); const price = getPrice(p.price_usd); return `• ${p.name} × ${item.quantity} = ${price.val * item.quantity} ${price.sym}`; }).join('\n');
+        
+        const itemsList = cart.map(item => { 
+            const p = products.find(pp => pp.id === item.id); 
+            const price = getPrice(p.price_usd); 
+            return `• ${p.name} × ${item.quantity} = ${price.val * item.quantity} ${price.sym}`; 
+        }).join('\n');
+        
         const total = getPrice(totalUSD + deliveryCostUSD);
-        const orderData = { fullName, phone, email, delivery: deliveryNames[delivery], city, address, zip, items: itemsList, payment: payment === 'card' ? '💳 Карта' : '🪙 Криптовалюта', total: `${total.val} ${total.sym}`, comment };
+        const orderData = { 
+            fullName, phone, email, 
+            delivery: deliveryNames[delivery], 
+            city, address, zip, 
+            items: itemsList, 
+            payment: payment === 'card' ? '💳 Карта' : '🪙 Криптовалюта', 
+            total: `${total.val} ${total.sym}`, 
+            comment 
+        };
+        
         const btn = document.querySelector('.btn-submit');
-        btn.disabled = true; btn.innerText = "⏳ Отправка...";
+        btn.disabled = true; 
+        btn.innerText = "⏳ Отправка...";
+        
         const sent = await sendOrderToTelegram(orderData);
         if(!sent) saveOrderLocally(orderData);
-        localStorage.removeItem('cart'); localStorage.removeItem('checkoutCart');
+        
+        localStorage.removeItem('cart'); 
+        localStorage.removeItem('checkoutCart');
         showToast("✅ Заказ оформлен!", "#4ADE80");
-        setTimeout(() => { openContactModal(); btn.disabled = false; }, 1000);
+        
+        setTimeout(() => { 
+            openContactModal(); 
+            btn.disabled = false; 
+        }, 1000);
     };
-    fetchRubRate(); if(cart.length === 0) window.location.href = 'index.html';
+    
+    fetchRubRate(); 
+    if(cart.length === 0) window.location.href = 'index.html';
 </script>
 </body>
 </html>
