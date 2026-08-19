@@ -527,7 +527,7 @@
                             <input type="text" id="prodImg" placeholder="Или вставьте ссылку на фото вручную">
                             <button type="button" class="btn-outline btn-small" onclick="clearMainPhoto()">✕</button>
                         </div>
-                        <small style="color:rgba(255,255,255,0.4);">Можно загрузить фото или вставить ссылку (Imgur, и т.д.)</small>
+                        <small style="color:rgba(255,255,255,0.4);">Можно загрузить фото или вставить ссылку (Imgur, PostImages, и т.д.)</small>
                     </div>
 
                     <!-- Загрузка дополнительных фото -->
@@ -707,26 +707,24 @@
         return div.innerHTML;
     }
 
-    // ========== ЗАГРУЗКА ФОТО НА IMGUR ==========
-    async function uploadToImgur(file) {
+    // ========== ЗАГРУЗКА ФОТО НА FREEIMAGE.HOST ==========
+    async function uploadToFreeImage(file) {
         return new Promise((resolve, reject) => {
             const formData = new FormData();
-            formData.append('image', file);
-
-            // Используем бесплатный прокси для Imgur
-            fetch('https://api.imgur.com/3/image', {
+            formData.append('source', file);
+            formData.append('format', 'json');
+            
+            // Используем бесплатный API freeimage.host
+            fetch('https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Client-ID 546c25a59c58ad7'
-                },
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    resolve(data.data.link);
+                if (data.status_code === 200) {
+                    resolve(data.image.url);
                 } else {
-                    reject(data.data.error || 'Ошибка загрузки');
+                    reject(data.error || 'Ошибка загрузки');
                 }
             })
             .catch(error => reject(error));
@@ -742,7 +740,7 @@
         previewContainer.innerHTML = '<div class="upload-loading"></div> Загрузка...';
 
         try {
-            const link = await uploadToImgur(file);
+            const link = await uploadToFreeImage(file);
             uploadedMainPhoto = link;
             document.getElementById('prodImg').value = link;
             previewContainer.innerHTML = `
@@ -754,7 +752,9 @@
             showToast("✅ Фото загружено!", "#4ADE80");
         } catch (error) {
             previewContainer.innerHTML = `<span style="color:#F87171;">❌ Ошибка: ${error}</span>`;
-            showToast("❌ Ошибка загрузки фото", "#F87171");
+            showToast("❌ Ошибка загрузки фото. Попробуйте вставить ссылку вручную.", "#F87171");
+            // Если загрузка не работает, предлагаем вставить ссылку вручную
+            document.getElementById('prodImg').focus();
         }
     });
 
@@ -771,7 +771,7 @@
 
         for (let i = 0; i < files.length; i++) {
             try {
-                const link = await uploadToImgur(files[i]);
+                const link = await uploadToFreeImage(files[i]);
                 links.push(link);
                 galleryUrls.push(link);
             } catch (error) {
@@ -792,7 +792,7 @@
         if (links.length > 0) {
             showToast(`✅ Загружено ${links.length} фото`, "#4ADE80");
         } else {
-            showToast("❌ Ошибка загрузки фото", "#F87171");
+            showToast("❌ Ошибка загрузки фото. Попробуйте вставить ссылки вручную.", "#F87171");
         }
     });
 
