@@ -344,46 +344,14 @@
             margin-bottom: 16px;
         }
 
-        /* Стили для загрузки фото */
-        .upload-area {
-            border: 2px dashed rgba(108, 99, 255, 0.3);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            background: rgba(255,255,255,0.02);
-        }
-
-        .upload-area:hover {
-            border-color: #6C63FF;
-            background: rgba(108, 99, 255, 0.05);
-        }
-
-        .upload-area.dragover {
-            border-color: #6C63FF;
-            background: rgba(108, 99, 255, 0.1);
-        }
-
-        .upload-area input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .upload-preview {
+        .image-preview {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-top: 12px;
         }
 
-        .upload-preview img {
+        .image-preview img {
             width: 80px;
             height: 80px;
             object-fit: cover;
@@ -391,11 +359,11 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .upload-preview .preview-item {
+        .image-preview .preview-item {
             position: relative;
         }
 
-        .upload-preview .remove-preview {
+        .image-preview .remove-preview {
             position: absolute;
             top: -6px;
             right: -6px;
@@ -409,28 +377,17 @@
             font-size: 12px;
         }
 
-        .upload-loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-top-color: #6C63FF;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
+        .photo-guide {
+            background: rgba(108,99,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            border-left: 3px solid #6C63FF;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .image-url-input {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .image-url-input input {
-            flex: 1;
+        .photo-guide .step {
+            margin: 4px 0;
         }
     </style>
 </head>
@@ -481,6 +438,16 @@
             <div id="tab-add" class="tab-content" style="display:none;">
                 <h2 id="formTitle">➕ Добавить товар</h2>
 
+                <div class="photo-guide">
+                    <strong>📸 Как добавить фото:</strong>
+                    <div class="step">1. Загрузите фото в папку <strong>images</strong> на GitHub</div>
+                    <div class="step">2. В поле "Главное фото" укажите путь: <strong>images/название-файла.jpg</strong></div>
+                    <div class="step">3. Для дополнительных фото укажите пути через запятую</div>
+                    <div style="margin-top:8px; color:rgba(255,255,255,0.4); font-size:12px;">
+                        💡 Пример: <strong>images/flipper-zero.jpg</strong>
+                    </div>
+                </div>
+
                 <form id="productForm">
                     <input type="hidden" id="editId" value="">
 
@@ -514,36 +481,18 @@
                         </div>
                     </div>
 
-                    <!-- Загрузка главного фото -->
                     <div class="form-group">
-                        <label>Главное фото</label>
-                        <div class="upload-area" id="mainUploadArea">
-                            <span>📸</span><br>
-                            <span style="color:rgba(255,255,255,0.5);">Нажмите или перетащите фото для загрузки</span>
-                            <input type="file" id="mainPhotoInput" accept="image/*">
-                        </div>
-                        <div id="mainPhotoPreview" class="upload-preview"></div>
-                        <div class="image-url-input">
-                            <input type="text" id="prodImg" placeholder="Или вставьте ссылку на фото вручную">
-                            <button type="button" class="btn-outline btn-small" onclick="clearMainPhoto()">✕</button>
-                        </div>
-                        <small style="color:rgba(255,255,255,0.4);">Можно загрузить фото или вставить ссылку (Imgur, PostImages, и т.д.)</small>
+                        <label>Главное фото (путь в папке images)</label>
+                        <input type="text" id="prodImg" placeholder="images/flipper-zero.jpg">
+                        <div id="mainPhotoPreview" class="image-preview"></div>
+                        <small style="color:rgba(255,255,255,0.4);">Укажите путь к фото в папке images (например: images/flipper-zero.jpg)</small>
                     </div>
 
-                    <!-- Загрузка дополнительных фото -->
                     <div class="form-group">
-                        <label>Дополнительные фото (галерея)</label>
-                        <div class="upload-area" id="galleryUploadArea">
-                            <span>🖼️</span><br>
-                            <span style="color:rgba(255,255,255,0.5);">Нажмите или перетащите фото для галереи</span>
-                            <input type="file" id="galleryPhotoInput" accept="image/*" multiple>
-                        </div>
-                        <div id="galleryPhotoPreview" class="upload-preview"></div>
-                        <div class="image-url-input">
-                            <input type="text" id="prodImages" placeholder="Или вставьте ссылки через запятую">
-                            <button type="button" class="btn-outline btn-small" onclick="clearGalleryPhotos()">✕</button>
-                        </div>
-                        <small style="color:rgba(255,255,255,0.4);">Можно загрузить несколько фото или вставить ссылки через запятую</small>
+                        <label>Дополнительные фото (через запятую)</label>
+                        <input type="text" id="prodImages" placeholder="images/flipper-zero-1.jpg, images/flipper-zero-2.jpg">
+                        <div id="galleryPhotoPreview" class="image-preview"></div>
+                        <small style="color:rgba(255,255,255,0.4);">Укажите пути к дополнительным фото через запятую</small>
                     </div>
 
                     <div class="form-group">
@@ -581,8 +530,6 @@
 <script>
     // ========== ДАННЫЕ ==========
     let products = [];
-    let uploadedMainPhoto = null;
-    let uploadedGalleryPhotos = [];
 
     const ADMIN_LOGIN = "admin";
     const ADMIN_PASSWORD = "admin123";
@@ -634,11 +581,13 @@
             } catch (e) { }
         }
 
-        // Дефолтные товары
+        // Дефолтные товары с путями к фото в папке images
         products = [
-            { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент.", specs: ["OLED дисплей 128x64", "Аккумулятор 2000mAh", "RFID/NFC"], images: [] },
-            { id: 2, name: "HackRF One", price_usd: 299, salePrice: null, category: "devices", img: "📡", desc: "SDR-трансивер 1 МГц – 6 ГГц.", fullDesc: "", specs: ["1MHz-6GHz", "20MHz полоса"], images: [] },
-            { id: 3, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", fullDesc: "", specs: ["2.4GHz", "Дальность до 100м"], images: [] }
+            { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "images/flipper-zero.jpg", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент.", specs: ["OLED дисплей 128x64", "Аккумулятор 2000mAh", "RFID/NFC"], images: ["images/flipper-zero-1.jpg", "images/flipper-zero-2.jpg"] },
+            { id: 2, name: "HackRF One", price_usd: 299, salePrice: null, category: "devices", img: "images/hackrf-one.jpg", desc: "SDR-трансивер 1 МГц – 6 ГГц.", fullDesc: "", specs: ["1MHz-6GHz", "20MHz полоса"], images: [] },
+            { id: 3, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "images/nrf24l01.jpg", desc: "2.4GHz беспроводной модуль для Flipper Zero.", fullDesc: "", specs: ["2.4GHz", "Дальность до 100м"], images: [] },
+            { id: 4, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "images/cc1101.jpg", desc: "Суб-ГГц трансивер для Flipper Zero.", fullDesc: "", specs: ["315/433/868/915MHz"], images: [] },
+            { id: 5, name: "ESP8266 WiFi модуль", price_usd: 8, salePrice: null, category: "modules", img: "images/esp8266.jpg", desc: "WiFi модуль для Flipper Zero.", fullDesc: "", specs: ["WiFi", "Arduino"], images: [] }
         ];
         localStorage.setItem('admin_products', JSON.stringify(products));
         renderProductsList();
@@ -662,8 +611,9 @@
             const displayPrice = p.salePrice ? `${p.salePrice}$ (было ${p.price_usd}$)` : `${p.price_usd}$`;
             const categoryName = getCategoryName(p.category);
 
-            const isImageUrl = p.img && (p.img.startsWith('http://') || p.img.startsWith('https://'));
-            const imgHtml = isImageUrl ? `<img src="${p.img}" alt="${p.name}">` : `<span>${p.img || '📦'}</span>`;
+            // Проверяем, это путь к фото или эмодзи
+            const isImagePath = p.img && (p.img.startsWith('images/') || p.img.startsWith('http'));
+            const imgHtml = isImagePath ? `<img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>📦</span>';">` : `<span>${p.img || '📦'}</span>`;
 
             const card = document.createElement('div');
             card.className = 'product-card-admin';
@@ -707,150 +657,53 @@
         return div.innerHTML;
     }
 
-    // ========== ЗАГРУЗКА ФОТО НА FREEIMAGE.HOST ==========
-    async function uploadToFreeImage(file) {
-        return new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('source', file);
-            formData.append('format', 'json');
-            
-            // Используем бесплатный API freeimage.host
-            fetch('https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status_code === 200) {
-                    resolve(data.image.url);
-                } else {
-                    reject(data.error || 'Ошибка загрузки');
-                }
-            })
-            .catch(error => reject(error));
-        });
-    }
-
-    // ========== ОБРАБОТКА ЗАГРУЗКИ ГЛАВНОГО ФОТО ==========
-    document.getElementById('mainPhotoInput').addEventListener('change', async function(e) {
-        const file = this.files[0];
-        if (!file) return;
-
-        const previewContainer = document.getElementById('mainPhotoPreview');
-        previewContainer.innerHTML = '<div class="upload-loading"></div> Загрузка...';
-
-        try {
-            const link = await uploadToFreeImage(file);
-            uploadedMainPhoto = link;
-            document.getElementById('prodImg').value = link;
-            previewContainer.innerHTML = `
-                <div class="preview-item">
-                    <img src="${link}" alt="Главное фото">
-                    <button class="remove-preview" onclick="clearMainPhoto()">✕</button>
-                </div>
-            `;
-            showToast("✅ Фото загружено!", "#4ADE80");
-        } catch (error) {
-            previewContainer.innerHTML = `<span style="color:#F87171;">❌ Ошибка: ${error}</span>`;
-            showToast("❌ Ошибка загрузки фото. Попробуйте вставить ссылку вручную.", "#F87171");
-            // Если загрузка не работает, предлагаем вставить ссылку вручную
-            document.getElementById('prodImg').focus();
-        }
-    });
-
-    // ========== ОБРАБОТКА ЗАГРУЗКИ ГАЛЕРЕИ ==========
-    document.getElementById('galleryPhotoInput').addEventListener('change', async function(e) {
-        const files = this.files;
-        if (!files.length) return;
-
-        const previewContainer = document.getElementById('galleryPhotoPreview');
-        previewContainer.innerHTML = '<div class="upload-loading"></div> Загрузка...';
-
-        const links = [];
-        const galleryUrls = [];
-
-        for (let i = 0; i < files.length; i++) {
-            try {
-                const link = await uploadToFreeImage(files[i]);
-                links.push(link);
-                galleryUrls.push(link);
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-            }
-        }
-
-        uploadedGalleryPhotos = links;
-        document.getElementById('prodImages').value = galleryUrls.join(', ');
-
-        previewContainer.innerHTML = links.map(link => `
-            <div class="preview-item">
-                <img src="${link}" alt="Фото галереи">
-                <button class="remove-preview" onclick="removeGalleryPhoto('${link}')">✕</button>
-            </div>
-        `).join('');
-
-        if (links.length > 0) {
-            showToast(`✅ Загружено ${links.length} фото`, "#4ADE80");
-        } else {
-            showToast("❌ Ошибка загрузки фото. Попробуйте вставить ссылки вручную.", "#F87171");
-        }
-    });
-
-    // ========== ОЧИСТКА ФОТО ==========
-    window.clearMainPhoto = function() {
-        uploadedMainPhoto = null;
-        document.getElementById('prodImg').value = '';
-        document.getElementById('mainPhotoPreview').innerHTML = '';
-        document.getElementById('mainPhotoInput').value = '';
-    };
-
-    window.clearGalleryPhotos = function() {
-        uploadedGalleryPhotos = [];
-        document.getElementById('prodImages').value = '';
-        document.getElementById('galleryPhotoPreview').innerHTML = '';
-        document.getElementById('galleryPhotoInput').value = '';
-    };
-
-    window.removeGalleryPhoto = function(link) {
-        uploadedGalleryPhotos = uploadedGalleryPhotos.filter(l => l !== link);
-        const currentUrls = document.getElementById('prodImages').value.split(',').map(s => s.trim()).filter(s => s !== link);
-        document.getElementById('prodImages').value = currentUrls.join(', ');
-        
-        const previewContainer = document.getElementById('galleryPhotoPreview');
-        previewContainer.innerHTML = uploadedGalleryPhotos.map(l => `
-            <div class="preview-item">
-                <img src="${l}" alt="Фото галереи">
-                <button class="remove-preview" onclick="removeGalleryPhoto('${l}')">✕</button>
-            </div>
-        `).join('');
-    };
-
-    // ========== DRAG & DROP ==========
-    function setupDragDrop(areaId, inputId) {
-        const area = document.getElementById(areaId);
+    // ========== ПРЕДПРОСМОТР ФОТО ИЗ ПАПКИ IMAGES ==========
+    function updatePhotoPreview(inputId, previewId) {
         const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const value = input.value.trim();
+        
+        if (!value) {
+            preview.innerHTML = '';
+            return;
+        }
 
-        area.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            area.classList.add('dragover');
-        });
+        const urls = value.split(',').map(s => s.trim()).filter(s => s);
+        if (urls.length === 0) {
+            preview.innerHTML = '';
+            return;
+        }
 
-        area.addEventListener('dragleave', () => {
-            area.classList.remove('dragover');
-        });
-
-        area.addEventListener('drop', (e) => {
-            e.preventDefault();
-            area.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                input.files = e.dataTransfer.files;
-                input.dispatchEvent(new Event('change'));
+        preview.innerHTML = urls.map(url => {
+            // Проверяем, это путь к файлу или ссылка
+            const isImage = url.startsWith('images/') || url.startsWith('http');
+            if (isImage) {
+                return `
+                    <div class="preview-item">
+                        <img src="${url}" alt="Фото" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-size:24px;\'>📦</span>';">
+                        <button class="remove-preview" onclick="removePhoto('${inputId}', '${previewId}', '${url}')">✕</button>
+                    </div>
+                `;
             }
-        });
+            return '';
+        }).join('');
     }
 
-    setupDragDrop('mainUploadArea', 'mainPhotoInput');
-    setupDragDrop('galleryUploadArea', 'galleryPhotoInput');
+    window.removePhoto = function(inputId, previewId, url) {
+        const input = document.getElementById(inputId);
+        const current = input.value.split(',').map(s => s.trim()).filter(s => s && s !== url);
+        input.value = current.join(', ');
+        updatePhotoPreview(inputId, previewId);
+    };
+
+    // ========== РЕАГИРУЕМ НА ИЗМЕНЕНИЕ ПОЛЕЙ ==========
+    document.getElementById('prodImg').addEventListener('input', function() {
+        updatePhotoPreview('prodImg', 'mainPhotoPreview');
+    });
+
+    document.getElementById('prodImages').addEventListener('input', function() {
+        updatePhotoPreview('prodImages', 'galleryPhotoPreview');
+    });
 
     // ========== РЕДАКТИРОВАНИЕ ТОВАРА ==========
     window.editProduct = function (id) {
@@ -867,25 +720,11 @@
         document.getElementById('prodFullDesc').value = product.fullDesc || '';
 
         // Восстанавливаем фото
-        if (product.img && (product.img.startsWith('http://') || product.img.startsWith('https://'))) {
-            document.getElementById('prodImg').value = product.img;
-            document.getElementById('mainPhotoPreview').innerHTML = `
-                <div class="preview-item">
-                    <img src="${product.img}" alt="Главное фото">
-                    <button class="remove-preview" onclick="clearMainPhoto()">✕</button>
-                </div>
-            `;
-        }
+        document.getElementById('prodImg').value = product.img || '';
+        updatePhotoPreview('prodImg', 'mainPhotoPreview');
 
-        if (product.images && product.images.length) {
-            document.getElementById('prodImages').value = product.images.join(', ');
-            document.getElementById('galleryPhotoPreview').innerHTML = product.images.map(link => `
-                <div class="preview-item">
-                    <img src="${link}" alt="Фото галереи">
-                    <button class="remove-preview" onclick="removeGalleryPhoto('${link}')">✕</button>
-                </div>
-            `).join('');
-        }
+        document.getElementById('prodImages').value = (product.images || []).join(', ');
+        updatePhotoPreview('prodImages', 'galleryPhotoPreview');
 
         const specsContainer = document.getElementById('specsContainer');
         specsContainer.innerHTML = '';
@@ -905,8 +744,6 @@
         document.getElementById('specsContainer').innerHTML = '';
         document.getElementById('mainPhotoPreview').innerHTML = '';
         document.getElementById('galleryPhotoPreview').innerHTML = '';
-        uploadedMainPhoto = null;
-        uploadedGalleryPhotos = [];
         addSpecField('');
     };
 
