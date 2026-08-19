@@ -344,16 +344,93 @@
             margin-bottom: 16px;
         }
 
-        .image-helper {
-            background: rgba(108,99,255,0.1);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
-            font-size: 13px;
+        /* Стили для загрузки фото */
+        .upload-area {
+            border: 2px dashed rgba(108, 99, 255, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: rgba(255,255,255,0.02);
         }
 
-        .image-helper a {
-            color: #6C63FF;
+        .upload-area:hover {
+            border-color: #6C63FF;
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #6C63FF;
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .upload-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .upload-preview .preview-item {
+            position: relative;
+        }
+
+        .upload-preview .remove-preview {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #F87171;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .upload-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: #6C63FF;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .image-url-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .image-url-input input {
+            flex: 1;
         }
     </style>
 </head>
@@ -404,14 +481,6 @@
             <div id="tab-add" class="tab-content" style="display:none;">
                 <h2 id="formTitle">➕ Добавить товар</h2>
 
-                <div class="image-helper">
-                    📸 <strong>Как добавить фото:</strong><br>
-                    1. Загрузите фото на <a href="https://imgur.com/upload" target="_blank">Imgur</a><br>
-                    2. Скопируйте прямую ссылку (например: https://i.imgur.com/abc123.jpg)<br>
-                    3. Вставьте ссылку в поле "Главное фото"<br>
-                    <span style="color:rgba(255,255,255,0.5);">💡 Можно также использовать эмодзи: 🐬 📡 📻</span>
-                </div>
-
                 <form id="productForm">
                     <input type="hidden" id="editId" value="">
 
@@ -445,16 +514,36 @@
                         </div>
                     </div>
 
+                    <!-- Загрузка главного фото -->
                     <div class="form-group">
-                        <label>Главное фото (ссылка или эмодзи)</label>
-                        <input type="text" id="prodImg" placeholder="https://i.imgur.com/abc123.jpg или 🐬">
-                        <small style="color:rgba(255,255,255,0.4);">Вставьте прямую ссылку на фото или используйте эмодзи</small>
+                        <label>Главное фото</label>
+                        <div class="upload-area" id="mainUploadArea">
+                            <span>📸</span><br>
+                            <span style="color:rgba(255,255,255,0.5);">Нажмите или перетащите фото для загрузки</span>
+                            <input type="file" id="mainPhotoInput" accept="image/*">
+                        </div>
+                        <div id="mainPhotoPreview" class="upload-preview"></div>
+                        <div class="image-url-input">
+                            <input type="text" id="prodImg" placeholder="Или вставьте ссылку на фото вручную">
+                            <button type="button" class="btn-outline btn-small" onclick="clearMainPhoto()">✕</button>
+                        </div>
+                        <small style="color:rgba(255,255,255,0.4);">Можно загрузить фото или вставить ссылку (Imgur, и т.д.)</small>
                     </div>
 
+                    <!-- Загрузка дополнительных фото -->
                     <div class="form-group">
-                        <label>Дополнительные фото (через запятую)</label>
-                        <input type="text" id="prodImages" placeholder="https://i.imgur.com/abc123.jpg, https://i.imgur.com/def456.jpg">
-                        <small style="color:rgba(255,255,255,0.4);">Ссылки на дополнительные фото для галереи</small>
+                        <label>Дополнительные фото (галерея)</label>
+                        <div class="upload-area" id="galleryUploadArea">
+                            <span>🖼️</span><br>
+                            <span style="color:rgba(255,255,255,0.5);">Нажмите или перетащите фото для галереи</span>
+                            <input type="file" id="galleryPhotoInput" accept="image/*" multiple>
+                        </div>
+                        <div id="galleryPhotoPreview" class="upload-preview"></div>
+                        <div class="image-url-input">
+                            <input type="text" id="prodImages" placeholder="Или вставьте ссылки через запятую">
+                            <button type="button" class="btn-outline btn-small" onclick="clearGalleryPhotos()">✕</button>
+                        </div>
+                        <small style="color:rgba(255,255,255,0.4);">Можно загрузить несколько фото или вставить ссылки через запятую</small>
                     </div>
 
                     <div class="form-group">
@@ -492,6 +581,8 @@
 <script>
     // ========== ДАННЫЕ ==========
     let products = [];
+    let uploadedMainPhoto = null;
+    let uploadedGalleryPhotos = [];
 
     const ADMIN_LOGIN = "admin";
     const ADMIN_PASSWORD = "admin123";
@@ -616,6 +707,151 @@
         return div.innerHTML;
     }
 
+    // ========== ЗАГРУЗКА ФОТО НА IMGUR ==========
+    async function uploadToImgur(file) {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            // Используем бесплатный прокси для Imgur
+            fetch('https://api.imgur.com/3/image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Client-ID 546c25a59c58ad7'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resolve(data.data.link);
+                } else {
+                    reject(data.data.error || 'Ошибка загрузки');
+                }
+            })
+            .catch(error => reject(error));
+        });
+    }
+
+    // ========== ОБРАБОТКА ЗАГРУЗКИ ГЛАВНОГО ФОТО ==========
+    document.getElementById('mainPhotoInput').addEventListener('change', async function(e) {
+        const file = this.files[0];
+        if (!file) return;
+
+        const previewContainer = document.getElementById('mainPhotoPreview');
+        previewContainer.innerHTML = '<div class="upload-loading"></div> Загрузка...';
+
+        try {
+            const link = await uploadToImgur(file);
+            uploadedMainPhoto = link;
+            document.getElementById('prodImg').value = link;
+            previewContainer.innerHTML = `
+                <div class="preview-item">
+                    <img src="${link}" alt="Главное фото">
+                    <button class="remove-preview" onclick="clearMainPhoto()">✕</button>
+                </div>
+            `;
+            showToast("✅ Фото загружено!", "#4ADE80");
+        } catch (error) {
+            previewContainer.innerHTML = `<span style="color:#F87171;">❌ Ошибка: ${error}</span>`;
+            showToast("❌ Ошибка загрузки фото", "#F87171");
+        }
+    });
+
+    // ========== ОБРАБОТКА ЗАГРУЗКИ ГАЛЕРЕИ ==========
+    document.getElementById('galleryPhotoInput').addEventListener('change', async function(e) {
+        const files = this.files;
+        if (!files.length) return;
+
+        const previewContainer = document.getElementById('galleryPhotoPreview');
+        previewContainer.innerHTML = '<div class="upload-loading"></div> Загрузка...';
+
+        const links = [];
+        const galleryUrls = [];
+
+        for (let i = 0; i < files.length; i++) {
+            try {
+                const link = await uploadToImgur(files[i]);
+                links.push(link);
+                galleryUrls.push(link);
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+            }
+        }
+
+        uploadedGalleryPhotos = links;
+        document.getElementById('prodImages').value = galleryUrls.join(', ');
+
+        previewContainer.innerHTML = links.map(link => `
+            <div class="preview-item">
+                <img src="${link}" alt="Фото галереи">
+                <button class="remove-preview" onclick="removeGalleryPhoto('${link}')">✕</button>
+            </div>
+        `).join('');
+
+        if (links.length > 0) {
+            showToast(`✅ Загружено ${links.length} фото`, "#4ADE80");
+        } else {
+            showToast("❌ Ошибка загрузки фото", "#F87171");
+        }
+    });
+
+    // ========== ОЧИСТКА ФОТО ==========
+    window.clearMainPhoto = function() {
+        uploadedMainPhoto = null;
+        document.getElementById('prodImg').value = '';
+        document.getElementById('mainPhotoPreview').innerHTML = '';
+        document.getElementById('mainPhotoInput').value = '';
+    };
+
+    window.clearGalleryPhotos = function() {
+        uploadedGalleryPhotos = [];
+        document.getElementById('prodImages').value = '';
+        document.getElementById('galleryPhotoPreview').innerHTML = '';
+        document.getElementById('galleryPhotoInput').value = '';
+    };
+
+    window.removeGalleryPhoto = function(link) {
+        uploadedGalleryPhotos = uploadedGalleryPhotos.filter(l => l !== link);
+        const currentUrls = document.getElementById('prodImages').value.split(',').map(s => s.trim()).filter(s => s !== link);
+        document.getElementById('prodImages').value = currentUrls.join(', ');
+        
+        const previewContainer = document.getElementById('galleryPhotoPreview');
+        previewContainer.innerHTML = uploadedGalleryPhotos.map(l => `
+            <div class="preview-item">
+                <img src="${l}" alt="Фото галереи">
+                <button class="remove-preview" onclick="removeGalleryPhoto('${l}')">✕</button>
+            </div>
+        `).join('');
+    };
+
+    // ========== DRAG & DROP ==========
+    function setupDragDrop(areaId, inputId) {
+        const area = document.getElementById(areaId);
+        const input = document.getElementById(inputId);
+
+        area.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            area.classList.add('dragover');
+        });
+
+        area.addEventListener('dragleave', () => {
+            area.classList.remove('dragover');
+        });
+
+        area.addEventListener('drop', (e) => {
+            e.preventDefault();
+            area.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+
+    setupDragDrop('mainUploadArea', 'mainPhotoInput');
+    setupDragDrop('galleryUploadArea', 'galleryPhotoInput');
+
     // ========== РЕДАКТИРОВАНИЕ ТОВАРА ==========
     window.editProduct = function (id) {
         const product = products.find(p => p.id === id);
@@ -627,10 +863,29 @@
         document.getElementById('prodPrice').value = product.price_usd;
         document.getElementById('prodSalePrice').value = product.salePrice || '';
         document.getElementById('prodCategory').value = product.category;
-        document.getElementById('prodImg').value = product.img || '';
-        document.getElementById('prodImages').value = (product.images || []).join(', ');
         document.getElementById('prodDesc').value = product.desc;
         document.getElementById('prodFullDesc').value = product.fullDesc || '';
+
+        // Восстанавливаем фото
+        if (product.img && (product.img.startsWith('http://') || product.img.startsWith('https://'))) {
+            document.getElementById('prodImg').value = product.img;
+            document.getElementById('mainPhotoPreview').innerHTML = `
+                <div class="preview-item">
+                    <img src="${product.img}" alt="Главное фото">
+                    <button class="remove-preview" onclick="clearMainPhoto()">✕</button>
+                </div>
+            `;
+        }
+
+        if (product.images && product.images.length) {
+            document.getElementById('prodImages').value = product.images.join(', ');
+            document.getElementById('galleryPhotoPreview').innerHTML = product.images.map(link => `
+                <div class="preview-item">
+                    <img src="${link}" alt="Фото галереи">
+                    <button class="remove-preview" onclick="removeGalleryPhoto('${link}')">✕</button>
+                </div>
+            `).join('');
+        }
 
         const specsContainer = document.getElementById('specsContainer');
         specsContainer.innerHTML = '';
@@ -648,6 +903,10 @@
         document.getElementById('productForm').reset();
         document.getElementById('editId').value = '';
         document.getElementById('specsContainer').innerHTML = '';
+        document.getElementById('mainPhotoPreview').innerHTML = '';
+        document.getElementById('galleryPhotoPreview').innerHTML = '';
+        uploadedMainPhoto = null;
+        uploadedGalleryPhotos = [];
         addSpecField('');
     };
 
