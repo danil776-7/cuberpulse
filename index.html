@@ -545,12 +545,32 @@
         { id: "guides", name: "📚 Обучение" }
     ];
 
-    // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА ПРАВИЛЬНЫХ ТОВАРОВ ==========
+    // ========== ЗАГРУЗКА ТОВАРОВ ==========
     function loadProducts() {
-        // ВСЕГДА загружаем правильные товары, игнорируем старые данные
+        // Проверяем localStorage
+        const saved = localStorage.getItem('admin_products');
+        if (saved && saved !== 'undefined' && saved !== 'null') {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed && parsed.length > 0) {
+                    // Проверяем, есть ли у товаров правильные пути к фото
+                    const hasCorrectPaths = parsed.some(p => p.img && p.img.startsWith('images/'));
+                    if (hasCorrectPaths) {
+                        products = parsed;
+                        console.log('✅ Товары загружены из админ-панели:', products.length);
+                        renderCategories();
+                        renderCatalog();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('Ошибка загрузки из админки:', e);
+            }
+        }
+        
+        // Если нет правильных товаров - загружаем фиксированные
         console.log('🔄 Загрузка товаров с правильными путями к фото...');
         products = JSON.parse(JSON.stringify(FIXED_PRODUCTS));
-        // Сохраняем в localStorage для синхронизации с админкой
         localStorage.setItem('admin_products', JSON.stringify(products));
         console.log('✅ Загружено товаров:', products.length);
         
@@ -781,16 +801,32 @@
     contactBtn.onclick = () => openContactModal();
     window.closeContactModal = closeContactModal;
 
-    // ========== ОФОРМЛЕНИЕ ЗАКАЗА ==========
-    document.getElementById('checkoutBtn').onclick = () => {
-        if(cart.length === 0) {
+    // ========== ОФОРМЛЕНИЕ ЗАКАЗА (ИСПРАВЛЕНО) ==========
+    document.getElementById('checkoutBtn').onclick = function() {
+        // Проверяем, есть ли товары в корзине
+        if (cart.length === 0) {
             showToast("Корзина пуста", "#F87171");
             return;
         }
-        localStorage.setItem('checkoutCart', JSON.stringify(cart));
-        localStorage.setItem('checkoutCurrency', currentCurrency);
-        localStorage.setItem('checkoutTotal', getTotalUSD());
-        window.location.href = 'checkout.html';
+        
+        try {
+            // Сохраняем данные корзины в localStorage
+            localStorage.setItem('checkoutCart', JSON.stringify(cart));
+            localStorage.setItem('checkoutCurrency', currentCurrency);
+            localStorage.setItem('checkoutTotal', JSON.stringify(getTotalUSD()));
+            
+            console.log('✅ Данные сохранены:', {
+                cart: cart,
+                currency: currentCurrency,
+                total: getTotalUSD()
+            });
+            
+            // Переходим на страницу оформления
+            window.location.href = 'checkout.html';
+        } catch (error) {
+            console.error('Ошибка при оформлении заказа:', error);
+            showToast("Ошибка при оформлении заказа", "#F87171");
+        }
     };
 
     // ========== КАТЕГОРИИ ==========
@@ -815,7 +851,7 @@
         toast.style.borderLeftColor = color;
         toast.innerHTML = msg;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
+        setTimeout(() => toast.remove(), 2500);
     }
 
     // ========== СОБЫТИЯ ==========
