@@ -480,7 +480,7 @@
                         <label>Главное фото (путь в папке images)</label>
                         <input type="text" id="prodImg" placeholder="images/flipper-zero.jpg">
                         <div id="mainPhotoPreview" class="image-preview"></div>
-                        <small style="color:rgba(255,255,255,0.4);">Укажите путь к фото в папке images</small>
+                        <small style="color:rgba(255,255,255,0.4);">Укажите путь к фото в папке images (например: images/flipper-zero.jpg)</small>
                     </div>
 
                     <div class="form-group">
@@ -575,41 +575,41 @@
             } catch (e) { }
         }
 
-        // ========== ПОЛНЫЙ КАТАЛОГ ТОВАРОВ (24 ШТУКИ) ==========
+        // ========== ПРАВИЛЬНЫЕ ТОВАРЫ С ПУТЯМИ К ФОТО ==========
         products = [
             // 📟 Устройства
-            { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "🐬", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент для пентестеров.", specs: ["OLED дисплей 128x64", "Аккумулятор 2000mAh", "Поддержка RFID/NFC"], images: [] },
-            { id: 2, name: "HackRF One", price_usd: 299, salePrice: null, category: "devices", img: "📡", desc: "SDR-трансивер 1 МГц – 6 ГГц, полоса 20 МГц.", fullDesc: "HackRF One — мощный SDR трансивер с открытой архитектурой.", specs: ["Частота 1MHz-6GHz", "Полоса 20MHz", "USB 2.0", "Open source"], images: [] },
-            { id: 3, name: "HackRF One Portapack H2", price_usd: 429, salePrice: 399, category: "devices", img: "📱", desc: "HackRF One с портативным экраном для автономной работы.", fullDesc: "Полноценный портативный SDR с сенсорным экраном.", specs: ["Сенсорный дисплей", "Аккумулятор", "MicroSD слот", "Готов к работе"], images: [] },
-            { id: 4, name: "Raspberry Pi 4 (4GB)", price_usd: 75, salePrice: null, category: "devices", img: "🖥️", desc: "Мощный одноплатный компьютер, 4GB RAM.", fullDesc: "Raspberry Pi 4 — идеальное решение для проектов, серверов и обучения.", specs: ["4GB RAM", "4x USB 3.0", "Gigabit Ethernet", "WiFi 5", "Bluetooth 5.0"], images: [] },
-            { id: 5, name: "Raspberry Pi 4 (8GB)", price_usd: 95, salePrice: null, category: "devices", img: "🖥️", desc: "Мощный одноплатный компьютер, 8GB RAM.", fullDesc: "Максимальная производительность для сложных задач.", specs: ["8GB RAM", "4x USB 3.0", "Gigabit Ethernet", "WiFi 5", "Bluetooth 5.0"], images: [] },
-            { id: 6, name: "Raspberry Pi 5 (4GB)", price_usd: 89, salePrice: null, category: "devices", img: "🖥️", desc: "Новейший Raspberry Pi 5 с улучшенной производительностью.", fullDesc: "Raspberry Pi 5 — новый стандарт производительности для одноплатников.", specs: ["4GB RAM", "PCIe 2.0", "Gigabit Ethernet", "WiFi 5", "Bluetooth 5.0"], images: [] },
-            { id: 7, name: "Raspberry Pi 5 (8GB)", price_usd: 119, salePrice: null, category: "devices", img: "🖥️", desc: "Максимальная версия Raspberry Pi 5 с 8GB RAM.", fullDesc: "Максимальная производительность для самых требовательных проектов.", specs: ["8GB RAM", "PCIe 2.0", "Gigabit Ethernet", "WiFi 5", "Bluetooth 5.0"], images: [] },
-            { id: 8, name: "UConsole (портативная консоль)", price_usd: 189, salePrice: 169, category: "devices", img: "🎮", desc: "Портативная игровая консоль на базе Raspberry Pi.", fullDesc: "UConsole — полноценная портативная консоль для ретро-игр и не только.", specs: ["5.5\" экран", "Аккумулятор 5000mAh", "Геймпад", "Raspberry Pi внутри"], images: [] },
-            { id: 9, name: "UConsole DIY Kit", price_usd: 149, salePrice: null, category: "devices", img: "🔧", desc: "Набор для самостоятельной сборки UConsole.", fullDesc: "Собери свою портативную консоль самостоятельно.", specs: ["Все компоненты в наборе", "Подробная инструкция", "Требуется пайка"], images: [] },
+            { id: 1, name: "Flipper Zero", price_usd: 169, salePrice: null, category: "devices", img: "images/flipper-zero.jpg", desc: "Мультитул для пентеста: RFID, IR, GPIO, iButton, Sub-GHz.", fullDesc: "Flipper Zero — портативный многофункциональный инструмент.", specs: ["OLED дисплей", "Аккумулятор 2000mAh", "RFID/NFC"], images: [] },
+            { id: 2, name: "HackRF One", price_usd: 299, salePrice: null, category: "devices", img: "images/hackrf-one.jpg", desc: "SDR-трансивер 1 МГц – 6 ГГц.", fullDesc: "HackRF One — мощный SDR трансивер.", specs: ["1MHz-6GHz", "20MHz полоса"], images: [] },
+            { id: 3, name: "HackRF One Portapack H2", price_usd: 429, salePrice: 399, category: "devices", img: "images/hackrf-portapack.jpg", desc: "HackRF One с портативным экраном.", fullDesc: "Портативный SDR с сенсорным экраном.", specs: ["Сенсорный дисплей", "Аккумулятор"], images: [] },
+            { id: 4, name: "Raspberry Pi 4 (4GB)", price_usd: 75, salePrice: null, category: "devices", img: "images/raspberry-pi4.jpg", desc: "Одноплатный компьютер 4GB RAM.", fullDesc: "Raspberry Pi 4 — идеальное решение для проектов.", specs: ["4GB RAM", "USB 3.0", "Gigabit Ethernet"], images: [] },
+            { id: 5, name: "Raspberry Pi 4 (8GB)", price_usd: 95, salePrice: null, category: "devices", img: "images/raspberry-pi4.jpg", desc: "Одноплатный компьютер 8GB RAM.", fullDesc: "Максимальная производительность для сложных задач.", specs: ["8GB RAM", "USB 3.0", "Gigabit Ethernet"], images: [] },
+            { id: 6, name: "Raspberry Pi 5 (4GB)", price_usd: 89, salePrice: null, category: "devices", img: "images/raspberry-pi5.jpg", desc: "Новейший Raspberry Pi 5.", fullDesc: "Raspberry Pi 5 — новый стандарт производительности.", specs: ["4GB RAM", "PCIe 2.0", "Gigabit Ethernet"], images: [] },
+            { id: 7, name: "Raspberry Pi 5 (8GB)", price_usd: 119, salePrice: null, category: "devices", img: "images/raspberry-pi5.jpg", desc: "Максимальная версия Raspberry Pi 5.", fullDesc: "Максимальная производительность.", specs: ["8GB RAM", "PCIe 2.0", "Gigabit Ethernet"], images: [] },
+            { id: 8, name: "UConsole (портативная консоль)", price_usd: 189, salePrice: 169, category: "devices", img: "images/uconsole.jpg", desc: "Портативная консоль на Raspberry Pi.", fullDesc: "UConsole — полноценная портативная консоль.", specs: ["5.5\" экран", "Аккумулятор 5000mAh"], images: [] },
+            { id: 9, name: "UConsole DIY Kit", price_usd: 149, salePrice: null, category: "devices", img: "images/uconsole-diy.jpg", desc: "Набор для сборки UConsole.", fullDesc: "Собери свою портативную консоль.", specs: ["Все компоненты", "Подробная инструкция"], images: [] },
             
             // 🔌 Модули
-            { id: 10, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "📻", desc: "2.4GHz беспроводной модуль для Flipper Zero.", fullDesc: "NRF24L01+ — маломощный 2.4GHz беспроводной модуль.", specs: ["Частота 2.4GHz", "Дальность до 100м", "Скорость до 2Mbps", "SPI интерфейс"], images: [] },
-            { id: 11, name: "NRF24L01+ PA+LNA (усиленный)", price_usd: 19, salePrice: null, category: "modules", img: "📡", desc: "Усиленный модуль с внешней антенной, дальность до 1000м.", fullDesc: "Усиленная версия NRF24L01+ с внешней антенной и усилителем.", specs: ["Частота 2.4GHz", "Дальность до 1000м", "Внешняя антенна SMA", "Усилитель PA+LNA"], images: [] },
-            { id: 12, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔘", desc: "Суб-ГГц трансивер для Flipper Zero.", fullDesc: "CC1101 — суб-ГГц трансивер для работы с частотами 315, 433, 868, 915 МГц.", specs: ["Частоты 315/433/868/915MHz", "Скорость до 500kbps", "SPI интерфейс"], images: [] },
-            { id: 13, name: "ESP8266 WiFi модуль", price_usd: 8, salePrice: null, category: "modules", img: "🔵", desc: "WiFi модуль для Flipper Zero и IoT проектов.", fullDesc: "ESP8266 NodeMCU — популярный WiFi модуль для IoT проектов.", specs: ["WiFi 802.11 b/g/n", "Частота 80MHz", "4MB flash", "Arduino совместим"], images: [] },
-            { id: 14, name: "ESP32-C3 WiFi/BLE модуль", price_usd: 12, salePrice: null, category: "modules", img: "🔵", desc: "Современный WiFi + Bluetooth LE модуль.", fullDesc: "ESP32-C3 — современный чип с поддержкой WiFi и Bluetooth LE.", specs: ["WiFi + BLE 5.0", "RISC-V архитектура", "USB-C", "Поддержка Matter"], images: [] },
-            { id: 15, name: "ESP32-S3 модуль", price_usd: 15, salePrice: null, category: "modules", img: "🔵", desc: "Мощный ESP32-S3 с поддержкой AI и USB.", fullDesc: "ESP32-S3 — новейший чип с поддержкой AI акселерации.", specs: ["WiFi + BLE 5.0", "AI ускоритель", "USB OTG", "16MB flash"], images: [] },
-            { id: 16, name: "DIV-модуль (GPIO расширитель)", price_usd: 18, salePrice: null, category: "modules", img: "🔌", desc: "Расширитель GPIO для Flipper Zero и Raspberry Pi.", fullDesc: "Модуль для расширения количества пинов для ваших проектов.", specs: ["16 дополнительных пинов", "I2C интерфейс", "Работает с 3.3V и 5V", "Поддержка прерываний"], images: [] },
-            { id: 17, name: "DIV-модуль (RFID/NFC)", price_usd: 22, salePrice: null, category: "modules", img: "💳", desc: "Модуль RFID/NFC для Flipper Zero и Raspberry Pi.", fullDesc: "Расширяет возможности вашего устройства для работы с RFID и NFC.", specs: ["Поддержка Mifare Classic", "Поддержка NFC", "I2C интерфейс", "Встроенная антенна"], images: [] },
+            { id: 10, name: "NRF24L01+ модуль", price_usd: 12, salePrice: null, category: "modules", img: "images/nrf24l01.jpg", desc: "2.4GHz модуль для Flipper Zero.", fullDesc: "NRF24L01+ — маломощный 2.4GHz модуль.", specs: ["2.4GHz", "Дальность до 100м"], images: [] },
+            { id: 11, name: "NRF24L01+ PA+LNA", price_usd: 19, salePrice: null, category: "modules", img: "images/nrf24l01-pa.jpg", desc: "Усиленный модуль с антенной.", fullDesc: "Усиленная версия с внешней антенной.", specs: ["2.4GHz", "Дальность до 1000м"], images: [] },
+            { id: 12, name: "CC1101 модуль", price_usd: 15, salePrice: null, category: "modules", img: "images/cc1101.jpg", desc: "Суб-ГГц трансивер.", fullDesc: "CC1101 — суб-ГГц трансивер.", specs: ["315/433/868/915MHz"], images: [] },
+            { id: 13, name: "ESP8266 WiFi модуль", price_usd: 8, salePrice: null, category: "modules", img: "images/esp8266.jpg", desc: "WiFi модуль для IoT.", fullDesc: "ESP8266 — популярный WiFi модуль.", specs: ["WiFi", "Arduino"], images: [] },
+            { id: 14, name: "ESP32-C3 WiFi/BLE", price_usd: 12, salePrice: null, category: "modules", img: "images/esp32-c3.jpg", desc: "Современный WiFi + BLE модуль.", fullDesc: "ESP32-C3 с поддержкой WiFi и Bluetooth.", specs: ["WiFi + BLE 5.0", "RISC-V"], images: [] },
+            { id: 15, name: "ESP32-S3 модуль", price_usd: 15, salePrice: null, category: "modules", img: "images/esp32-s3.jpg", desc: "Мощный ESP32-S3 с AI.", fullDesc: "ESP32-S3 с поддержкой AI ускорителя.", specs: ["WiFi + BLE 5.0", "AI ускоритель"], images: [] },
+            { id: 16, name: "DIV GPIO расширитель", price_usd: 18, salePrice: null, category: "modules", img: "images/div-gpio.jpg", desc: "Расширитель GPIO.", fullDesc: "Модуль для расширения количества пинов.", specs: ["16 дополнительных пинов", "I2C"], images: [] },
+            { id: 17, name: "DIV RFID/NFC модуль", price_usd: 22, salePrice: null, category: "modules", img: "images/div-rfid.jpg", desc: "Модуль RFID/NFC.", fullDesc: "Расширяет возможности для работы с RFID/NFC.", specs: ["Mifare Classic", "NFC"], images: [] },
             
             // 📡 Антенны
-            { id: 18, name: "Антенна для Flipper (Sub-GHz)", price_usd: 25, salePrice: null, category: "antennas", img: "📡", desc: "Улучшенная антенна для Sub-GHz на Flipper Zero.", fullDesc: "Антенна для улучшения приёма Sub-GHz сигналов.", specs: ["Частота 433MHz", "Усиление 5dBi", "Разъём SMA", "Длина 15см"], images: [] },
-            { id: 19, name: "Антенна для HackRF (широкополосная)", price_usd: 42, salePrice: null, category: "antennas", img: "📡", desc: "Широкополосная антенна 300MHz – 6GHz для HackRF.", fullDesc: "Широкополосная антенна для HackRF One.", specs: ["Диапазон 300MHz-6GHz", "Усиление 3dBi", "Разъём SMA", "Компактная"], images: [] },
+            { id: 18, name: "Антенна для Flipper", price_usd: 25, salePrice: null, category: "antennas", img: "images/antenna-flipper.jpg", desc: "Антенна Sub-GHz для Flipper.", fullDesc: "Улучшенная антенна для Sub-GHz.", specs: ["433MHz", "5dBi"], images: [] },
+            { id: 19, name: "Антенна для HackRF", price_usd: 42, salePrice: null, category: "antennas", img: "images/antenna-hackrf.jpg", desc: "Широкополосная антенна.", fullDesc: "Антенна 300MHz – 6GHz для HackRF.", specs: ["300MHz-6GHz", "3dBi"], images: [] },
             
             // ⚙️ Прошивки
-            { id: 20, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "⚙️", desc: "Расширенный функционал: новые протоколы, бэкапы, BadUSB.", fullDesc: "Кастомная прошивка для Flipper Zero с расширенным функционалом.", specs: ["Поддержка новых протоколов", "BadUSB пейлоады", "Бэкапы", "Улучшенный интерфейс"], images: [] },
-            { id: 21, name: "Marauder прошивка для Flipper", price_usd: 24, salePrice: null, category: "firmware", img: "⚙️", desc: "WiFi атаки: деавторизация, Evil Portal, Beacon Spam.", fullDesc: "Marauder — прошивка с набором инструментов для WiFi атак.", specs: ["WiFi Deauth", "Evil Portal", "Beacon Spam", "Pcap захват"], images: [] },
-            { id: 22, name: "RogueMaster прошивка", price_usd: 34, salePrice: null, category: "firmware", img: "⚙️", desc: "Мощная прошивка с множеством дополнительных функций.", fullDesc: "RogueMaster — мощная прошивка для Flipper Zero.", specs: ["Множество игр", "Дополнительные меню", "Кастомные иконки", "Расширенные настройки"], images: [] },
-            { id: 23, name: "Xtreme прошивка", price_usd: 39, salePrice: 29, category: "firmware", img: "⚙️", desc: "Экстремальная прошивка для профессионалов.", fullDesc: "Xtreme — экстремальная прошивка для профессионалов.", specs: ["Максимальная производительность", "Новые протоколы", "Улучшенная стабильность", "Регулярные обновления"], images: [] },
+            { id: 20, name: "Кастомная прошивка Flipper", price_usd: 29, salePrice: null, category: "firmware", img: "images/firmware-custom.jpg", desc: "Расширенный функционал.", fullDesc: "Кастомная прошивка для Flipper Zero.", specs: ["Новые протоколы", "BadUSB"], images: [] },
+            { id: 21, name: "Marauder прошивка", price_usd: 24, salePrice: null, category: "firmware", img: "images/firmware-marauder.jpg", desc: "WiFi атаки для Flipper.", fullDesc: "Marauder — инструменты для WiFi атак.", specs: ["WiFi Deauth", "Evil Portal"], images: [] },
+            { id: 22, name: "RogueMaster прошивка", price_usd: 34, salePrice: null, category: "firmware", img: "images/firmware-rogue.jpg", desc: "Мощная прошивка.", fullDesc: "RogueMaster — мощная прошивка.", specs: ["Множество игр", "Кастомные иконки"], images: [] },
+            { id: 23, name: "Xtreme прошивка", price_usd: 39, salePrice: 29, category: "firmware", img: "images/firmware-xtreme.jpg", desc: "Экстремальная прошивка.", fullDesc: "Xtreme — прошивка для профессионалов.", specs: ["Максимальная производительность"], images: [] },
             
             // 📚 Обучение
-            { id: 24, name: "Видеокурс по SDR и HackRF", price_usd: 89, salePrice: 69, category: "guides", img: "📚", desc: "Полное руководство по SDR и HackRF: от новичка до эксперта.", fullDesc: "Полный видеокурс по SDR и HackRF One. 15 часов теории и практики.", specs: ["15 часов видео", "Доступ навсегда", "Практические задания", "Чат с преподавателем"], images: [] }
+            { id: 24, name: "Видеокурс по SDR", price_usd: 89, salePrice: 69, category: "guides", img: "images/course-sdr.jpg", desc: "Полный курс по SDR.", fullDesc: "Видеокурс по SDR и HackRF One.", specs: ["15 часов видео", "Чат с преподавателем"], images: [] }
         ];
         
         localStorage.setItem('admin_products', JSON.stringify(products));
@@ -701,7 +701,7 @@
             if (isImage) {
                 return `
                     <div class="preview-item">
-                        <img src="${url}" alt="Фото" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-size:24px;\'>📦</span>';">
+                        <img src="${url}" alt="Фото" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size:24px;\\'>📦</span>';">
                         <button class="remove-preview" onclick="removePhoto('${inputId}', '${previewId}', '${url}')">✕</button>
                     </div>
                 `;
@@ -794,7 +794,7 @@
             price_usd: parseInt(document.getElementById('prodPrice').value),
             salePrice: document.getElementById('prodSalePrice').value ? parseInt(document.getElementById('prodSalePrice').value) : null,
             category: document.getElementById('prodCategory').value,
-            img: document.getElementById('prodImg').value.trim() || '📦',
+            img: document.getElementById('prodImg').value.trim() || 'images/placeholder.jpg',
             desc: document.getElementById('prodDesc').value.trim(),
             fullDesc: document.getElementById('prodFullDesc').value.trim(),
             specs: specs,
