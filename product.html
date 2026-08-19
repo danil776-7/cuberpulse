@@ -90,30 +90,64 @@
             border-radius: 20px;
             padding: 40px;
             text-align: center;
-            font-size: 120px;
-            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .main-image img {
+            max-width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .main-image .fallback {
+            font-size: 100px;
         }
 
         .thumbnails {
             display: flex;
             gap: 12px;
             justify-content: center;
+            margin-top: 16px;
             flex-wrap: wrap;
         }
 
         .thumbnail {
             background: rgba(255,255,255,0.05);
             border-radius: 12px;
-            padding: 12px;
-            font-size: 40px;
+            padding: 8px;
+            width: 70px;
+            height: 70px;
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .thumbnail .thumb-fallback {
+            font-size: 30px;
         }
 
         .thumbnail.active {
             border-color: #6C63FF;
             background: rgba(108,99,255,0.2);
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
         }
 
         .product-info h1 {
@@ -148,6 +182,10 @@
             margin: 20px 0;
         }
 
+        .specs h3 {
+            margin-bottom: 12px;
+        }
+
         .specs ul {
             list-style: none;
             padding-left: 0;
@@ -156,6 +194,7 @@
         .specs li {
             padding: 8px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
         }
 
         .specs li:before {
@@ -175,6 +214,11 @@
             font-size: 18px;
             cursor: pointer;
             margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-add-cart:hover {
+            transform: scale(1.02);
         }
 
         .toast {
@@ -193,6 +237,13 @@
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
         }
+
+        .no-images {
+            text-align: center;
+            padding: 40px;
+            font-size: 64px;
+            color: rgba(255,255,255,0.2);
+        }
     </style>
 </head>
 <body>
@@ -208,10 +259,13 @@
 
     <a href="index.html" class="back-link">← Вернуться в каталог</a>
 
-    <div class="product-container" id="productContainer"></div>
+    <div class="product-container" id="productContainer">
+        <!-- Заполняется JS -->
+    </div>
 </div>
 
 <script>
+    // Получаем товар из localStorage
     let product = JSON.parse(localStorage.getItem('currentProduct'));
     let currentImageIndex = 0;
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -269,49 +323,113 @@
         const price = getPrice(finalPrice);
         const oldPrice = hasSale ? getPrice(product.price_usd) : null;
         
-        const images = (product.images && product.images.length) ? product.images : [product.img || '📦', '📦', '🔧'];
-        const specs = (product.specs && product.specs.length) ? product.specs : ["Комплектация: устройство, кабель", "Гарантия 12 месяцев"];
+        // Собираем все фото: главное + дополнительные
+        let allImages = [];
+        
+        // Добавляем главное фото, если оно есть и это не эмодзи
+        if (product.img && typeof product.img === 'string' && 
+            (product.img.startsWith('images/') || product.img.startsWith('http'))) {
+            allImages.push(product.img);
+        }
+        
+        // Добавляем дополнительные фото
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+            product.images.forEach(img => {
+                if (img && typeof img === 'string' && 
+                    (img.startsWith('images/') || img.startsWith('http'))) {
+                    if (!allImages.includes(img)) {
+                        allImages.push(img);
+                    }
+                }
+            });
+        }
+        
+        // Если фото нет — используем эмодзи
+        const hasImages = allImages.length > 0;
+        const mainImageHtml = hasImages 
+            ? `<img src="${allImages[0]}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">` 
+            : `<span class="fallback">${product.img || '📦'}</span>`;
+
+        // Миниатюры — только если есть больше 1 фото
+        let thumbnailsHtml = '';
+        if (allImages.length > 1) {
+            thumbnailsHtml = `
+                <div class="thumbnails">
+                    ${allImages.map((img, idx) => `
+                        <div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="changeImage(${idx})">
+                            <img src="${img}" alt="Фото ${idx + 1}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'thumb-fallback\\'>📦</span>';">
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Характеристики
+        const specs = (product.specs && product.specs.length) 
+            ? product.specs 
+            : ["Комплектация: устройство, кабель", "Гарантия 12 месяцев"];
 
         const container = document.getElementById('productContainer');
         container.innerHTML = `
             <div class="gallery">
-                <div class="main-image" id="mainImage">${images[0]}</div>
-                <div class="thumbnails" id="thumbnails">
-                    ${images.map((img, idx) => `<div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="changeImage(${idx})">${img}</div>`).join('')}
+                <div class="main-image" id="mainImage">
+                    ${mainImageHtml}
                 </div>
+                ${thumbnailsHtml}
             </div>
             <div class="product-info">
-                <h1>${product.name}</h1>
+                <h1>${escapeHtml(product.name)}</h1>
                 <div class="product-price">
                     ${price.val} ${price.sym}
                     ${oldPrice ? `<span class="old-price">${oldPrice.val} ${oldPrice.sym}</span>` : ''}
                     ${hasSale ? `<span style="background:#FF4D4D; padding:2px 8px; border-radius:20px; font-size:14px; margin-left:12px;">🔥 Скидка</span>` : ''}
                 </div>
-                <div class="product-full-desc">${product.fullDesc || product.desc}</div>
+                <div class="product-full-desc">${escapeHtml(product.fullDesc || product.desc || '')}</div>
                 <div class="specs">
                     <h3>📋 Характеристики</h3>
                     <ul>
-                        ${specs.map(s => `<li>${s}</li>`).join('')}
+                        ${specs.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
                     </ul>
                 </div>
                 <button class="btn-add-cart" onclick="addToCart(${product.id})">🛒 Добавить в корзину</button>
             </div>
         `;
+        
+        // Сохраняем все фото для переключения
+        window._productImages = allImages;
+        window._hasImages = hasImages;
     }
 
     window.changeImage = function(index) {
-        const images = (product.images && product.images.length) ? product.images : [product.img || '📦', '📦', '🔧'];
+        const images = window._productImages || [];
+        if (!images.length) return;
+        
         currentImageIndex = index;
-        document.getElementById('mainImage').innerHTML = images[index];
+        const mainImage = document.getElementById('mainImage');
+        if (mainImage) {
+            mainImage.innerHTML = `<img src="${images[index]}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">`;
+        }
+        
         document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
-            if(i === index) thumb.classList.add('active');
+            if (i === index) thumb.classList.add('active');
             else thumb.classList.remove('active');
         });
+    }
+
+    function escapeHtml(text) {
+        if(!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     document.getElementById('cartIcon').onclick = () => {
         window.location.href = 'index.html';
     };
+
+    // Смена валюты (через параметры URL или из localStorage)
+    const savedCurrency = localStorage.getItem('currentCurrency');
+    if(savedCurrency) currentCurrency = savedCurrency;
 
     fetchRubRate();
     updateCartCount();
