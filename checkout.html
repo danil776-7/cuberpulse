@@ -189,6 +189,17 @@
             margin: 8px 0;
         }
 
+        .payment-note {
+            background: rgba(74, 222, 128, 0.1);
+            border-left: 3px solid #4ADE80;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 16px 0;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.5;
+        }
+
         .toast {
             position: fixed;
             bottom: 30px;
@@ -212,7 +223,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 380px;
+            width: 420px;
+            max-width: 90vw;
             background: #111118;
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
@@ -226,14 +238,31 @@
             animation: fadeIn 0.2s ease;
         }
 
+        .contact-modal h3 {
+            margin: 12px 0;
+            font-size: 22px;
+        }
+
+        .contact-modal p {
+            color: rgba(255,255,255,0.7);
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
         .contact-link {
             display: inline-block;
             background: linear-gradient(135deg, #6C63FF, #4A42D0);
-            padding: 12px 28px;
+            padding: 14px 28px;
             border-radius: 40px;
             color: white;
             text-decoration: none;
-            margin: 8px 0;
+            margin: 16px 0;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            transform: scale(1.03);
         }
 
         .close-contact {
@@ -243,7 +272,7 @@
             border-radius: 40px;
             color: white;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: 8px;
         }
 
         .overlay {
@@ -282,17 +311,32 @@
             font-size: 64px;
             margin-bottom: 16px;
         }
+
+        .order-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #6C63FF;
+            letter-spacing: 2px;
+            margin: 8px 0;
+        }
     </style>
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
+
+<!-- Модалка успешного заказа -->
 <div class="contact-modal" id="contactModal">
-    <div style="font-size: 50px; margin-bottom: 16px;">✅</div>
+    <div style="font-size: 60px;">✅</div>
     <h3>Заказ оформлен!</h3>
-    <p>Для подтверждения и оплаты свяжитесь с менеджером:</p>
-    <a href="https://t.me/cuberpulse" target="_blank" class="contact-link">📱 Написать менеджеру</a>
-    <p style="font-size: 12px;">@cuberpulse</p>
-    <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
+    <p>Номер вашего заказа:</p>
+    <div class="order-number" id="orderNumberDisplay">#000000</div>
+    <p>Для оплаты свяжитесь с нашим администратором в Telegram:</p>
+    <a href="https://t.me/cuberpulse" target="_blank" class="contact-link">📱 Написать администратору</a>
+    <p style="font-size: 12px; color: rgba(255,255,255,0.5);">@cuberpulse</p>
+    <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 8px;">
+        Отправьте номер заказа администратору для оплаты
+    </p>
+    <button class="close-contact" onclick="closeContactModal()">Вернуться в каталог</button>
 </div>
 
 <div class="container">
@@ -361,6 +405,12 @@
                     </label>
                 </div>
 
+                <div class="payment-note">
+                    💡 <strong>Как происходит оплата:</strong><br>
+                    После оформления заказа вы получите его номер и ссылку на администратора.
+                    Свяжитесь с администратором в Telegram для подтверждения и оплаты заказа.
+                </div>
+
                 <button type="submit" class="btn-submit">✅ Оформить заказ</button>
             </form>
         </div>
@@ -369,7 +419,7 @@
             <h3>🛒 Ваш заказ</h3>
             <div id="orderItems" class="order-items"></div>
             <div class="total-row"><span>Сумма:</span><span id="subtotal">0 $</span></div>
-            <div class="total-row" style="border-top:none;"><span>Доставка:</span><span id="deliveryCost">0 $</span></div>
+            <div class="total-row" style="border-top:none;"><span>Доставка:</span><span id="deliveryCost">Выберите доставку</span></div>
             <div class="total-row"><span>Итого:</span><span id="orderTotal" style="color:#6C63FF; font-size:24px;">0 $</span></div>
         </div>
     </div>
@@ -404,6 +454,15 @@
         { id: 24, name: "Видеокурс по SDR", price_usd: 89, img: "📚" }
     ];
 
+    // ========== НАСТРОЙКИ TELEGRAM ==========
+    const BOT_TOKEN = "8958424168:AAHZ2f5oGU81VuTXwJCuEdta7ntFvAOuAfc";
+    const CHAT_ID = "-1004387104894";  // ID канала
+    const TOPIC_ID = "1";               // ID топика в канале
+    
+    // Администратор для оплаты
+    const ADMIN_TELEGRAM = "https://t.me/cuberpulse";
+    const ADMIN_USERNAME = "@cuberpulse";
+
     // ========== ЗАГРУЗКА ДАННЫХ ==========
     let cart = [];
     let currency = 'USD';
@@ -416,25 +475,18 @@
     function loadCheckoutData() {
         try {
             const savedCart = localStorage.getItem('checkoutCart');
-            if (savedCart) {
-                cart = JSON.parse(savedCart);
-            }
+            if (savedCart) cart = JSON.parse(savedCart);
             
             const savedCurrency = localStorage.getItem('checkoutCurrency');
-            if (savedCurrency) {
-                currency = savedCurrency;
-            }
+            if (savedCurrency) currency = savedCurrency;
             
             const savedTotal = localStorage.getItem('checkoutTotal');
-            if (savedTotal) {
-                totalUSD = parseFloat(savedTotal) || 0;
-            }
+            if (savedTotal) totalUSD = parseFloat(savedTotal) || 0;
         } catch(e) {
             console.error('Ошибка загрузки данных:', e);
         }
         
-        console.log('Загружено товаров в корзине:', cart.length);
-        console.log('Сумма:', totalUSD);
+        console.log('Загружено товаров:', cart.length);
     }
 
     async function fetchRubRate() {
@@ -496,45 +548,68 @@
         renderOrderSummary();
     };
 
-    // ========== ОТПРАВКА В TELEGRAM ==========
-    const BOT_TOKEN = "8958424168:AAHZ2f5oGU81VuTXwJCuEdta7ntFvAOuAfc";
-    const CHAT_ID = "-1003951304278";
+    // ========== ГЕНЕРАЦИЯ НОМЕРА ЗАКАЗА ==========
+    function generateOrderNumber() {
+        const date = new Date();
+        const year = date.getFullYear().toString().slice(-2);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 9000) + 1000;
+        return `CP-${year}${month}${day}-${random}`;
+    }
 
+    // ========== ОТПРАВКА В TELEGRAM (С ТОПИКОМ) ==========
     async function sendOrderToTelegram(orderData) {
-        const message = `🛒 НОВЫЙ ЗАКАЗ 🛒
+        const message = `🛒 <b>НОВЫЙ ЗАКАЗ</b> 🛒
 ━━━━━━━━━━━━━━━━━━━
 
-👤 КЛИЕНТ:
-ФИО: ${orderData.fullName}
-Телефон: ${orderData.phone}
-Email: ${orderData.email}
+📦 <b>Заказ №:</b> ${orderData.orderNumber}
 
-📍 ДОСТАВКА:
-Способ: ${orderData.delivery}
-Город: ${orderData.city}
-Адрес: ${orderData.address}
-Индекс: ${orderData.zip}
+👤 <b>КЛИЕНТ:</b>
+• ФИО: ${orderData.fullName}
+• Телефон: ${orderData.phone}
+• Email: ${orderData.email}
 
-📦 ТОВАРЫ:
+📍 <b>ДОСТАВКА:</b>
+• Способ: ${orderData.delivery}
+• Город: ${orderData.city}
+• Адрес: ${orderData.address}
+• Индекс: ${orderData.zip}
+
+🛍 <b>ТОВАРЫ:</b>
 ${orderData.items}
 
-💰 ОПЛАТА:
-Способ: ${orderData.payment}
-Сумма: ${orderData.total}
+💰 <b>ОПЛАТА:</b>
+• Способ: ${orderData.payment}
+• Сумма: ${orderData.total}
 
-💬 КОММЕНТАРИЙ:
+💬 <b>КОММЕНТАРИЙ:</b>
 ${orderData.comment || "Нет"}
 
-⏰ Время: ${new Date().toLocaleString()}`;
+⏰ <b>Время:</b> ${new Date().toLocaleString('ru-RU')}
+━━━━━━━━━━━━━━━━━━━
+#новый_заказ #${orderData.orderNumber}`;
 
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+        // URL с message_thread_id для отправки в топик
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&message_thread_id=${TOPIC_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+        
+        console.log('Отправка в Telegram...');
+        console.log('Chat ID:', CHAT_ID);
+        console.log('Topic ID:', TOPIC_ID);
+        
         try {
             const res = await fetch(url);
             const data = await res.json();
             console.log('Telegram response:', data);
-            return data.ok;
+            
+            if (data.ok) {
+                return true;
+            } else {
+                console.error('Ошибка Telegram:', data.description);
+                return false;
+            }
         } catch(e) {
-            console.error('Ошибка отправки в Telegram:', e);
+            console.error('Ошибка отправки:', e);
             return false;
         }
     }
@@ -558,7 +633,8 @@ ${orderData.comment || "Нет"}
         setTimeout(() => toast.remove(), 3000);
     }
 
-    function openContactModal() {
+    function openContactModal(orderNumber) {
+        document.getElementById('orderNumberDisplay').textContent = `#${orderNumber}`;
         document.getElementById('contactModal').classList.add('show');
         document.getElementById('overlay').classList.add('show');
     }
@@ -567,6 +643,7 @@ ${orderData.comment || "Нет"}
         document.getElementById('contactModal').classList.remove('show');
         document.getElementById('overlay').classList.remove('show');
         localStorage.removeItem('checkoutCart');
+        localStorage.removeItem('cart');
         window.location.href = 'index.html';
     }
 
@@ -601,12 +678,15 @@ ${orderData.comment || "Нет"}
             return;
         }
         
+        // Генерируем номер заказа
+        const orderNumber = generateOrderNumber();
+        
         // Формируем список товаров
         const itemsList = cart.map(item => {
             const p = products.find(pp => pp.id === item.id);
             if (!p) return '';
             const price = getPrice(p.price_usd);
-            return `• ${p.name} × ${item.quantity} = ${price.val * item.quantity} ${price.sym}`;
+            return `  • ${p.name} × ${item.quantity} = ${price.val * item.quantity} ${price.sym}`;
         }).filter(Boolean).join('\n');
         
         const paymentNames = {
@@ -616,6 +696,7 @@ ${orderData.comment || "Нет"}
         
         const total = getPrice(totalUSD + deliveryCostUSD);
         const orderData = {
+            orderNumber,
             fullName,
             phone,
             email,
@@ -631,26 +712,31 @@ ${orderData.comment || "Нет"}
         
         const btn = document.querySelector('.btn-submit');
         btn.disabled = true;
-        btn.innerText = "⏳ Отправка...";
+        btn.innerText = "⏳ Отправка заказа...";
         
         // Отправляем в Telegram
         const sent = await sendOrderToTelegram(orderData);
         
-        if (!sent) {
-            saveOrderLocally(orderData);
-            showToast("Заказ сохранён! Менеджер свяжется с вами.", "#FBBF24");
+        // Всегда сохраняем локально
+        saveOrderLocally(orderData);
+        
+        if (sent) {
+            console.log('✅ Заказ отправлен в Telegram');
         } else {
-            showToast("✅ Заказ отправлен!", "#4ADE80");
+            console.log('⚠️ Telegram не ответил, заказ сохранён локально');
         }
         
         // Очищаем корзину
         localStorage.removeItem('cart');
+        localStorage.removeItem('checkoutCart');
+        
+        showToast("✅ Заказ оформлен!", "#4ADE80");
         
         setTimeout(() => {
-            openContactModal();
+            openContactModal(orderNumber);
             btn.disabled = false;
             btn.innerText = "✅ Оформить заказ";
-        }, 1000);
+        }, 800);
     };
 
     // ========== ЗАПУСК ==========
