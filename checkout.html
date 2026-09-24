@@ -64,8 +64,8 @@
     <p>Номер вашего заказа:</p>
     <div class="order-number" id="orderNumberDisplay">#000000</div>
     <p>Для оплаты свяжитесь с нашим администратором в Telegram:</p>
-    <a href="https://t.me/cuberpulse" target="_blank" class="contact-link">📱 Написать администратору</a>
-    <p style="font-size: 12px; color: rgba(255,255,255,0.5);">@cuberpulse</p>
+    <a href="https://t.me/TENOR870" target="_blank" class="contact-link">📱 Написать администратору</a>
+    <p style="font-size: 12px; color: rgba(255,255,255,0.5);">@TENOR870</p>
     <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 8px;">
         Отправьте номер заказа администратору для оплаты
     </p>
@@ -190,10 +190,11 @@
     // ========== НАСТРОЙКИ TELEGRAM ==========
     const BOT_TOKEN = "8958424168:AAHZ2f5oGU81VuTXwJCuEdta7ntFvAOuAfc";
     const CHAT_ID = "-1004387104894";
-    const TOPIC_ID = "1";
-    
-    const ADMIN_TELEGRAM = "https://t.me/cuberpulse";
-    const ADMIN_USERNAME = "@cuberpulse";
+    const TOPIC_ID = "1"; // ID топика
+
+    // ========== АДМИНИСТРАТОР ==========
+    const ADMIN_USERNAME = "TENOR870";
+    const ADMIN_LINK = "https://t.me/TENOR870";
 
     // ========== ДАННЫЕ ==========
     let cart = [];
@@ -213,7 +214,6 @@
             const savedTotal = localStorage.getItem('checkoutTotal');
             if (savedTotal) totalUSD = parseFloat(savedTotal) || 0;
         } catch(e) { console.error(e); }
-        console.log('Товаров в корзине:', cart.length);
     }
 
     async function fetchRubRate() {
@@ -281,7 +281,7 @@
         return `CP-${year}${month}${day}-${random}`;
     }
 
-    // ========== ОТПРАВКА В TELEGRAM ==========
+    // ========== ОТПРАВКА В TELEGRAM (С ТОПИКОМ) ==========
     async function sendOrderToTelegram(orderData) {
         const message = `🛒 <b>НОВЫЙ ЗАКАЗ</b> 🛒
 ━━━━━━━━━━━━━━━━━━━
@@ -313,19 +313,44 @@ ${orderData.comment || "Нет"}
 ━━━━━━━━━━━━━━━━━━━
 #новый_заказ #${orderData.orderNumber}`;
 
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&message_thread_id=${TOPIC_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+        // Формируем URL с топиком
+        let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
         
-        console.log('Отправка в Telegram...');
+        // Если указан TOPIC_ID - добавляем его
+        if (TOPIC_ID && TOPIC_ID !== "") {
+            url += `&message_thread_id=${TOPIC_ID}`;
+        }
+        
+        console.log('📤 Отправка в Telegram:');
         console.log('Chat ID:', CHAT_ID);
         console.log('Topic ID:', TOPIC_ID);
+        console.log('URL:', url.substring(0, 150) + '...');
         
         try {
             const res = await fetch(url);
             const data = await res.json();
-            console.log('Telegram response:', data);
-            return data.ok;
+            console.log('📥 Ответ Telegram:', data);
+            
+            if (data.ok) {
+                console.log('✅ Заказ успешно отправлен!');
+                return true;
+            } else {
+                console.error('❌ Ошибка Telegram:', data.description);
+                
+                // Если ошибка с топиком - пробуем без него
+                if (data.description && data.description.includes('thread')) {
+                    console.log('⚠️ Пробуем отправить без топика...');
+                    const urlNoTopic = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+                    const res2 = await fetch(urlNoTopic);
+                    const data2 = await res2.json();
+                    console.log('📥 Ответ без топика:', data2);
+                    return data2.ok;
+                }
+                
+                return false;
+            }
         } catch(e) {
-            console.error('Ошибка:', e);
+            console.error('❌ Ошибка отправки:', e);
             return false;
         }
     }
@@ -418,14 +443,13 @@ ${orderData.comment || "Нет"}
         saveOrderLocally(orderData);
         
         if (sent) {
-            console.log('✅ Заказ отправлен в Telegram');
+            showToast("✅ Заказ отправлен!", "#4ADE80");
         } else {
-            console.log('⚠️ Telegram не ответил, заказ сохранён локально');
+            showToast("⚠️ Заказ сохранён! Менеджер свяжется с вами.", "#FBBF24");
         }
         
         localStorage.removeItem('cart');
         localStorage.removeItem('checkoutCart');
-        showToast("✅ Заказ оформлен!", "#4ADE80");
         
         setTimeout(() => {
             openContactModal(orderNumber);
