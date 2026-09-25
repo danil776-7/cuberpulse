@@ -10,7 +10,6 @@
         body { background: #0A0A0F; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #FFFFFF; line-height: 1.5; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
         
-        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 16px; }
         .logo h1 { font-size: 28px; background: linear-gradient(135deg, #FFFFFF, #6C63FF); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
         .logo p { font-size: 12px; color: rgba(255,255,255,0.4); }
@@ -18,23 +17,19 @@
         .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 18px; border-radius: 40px; color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.2s; font-size: 14px; }
         .btn-outline:hover { border-color: #6C63FF; color: #6C63FF; }
         
-        /* SEARCH */
         .search-input { width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 40px; color: white; margin: 30px 0 20px; font-size: 15px; }
         .search-input:focus { outline: none; border-color: #6C63FF; }
         
-        /* CATEGORIES */
         .categories { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         .category-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 40px; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s; font-size: 14px; white-space: nowrap; }
         .category-btn.active { background: #6C63FF; border-color: #6C63FF; color: white; }
         
         .sort-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 40px; color: white; margin-bottom: 20px; cursor: pointer; }
         
-        /* CATALOG */
         .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin: 30px 0 60px; }
         .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; transition: all 0.3s; display: flex; flex-direction: column; }
         .product-card:hover { transform: translateY(-5px); border-color: #6C63FF; }
         
-        /* ФОТО — ПОЛНОСТЬЮ ВИДНО */
         .product-img { width: 100%; height: 240px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px; cursor: pointer; padding: 8px; }
         .product-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
         .product-img .fallback { font-size: 64px; }
@@ -42,7 +37,7 @@
         .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; cursor: pointer; }
         .product-title:hover { color: #6C63FF; }
         .product-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 8px 0; line-height: 1.4; flex-grow: 1; }
-        .product-price { font-size: 24px; font-weight: 700; color: #6C63FF; margin: 12px 0; }
+        .product-price { font-size: 22px; font-weight: 700; color: #6C63FF; margin: 12px 0; }
         .old-price { font-size: 14px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 8px; }
         .sale-badge { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 11px; margin-left: 8px; }
         
@@ -51,11 +46,9 @@
         .btn-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 12px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-cart:hover { transform: scale(1.02); }
         
-        /* CART ICON */
         .cart-icon { position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(108, 99, 255, 0.2); padding: 8px 18px; border-radius: 40px; }
         .cart-count { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 12px; }
         
-        /* CART MODAL */
         .cart-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; max-width: 92vw; max-height: 80vh; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; z-index: 1001; overflow: hidden; }
         .cart-modal.show { display: flex; flex-direction: column; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
@@ -83,50 +76,20 @@
         .close-contact { background: rgba(255,255,255,0.1); border: none; padding: 10px 20px; border-radius: 40px; color: white; cursor: pointer; margin-top: 16px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         
-        /* ========== АДАПТАЦИЯ ПОД ТЕЛЕФОН ========== */
         @media (max-width: 768px) {
             .container { padding: 0 16px; }
-            .header { padding: 16px 0; }
             .logo h1 { font-size: 22px; }
             .logo p { font-size: 10px; }
             .nav-buttons { gap: 8px; width: 100%; }
             .btn-outline { padding: 6px 14px; font-size: 12px; flex: 1; text-align: center; }
             .cart-icon { padding: 6px 14px; font-size: 14px; }
-            .search-input { font-size: 14px; padding: 10px 16px; margin: 20px 0 16px; }
+            .search-input { font-size: 14px; padding: 10px 16px; }
             .category-btn { padding: 6px 14px; font-size: 12px; }
-            .sort-select { font-size: 12px; padding: 6px 12px; }
-            .catalog { grid-template-columns: 1fr; gap: 16px; margin: 20px 0 40px; }
-            .product-card { padding: 16px; border-radius: 16px; }
+            .catalog { grid-template-columns: 1fr; gap: 16px; }
+            .product-card { padding: 16px; }
             .product-img { height: 280px; }
-            .product-title { font-size: 16px; }
-            .product-desc { font-size: 12px; }
             .product-price { font-size: 20px; }
-            .btn-details, .btn-cart { padding: 10px; font-size: 13px; }
-            
-            .cart-modal { width: 95vw; max-height: 85vh; }
-            .cart-item { padding: 10px 6px; gap: 8px; }
-            .cart-item-controls { margin-left: auto; }
-            .cart-qty-btn { width: 26px; height: 26px; font-size: 14px; }
-            
-            .toast { bottom: 16px; right: 16px; left: 16px; font-size: 13px; }
-            .contact-modal { padding: 24px; }
-            .contact-modal h3 { font-size: 18px; }
-        }
-        
-        @media (max-width: 480px) {
-            .logo h1 { font-size: 20px; }
-            .product-img { height: 240px; }
-            .product-price { font-size: 18px; }
-            .btn-details { font-size: 12px; padding: 9px; }
-            .btn-cart { font-size: 13px; padding: 11px; }
-            .cart-item-img { width: 40px; font-size: 24px; }
-            .cart-item-info { min-width: 100px; }
-        }
-        
-        /* Планшеты */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .catalog { grid-template-columns: repeat(2, 1fr); }
-            .product-img { height: 260px; }
+            .cart-modal { width: 95vw; }
         }
     </style>
 </head>
@@ -215,9 +178,7 @@
                 }
             } catch (e) { console.error(e); }
         }
-        products = [
-            { id: 1, name: "Flipper Zero", price_usd: 390, salePrice: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент.", fullDesc: "", specs: [] }
-        ];
+        products = [{ id: 1, name: "Flipper Zero", price_usd: 390, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент.", fullDesc: "", specs: [] }];
         localStorage.setItem('admin_products', JSON.stringify(products));
         renderCategories();
         renderCatalog();
@@ -286,10 +247,42 @@
         renderCatalog();
     }
 
+    // ========== ПОЛУЧЕНИЕ ЦЕНЫ С ДИАПАЗОНОМ ==========
     function getPrice(product) {
-        const basePrice = product.salePrice ? product.salePrice : product.price_usd;
-        if(currentCurrency === 'USD') return { val: basePrice, sym: '$', oldVal: product.salePrice ? product.price_usd : null };
-        return { val: Math.round(basePrice * rubRate), sym: '₽', oldVal: product.salePrice ? Math.round(product.price_usd * rubRate) : null };
+        const baseMin = product.salePrice ? product.salePrice : product.price_usd;
+        const baseMax = product.salePriceMax ? product.salePriceMax : (product.price_usd_max || null);
+        
+        if(currentCurrency === 'USD') {
+            return { 
+                val: baseMin, 
+                valMax: baseMax,
+                sym: '$', 
+                oldVal: (product.salePrice || product.salePriceMax) ? product.price_usd : null,
+                oldValMax: (product.salePrice || product.salePriceMax) ? (product.price_usd_max || null) : null
+            };
+        }
+        return { 
+            val: Math.round(baseMin * rubRate), 
+            valMax: baseMax ? Math.round(baseMax * rubRate) : null,
+            sym: '₽', 
+            oldVal: (product.salePrice || product.salePriceMax) ? Math.round(product.price_usd * rubRate) : null,
+            oldValMax: (product.salePrice || product.salePriceMax) && product.price_usd_max ? Math.round(product.price_usd_max * rubRate) : null
+        };
+    }
+
+    function formatPrice(price) {
+        if (price.valMax) {
+            return `от ${price.val} до ${price.valMax} ${price.sym}`;
+        }
+        return `${price.val} ${price.sym}`;
+    }
+
+    function formatOldPrice(price) {
+        if (!price.oldVal) return '';
+        if (price.oldValMax) {
+            return `от ${price.oldVal} до ${price.oldValMax} ${price.sym}`;
+        }
+        return `${price.oldVal} ${price.sym}`;
     }
 
     function getTotalUSD() {
@@ -324,7 +317,8 @@
         catalogDiv.innerHTML = filtered.map(p => {
             const price = getPrice(p);
             const inCart = cart.find(i => i.id === p.id);
-            const hasSale = p.salePrice && p.salePrice < p.price_usd;
+            const hasSale = (p.salePrice && p.salePrice < p.price_usd) || (p.salePriceMax && p.salePriceMax < p.price_usd_max);
+            const oldPriceText = formatOldPrice(price);
             
             return `
                 <div class="product-card">
@@ -335,8 +329,8 @@
                     <div class="product-title" onclick="openProduct(${p.id})">${escapeHtml(p.name)}</div>
                     <div class="product-desc">${escapeHtml(p.desc ? p.desc.substring(0, 100) : '')}...</div>
                     <div class="product-price">
-                        ${price.val} ${price.sym}
-                        ${price.oldVal ? `<span class="old-price">${price.oldVal} ${price.sym}</span>` : ''}
+                        ${formatPrice(price)}
+                        ${oldPriceText ? `<span class="old-price">${oldPriceText}</span>` : ''}
                         ${hasSale ? `<span class="sale-badge">🔥</span>` : ''}
                     </div>
                     <button class="btn-details" onclick="openProduct(${p.id})">📖 Подробнее</button>
@@ -371,7 +365,7 @@
             if(!product) return '';
             const price = getPrice(product);
             totalUSD += (product.salePrice || product.price_usd) * item.quantity;
-            const itemTotal = getPrice({ price_usd: (product.salePrice || product.price_usd) });
+            const itemTotal = getPrice({ price_usd: (product.salePrice || product.price_usd), price_usd_max: null });
             return `
                 <div class="cart-item">
                     <div class="cart-item-img">📦</div>
@@ -390,7 +384,7 @@
             `;
         }).join('');
         
-        const total = getPrice({ price_usd: totalUSD });
+        const total = getPrice({ price_usd: totalUSD, price_usd_max: null });
         document.getElementById('cartTotal').innerHTML = `${total.val} ${total.sym}`;
     }
 
