@@ -133,7 +133,7 @@
         { id: "accessories", name: "🔧 Аксессуары" }
     ];
 
-    // ========== ЗАГРУЗКА ТОВАРОВ ИЗ LOCALSTORAGE (АДМИН-ПАНЕЛИ) ==========
+    // ========== ЗАГРУЗКА ТОВАРОВ ИЗ АДМИН-ПАНЕЛИ ==========
     function loadProductsFromStorage() {
         const saved = localStorage.getItem('admin_products');
         if (saved && saved !== 'undefined' && saved !== 'null') {
@@ -151,11 +151,9 @@
             }
         }
         
-        // Если нет товаров в localStorage — дефолтный список
-        console.warn('⚠️ Товары не найдены в админ-панели. Откройте admin.html и войдите.');
+        console.warn('⚠️ Товары не найдены. Откройте admin.html и нажмите "Обновить товары"');
         products = [
-            { id: 1, name: "Flipper Zero", price_usd: 390, salePrice: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент для исследования безопасности.", fullDesc: "", specs: [] },
-            { id: 2, name: "HackRF One", price_usd: 590, salePrice: null, category: "devices", img: "hackrf-one.png", desc: "SDR платформа 0.1–6 ГГц.", fullDesc: "", specs: [] }
+            { id: 1, name: "Flipper Zero", price_usd: 390, salePrice: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент для исследования безопасности.", fullDesc: "", specs: [] }
         ];
         localStorage.setItem('admin_products', JSON.stringify(products));
         renderCategories();
@@ -277,6 +275,7 @@
         }).join('');
     }
 
+    // ========== ПЕРЕХОД НА СТРАНИЦУ ТОВАРА ==========
     function goToProduct(id) {
         const product = products.find(p => p.id === id);
         if(product) {
@@ -284,6 +283,7 @@
             window.location.href = 'product.html';
         }
     }
+    window.goToProduct = goToProduct;
 
     function escapeHtml(text) {
         if(!text) return '';
