@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0A0A0F; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #FFFFFF; line-height: 1.5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo h1 { font-size: 26px; background: linear-gradient(135deg, #FFFFFF, #6C63FF); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
@@ -17,7 +17,7 @@
         .back-link { color: #6C63FF; text-decoration: none; display: inline-block; margin: 20px 0; cursor: pointer; }
         
         .product-container { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin: 40px 0 60px; }
-        @media (max-width: 800px) { .product-container { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) { .product-container { grid-template-columns: 1fr; gap: 24px; } }
         
         .gallery { background: rgba(255,255,255,0.03); border-radius: 24px; padding: 20px; }
         .main-image { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 40px; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 350px; }
@@ -25,8 +25,8 @@
         .main-image .fallback { font-size: 120px; }
         
         .product-info h1 { font-size: 32px; margin-bottom: 16px; }
-        .product-price { font-size: 36px; font-weight: 700; color: #6C63FF; margin: 20px 0; }
-        .old-price { font-size: 20px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 12px; }
+        .product-price { font-size: 32px; font-weight: 700; color: #6C63FF; margin: 20px 0; }
+        .old-price { font-size: 18px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 12px; }
         
         .product-full-desc { color: rgba(255,255,255,0.7); line-height: 1.6; margin: 20px 0; font-size: 15px; }
         
@@ -40,12 +40,20 @@
         .btn-add-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 18px; border-radius: 40px; color: white; font-weight: 600; font-size: 18px; cursor: pointer; margin-top: 20px; transition: all 0.3s; }
         .btn-add-cart:hover { transform: scale(1.02); }
         
-        .toast { position: fixed; bottom: 30px; right: 30px; background: #111118; border-left: 4px solid #6C63FF; padding: 12px 20px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; }
+        .toast { position: fixed; bottom: 30px; right: 30px; left: 30px; max-width: 400px; margin-left: auto; background: #111118; border-left: 4px solid #6C63FF; padding: 12px 20px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         
         .not-found { text-align: center; padding: 100px 20px; }
         .not-found h2 { font-size: 28px; margin-bottom: 16px; }
         .not-found a { color: #6C63FF; text-decoration: none; font-size: 16px; }
+        
+        @media (max-width: 768px) {
+            .product-info h1 { font-size: 24px; }
+            .product-price { font-size: 26px; }
+            .main-image { min-height: 250px; padding: 20px; }
+            .main-image img { max-height: 300px; }
+            .main-image .fallback { font-size: 80px; }
+        }
     </style>
 </head>
 <body>
@@ -70,15 +78,10 @@
     let currentCurrency = 'USD';
     let rubRate = 92;
 
-    // Загрузка товара
     function loadProduct() {
         const saved = localStorage.getItem('currentProduct');
         if (saved && saved !== 'undefined' && saved !== 'null') {
-            try {
-                product = JSON.parse(saved);
-            } catch(e) {
-                console.error('Ошибка загрузки товара:', e);
-            }
+            try { product = JSON.parse(saved); } catch(e) { console.error(e); }
         }
     }
 
@@ -91,9 +94,14 @@
         renderProduct();
     }
 
-    function getPrice(priceUSD) {
-        if(currentCurrency === 'USD') return { val: priceUSD, sym: '$' };
-        return { val: Math.round(priceUSD * rubRate), sym: '₽' };
+    function getPrice(priceUSD, priceUSDMax = null) {
+        if(currentCurrency === 'USD') return { val: priceUSD, valMax: priceUSDMax, sym: '$' };
+        return { val: Math.round(priceUSD * rubRate), valMax: priceUSDMax ? Math.round(priceUSDMax * rubRate) : null, sym: '₽' };
+    }
+
+    function formatPrice(price) {
+        if (price.valMax) return `от ${price.val} до ${price.valMax} ${price.sym}`;
+        return `${price.val} ${price.sym}`;
     }
 
     function updateCartCount() {
@@ -133,50 +141,42 @@
             container.innerHTML = `
                 <div class="not-found">
                     <h2>❌ Товар не найден</h2>
-                    <p>Вернитесь в каталог и выберите товар заново</p>
-                    <br>
+                    <p>Вернитесь в каталог и выберите товар заново</p><br>
                     <a href="index.html">← Вернуться в каталог</a>
                 </div>
             `;
             return;
         }
 
-        const hasSale = product.salePrice && product.salePrice < product.price_usd;
-        const finalPrice = hasSale ? product.salePrice : product.price_usd;
-        const price = getPrice(finalPrice);
-        const oldPrice = hasSale ? getPrice(product.price_usd) : null;
+        const hasSale = (product.salePrice && product.salePrice < product.price_usd) || (product.salePriceMax && product.salePriceMax < product.price_usd_max);
+        const finalPriceMin = hasSale ? (product.salePrice || product.price_usd) : product.price_usd;
+        const finalPriceMax = hasSale ? (product.salePriceMax || product.price_usd_max) : (product.price_usd_max || null);
+        const price = getPrice(finalPriceMin, finalPriceMax);
+        const oldPrice = hasSale ? getPrice(product.price_usd, product.price_usd_max) : null;
         
-        // Определяем, фото это или эмодзи
         const isImage = product.img && (product.img.endsWith('.png') || product.img.endsWith('.jpg') || product.img.endsWith('.jpeg') || product.img.endsWith('.webp') || product.img.startsWith('http'));
-        
         const mainImageHtml = isImage 
             ? `<img src="${product.img}" alt="${escapeHtml(product.name)}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">` 
             : `<span class="fallback">${product.img || '📦'}</span>`;
         
-        const specs = (product.specs && product.specs.length) 
-            ? product.specs 
-            : ["Официальная гарантия", "Доставка по всему миру", "Поддержка 24/7"];
+        const specs = (product.specs && product.specs.length) ? product.specs : ["Официальная гарантия", "Доставка по всему миру", "Поддержка 24/7"];
 
         container.innerHTML = `
             <div class="product-container">
                 <div class="gallery">
-                    <div class="main-image">
-                        ${mainImageHtml}
-                    </div>
+                    <div class="main-image">${mainImageHtml}</div>
                 </div>
                 <div class="product-info">
                     <h1>${escapeHtml(product.name)}</h1>
                     <div class="product-price">
-                        ${price.val} ${price.sym}
-                        ${oldPrice ? `<span class="old-price">${oldPrice.val} ${oldPrice.sym}</span>` : ''}
+                        ${formatPrice(price)}
+                        ${oldPrice ? `<span class="old-price">${formatPrice(oldPrice)}</span>` : ''}
                         ${hasSale ? `<span style="background:#FF4D4D; padding:2px 8px; border-radius:20px; font-size:14px; margin-left:12px;">🔥 Скидка</span>` : ''}
                     </div>
                     <div class="product-full-desc">${escapeHtml(product.fullDesc || product.desc || '')}</div>
                     <div class="specs">
                         <h3>📋 Характеристики</h3>
-                        <ul>
-                            ${specs.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
-                        </ul>
+                        <ul>${specs.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
                     </div>
                     <button class="btn-add-cart" onclick="addToCart(${product.id})">🛒 Добавить в корзину</button>
                 </div>
@@ -184,11 +184,8 @@
         `;
     }
 
-    document.getElementById('cartIcon').onclick = () => {
-        window.location.href = 'index.html';
-    };
+    document.getElementById('cartIcon').onclick = () => { window.location.href = 'index.html'; };
 
-    // Запуск
     loadProduct();
     fetchRubRate();
     updateCartCount();
