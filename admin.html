@@ -102,7 +102,7 @@
             <div id="tab-products" class="tab-content">
                 <h2>📦 Управление товарами</h2>
                 <div class="warning-box">
-                    ⚠️ <strong>Важно:</strong> Если фото не отображаются, нажмите кнопку ниже, чтобы сбросить кеш и загрузить товары заново.
+                    ⚠️ <strong>Важно:</strong> Фото берутся из корня репозитория. Названия файлов: <strong>flipper-zero.jpg</strong>, <strong>hackrf-one.jpg</strong> и т.д.
                     <button class="btn-reset" style="margin-left:12px;" onclick="resetProducts()">🔄 Сбросить и загрузить товары</button>
                 </div>
                 <div id="productsList" class="products-grid"></div>
@@ -112,9 +112,9 @@
                 <h2 id="formTitle">➕ Добавить товар</h2>
                 <div class="photo-guide">
                     <strong>📸 Как добавить фото:</strong>
-                    <div class="step">1. Загрузите фото в папку <strong>images</strong> на GitHub</div>
-                    <div class="step">2. В поле "Главное фото" укажите путь: <strong>images/название-файла.jpg</strong></div>
-                    <div class="step">3. Название файла должно быть <strong>точно как в таблице</strong></div>
+                    <div class="step">1. Загрузите фото <strong>в корень репозитория</strong> на GitHub</div>
+                    <div class="step">2. В поле "Главное фото" укажите имя файла: <strong>flipper-zero.jpg</strong></div>
+                    <div class="step">3. Без папки images, просто имя файла</div>
                 </div>
                 <form id="productForm">
                     <input type="hidden" id="editId" value="">
@@ -133,7 +133,7 @@
                         <div class="form-group"><label>Цена (USD) *</label><input type="number" id="prodPrice" step="1" required></div>
                         <div class="form-group"><label>Цена со скидкой (USD)</label><input type="number" id="prodSalePrice" step="1" placeholder="Оставьте пустым"></div>
                     </div>
-                    <div class="form-group"><label>Главное фото (путь в папке images)</label><input type="text" id="prodImg" placeholder="images/flipper-zero.jpg"><div id="mainPhotoPreview" class="image-preview"></div></div>
+                    <div class="form-group"><label>Главное фото (имя файла)</label><input type="text" id="prodImg" placeholder="flipper-zero.jpg"><div id="mainPhotoPreview" class="image-preview"></div></div>
                     <div class="form-group"><label>Краткое описание *</label><textarea id="prodDesc" rows="2" required></textarea></div>
                     <div class="form-group"><label>Полное описание</label><textarea id="prodFullDesc" rows="4"></textarea></div>
                     <div class="form-group"><label>Характеристики</label><div id="specsContainer"></div><button type="button" class="add-spec-btn" onclick="addSpecField()">+ Добавить характеристику</button></div>
@@ -157,162 +157,22 @@
     const ADMIN_LOGIN = "admin";
     const ADMIN_PASSWORD = "admin123";
 
-    // ========== ФИКСИРОВАННЫЙ СПИСОК ТОВАРОВ (10 ШТУК) ==========
+    // ========== ТОВАРЫ (ФОТО ИЗ КОРНЯ) ==========
     const FIXED_PRODUCTS = [
-        { 
-            id: 1, 
-            name: "Flipper Zero", 
-            price_usd: 390, 
-            salePrice: null, 
-            category: "devices", 
-            img: "images/flipper-zero.jpg", 
-            desc: "Универсальный инструмент для исследования безопасности. Оригинал, новый, запечатанный.",
-            fullDesc: "Flipper Zero — универсальный инструмент для исследования безопасности. Поддержка модулей, открытый проект, большое сообщество, регулярные обновления. В комплекте: Flipper Zero, USB Type-C кабель, ремешок, наклейки, инструкция.",
-            specs: ["SUB-GHZ: анализ и работа с радиосигналами", "2.4 GHz: Wi-Fi исследования (с модулем)", "NFC / RFID: чтение и эмуляция карт и меток", "IR: управление устройствами", "Bluetooth: анализ BLE устройств", "USB: подключение дополнительных модулей"]
-        },
-        { 
-            id: 2, 
-            name: "HackRF One", 
-            price_usd: 590, 
-            salePrice: null, 
-            category: "devices", 
-            img: "images/hackrf-one.jpg", 
-            desc: "Software Defined Radio (SDR) платформа 0.1–6 ГГц. Полный дуплекс TX & RX.",
-            fullDesc: "HackRF One — это программно-определяемая радиоплатформа (SDR), которая может передавать или принимать радиосигналы в диапазоне от 1 МГц до 6 ГГц. Это важный инструмент для пентестеров, исследователей и специалистов по RF-безопасности.",
-            specs: ["SDR", "Диапазон 0.1 – 6 ГГц", "USB 2.0", "Full duplex (TX & RX)", "Open source hardware & software"]
-        },
-        { 
-            id: 3, 
-            name: "HackRF One Portapack H2", 
-            price_usd: 890, 
-            salePrice: null, 
-            category: "devices", 
-            img: "images/hackrf-portapack.jpg", 
-            desc: "Портативная SDR платформа для исследования радиочастот 1 MHz – 6 GHz.",
-            fullDesc: "HackRF One Portapack H2 — портативная SDR платформа для исследования радиочастот. Все в одном устройстве с LCD экраном и управлением. Множество режимов: SDR прием, передача, анализ, сканирование, запись сигналов. Большое количество приложений: ADS-B, AIS, APRS, DMR, POCSAG, LoRa, SSTV и другие. Открытая платформа: установка дополнительных плагинов и кастомных прошивок. Идеально для обучения и исследований: радио, IoT, беспроводные технологии и безопасность. Комплект: SMA разъемы для антенн, яркий LCD экран и удобное управление, microSD, USB для расширения, эргономичное управление.",
-            specs: ["Широкий частотный диапазон: 1 MHz – 6 GHz", "Передача и прием сигналов", "Портативное решение с LCD экраном", "Множество режимов: SDR, прием, передача, анализ", "Приложения: ADS-B, AIS, APRS, DMR, POCSAG, LoRa, SSTV", "Открытая платформа для плагинов и прошивок", "SMA разъемы для антенн", "microSD, USB для расширения"]
-        },
-        { 
-            id: 4, 
-            name: "UConsole", 
-            price_usd: 950, 
-            salePrice: 1240, 
-            category: "devices", 
-            img: "images/uconsole.jpg", 
-            desc: "Портативная консоль для хакеров и разработчиков. Kali Linux на борту.",
-            fullDesc: "UConsole — портативная консоль с полноценной клавиатурой, дисплеем и Linux. Идеальна для пентеста, разработки и киберпроектов.",
-            specs: ["OS: Kali Linux", "CPU: ARM", "RAM: 2GB", "Дисплей: 480x320", "Клавиатура + геймпад", "Bluetooth, Wi-Fi"]
-        },
-        { 
-            id: 5, 
-            name: "Raspberry Pi 4 (8GB)", 
-            price_usd: 120, 
-            salePrice: null, 
-            category: "devices", 
-            img: "images/raspberry-pi4.jpg", 
-            desc: "Мощный мини-компьютер для любых проектов.",
-            fullDesc: "Raspberry Pi 4 8GB — мощный мини-компьютер для любых проектов: от киберпроектов и обучения до домашнего сервера и ретро-гейминга.",
-            specs: ["8 GB RAM", "Quad-Core 1.5 GHz ARM Cortex-A72", "USB 3.0", "Wi-Fi 2.4/5 GHz + Bluetooth 5.0", "2× micro HDMI (4K)", "Gigabit Ethernet"]
-        },
-        { 
-            id: 6, 
-            name: "WiFi Pineapple", 
-            price_usd: 590, 
-            salePrice: null, 
-            category: "devices", 
-            img: "images/wifi-pineapple.jpg", 
-            desc: "Профессиональный инструмент для анализа Wi-Fi сетей.",
-            fullDesc: "WiFi Pineapple — профессиональный инструмент для анализа Wi-Fi сетей. Создание фейковых точек доступа (Rogue AP, Evil Twin). Мониторинг Wi-Fi сетей: сканирование, анализ, перехват трафика. Готовые модули: PineAP, Karma, SSLstrip, Captive Portal и другие. Удобное управление через веб-интерфейс с ПК, смартфона или Flipper Zero. Широкие возможности: тестирование безопасности сетей, анализ клиентов, исследование Wi-Fi. Высокая дальность, поддержка модулей, управление через веб-интерфейс, полный комплект.",
-            specs: ["Создание фейковых точек доступа (Rogue AP, Evil Twin)", "Мониторинг Wi-Fi сетей", "Сканирование, анализ, перехват трафика", "Готовые модули: PineAP, Karma, SSLstrip, Captive Portal", "Управление через веб-интерфейс", "Высокая дальность", "Поддержка модулей", "Полный комплект"]
-        },
-        { 
-            id: 7, 
-            name: "CC1101 модуль для Flipper Zero", 
-            price_usd: 120, 
-            salePrice: null, 
-            category: "modules", 
-            img: "images/cc1101.jpg", 
-            desc: "Расширь возможности твоего Flipper Zero. 300–928 MHz.",
-            fullDesc: "CC1101 модуль для Flipper Zero. Широкий диапазон: 300-348 MHz, 387-464 MHz, 779-928 MHz. Перехват и анализ: сканирование частот, анализ сигналов, мониторинг протоколов. Полная интеграция с Flipper Zero. Работа с протоколами 433/868/915 MHz включая популярные IoT и беспроводные устройства. Простая установка через GPIO.",
-            specs: ["Диапазон: 300-348 / 387-464 / 779-928 MHz", "Перехват и анализ сигналов", "Полная интеграция с Flipper Zero", "Работа с 433/868/915 MHz", "Подключение через GPIO"]
-        },
-        { 
-            id: 8, 
-            name: "ESP32 Marauder V6 + Flipper Zero", 
-            price_usd: 250, 
-            salePrice: null, 
-            category: "modules", 
-            img: "images/esp32-marauder.jpg", 
-            desc: "Расширение возможностей твоего Flipper Zero. Marauder Firmware.",
-            fullDesc: "ESP32 Marauder V6 — расширение возможностей Flipper Zero. 2.4 GHz: сканирование Wi-Fi и анализ сетей. Marauder Firmware: Deauth, Beacon, Probe, Packet Sniffer и др. OLED-дисплей. Полная совместимость с Flipper Zero. ESP32: высокая производительность.",
-            specs: ["2.4 GHz", "Marauder Firmware", "OLED-дисплей", "Полная совместимость с Flipper Zero", "ESP32"]
-        },
-        { 
-            id: 9, 
-            name: "ESP32 Multi-Tool", 
-            price_usd: 160, 
-            salePrice: null, 
-            category: "devices", 
-            img: "images/esp32-multitool.jpg", 
-            desc: "Портативное устройство для беспроводных исследований.",
-            fullDesc: "ESP32 Multi-Tool — портативное устройство для беспроводных исследований. Wi-Fi 2.4/5 GHz, Sub-GHz 433/868/915 МГц, Bluetooth BLE, GPS (опционально), разработка IoT-проектов.",
-            specs: ["Wi-Fi 2.4/5 GHz", "Sub-GHz 433/868/915 МГц", "Bluetooth BLE", "GPS (опционально)", "ESP32-S3", "Разработка IoT-проектов"]
-        },
-        { 
-            id: 10, 
-            name: "NRF24 для Flipper Zero", 
-            price_usd: 150, 
-            salePrice: null, 
-            category: "modules", 
-            img: "images/nrf24.jpg", 
-            desc: "Модуль nRF24L01+ для Flipper Zero. 2.4 GHz.",
-            fullDesc: "Модуль NRF24 для Flipper Zero. Работает в диапазоне 2.4 ГГц. Расширяет возможности вашего устройства.",
-            specs: ["2.4 GHz", "Для Flipper Zero", "Внешняя антенна", "GPIO подключение"]
-        },
-        { 
-            id: 11, 
-            name: "SUB-GHZ PRO модуль для Flipper Zero", 
-            price_usd: 130, 
-            salePrice: null, 
-            category: "modules", 
-            img: "images/subghz-pro.jpg", 
-            desc: "Расширь возможности своего Flipper Zero. 300–928 MHz.",
-            fullDesc: "SUB-GHZ PRO модуль для Flipper Zero. Широкий частотный диапазон: 300-928 MHz (полный Sub-GHz диапазон). Приём и передача: анализ, перехват, отправка и эмуляция Sub-GHz сигналов. Высокая чувствительность. Полная интеграция с Flipper Zero. Простая установка через GPIO. Внешняя антенна в комплекте.",
-            specs: ["300-928 MHz", "Приём и передача", "Высокая чувствительность", "Полная интеграция с Flipper Zero", "Внешняя антенна в комплекте", "GPIO подключение"]
-        },
-        { 
-            id: 12, 
-            name: "ESP32 Wi-Fi Module для Flipper Zero", 
-            price_usd: 150, 
-            salePrice: null, 
-            category: "modules", 
-            img: "images/esp32-wifi.jpg", 
-            desc: "ESP32 Wi-Fi модуль для Flipper Zero. Расширь возможности твоего Flipper Zero.",
-            fullDesc: "ESP32 Wi-Fi Module для Flipper Zero. Высокая производительность и стабильная работа. Сканирование и анализ сетей, мониторинг, анализ и тестирование. Полная совместимость с Flipper Zero. Поддержка кастомных прошивок.",
-            specs: ["2.4 GHz", "ESP32", "Сканирование и анализ сетей", "Полная совместимость с Flipper Zero", "Поддержка кастомных прошивок"]
-        },
-        { 
-            id: 13, 
-            name: "Кастомная прошивка на Flipper Zero", 
-            price_usd: 50, 
-            salePrice: null, 
-            category: "firmware", 
-            img: "images/custom-firmware.jpg", 
-            desc: "Больше возможностей твоего устройства.",
-            fullDesc: "Кастомная прошивка на Flipper Zero. Больше функций: новые приложения, плагины и инструменты. Расширенные возможности: работа с Sub-GHz, NFC, RFID, IR, Bluetooth. Поддержка плагинов. Удобный интерфейс: дополнительные меню, темы и кастомизация. Регулярные обновления. Безопасность: открытый код и активное сообщество. Популярные прошивки: Unleashed, RogueMaster, Momentum, Xtreme, DarkFlipper и другие.",
-            specs: ["Больше функций", "Расширенные возможности", "Поддержка плагинов", "Удобный интерфейс", "Регулярные обновления", "Безопасность"]
-        },
-        { 
-            id: 14, 
-            name: "BadUSB для Flipper Zero", 
-            price_usd: 80, 
-            salePrice: null, 
-            category: "accessories", 
-            img: "images/badusb.jpg", 
-            desc: "Автоматизация задач через USB.",
-            fullDesc: "BadUSB для Flipper Zero. Выполнение скриптов: автоматизация задач на ПК. Готовые Payload'ы: большая база скриптов и примеров. Простая установка: подключается к Flipper Zero и сразу готов к работе. Широкие возможности: открытие терминала, запуск команд, ввод текста, управление системой. Идеален для обучения: тестирование безопасности и автоматизация рутинных задач.",
-            specs: ["Выполнение скриптов", "Готовые Payload'ы", "Простая установка", "Широкие возможности", "Идеален для обучения"]
-        }
+        { id: 1, name: "Flipper Zero", price_usd: 390, salePrice: null, category: "devices", img: "flipper-zero.jpg", desc: "Универсальный инструмент для исследования безопасности. Оригинал, новый, запечатанный.", fullDesc: "Flipper Zero — универсальный инструмент для исследования безопасности. Поддержка модулей, открытый проект, большое сообщество, регулярные обновления. В комплекте: Flipper Zero, USB Type-C кабель, ремешок, наклейки, инструкция.", specs: ["SUB-GHZ: анализ и работа с радиосигналами", "2.4 GHz: Wi-Fi исследования (с модулем)", "NFC / RFID: чтение и эмуляция карт и меток", "IR: управление устройствами", "Bluetooth: анализ BLE устройств", "USB: подключение дополнительных модулей"] },
+        { id: 2, name: "HackRF One", price_usd: 590, salePrice: null, category: "devices", img: "hackrf-one.jpg", desc: "Software Defined Radio (SDR) платформа 0.1–6 ГГц. Полный дуплекс TX & RX.", fullDesc: "HackRF One — это программно-определяемая радиоплатформа (SDR), которая может передавать или принимать радиосигналы в диапазоне от 1 МГц до 6 ГГц. Это важный инструмент для пентестеров, исследователей и специалистов по RF-безопасности.", specs: ["SDR", "Диапазон 0.1 – 6 ГГц", "USB 2.0", "Full duplex (TX & RX)", "Open source hardware & software"] },
+        { id: 3, name: "HackRF One Portapack H2", price_usd: 890, salePrice: null, category: "devices", img: "hackrf-portapack.jpg", desc: "Портативная SDR платформа для исследования радиочастот 1 MHz – 6 GHz.", fullDesc: "HackRF One Portapack H2 — портативная SDR платформа для исследования радиочастот. Все в одном устройстве с LCD экраном и управлением. Множество режимов: SDR прием, передача, анализ, сканирование, запись сигналов. Большое количество приложений: ADS-B, AIS, APRS, DMR, POCSAG, LoRa, SSTV и другие. Открытая платформа: установка дополнительных плагинов и кастомных прошивок. Идеально для обучения и исследований: радио, IoT, беспроводные технологии и безопасность.", specs: ["Широкий частотный диапазон: 1 MHz – 6 GHz", "Передача и прием сигналов", "Портативное решение с LCD экраном", "Множество режимов: SDR, прием, передача, анализ", "Приложения: ADS-B, AIS, APRS, DMR, POCSAG, LoRa, SSTV", "Открытая платформа для плагинов и прошивок", "SMA разъемы для антенн", "microSD, USB для расширения"] },
+        { id: 4, name: "UConsole", price_usd: 950, salePrice: 1240, category: "devices", img: "uconsole.jpg", desc: "Портативная консоль для хакеров и разработчиков. Kali Linux на борту.", fullDesc: "UConsole — портативная консоль с полноценной клавиатурой, дисплеем и Linux. Идеальна для пентеста, разработки и киберпроектов.", specs: ["OS: Kali Linux", "CPU: ARM", "RAM: 2GB", "Дисплей: 480x320", "Клавиатура + геймпад", "Bluetooth, Wi-Fi"] },
+        { id: 5, name: "Raspberry Pi 4 (8GB)", price_usd: 120, salePrice: null, category: "devices", img: "raspberry-pi4.jpg", desc: "Мощный мини-компьютер для любых проектов.", fullDesc: "Raspberry Pi 4 8GB — мощный мини-компьютер для любых проектов: от киберпроектов и обучения до домашнего сервера и ретро-гейминга.", specs: ["8 GB RAM", "Quad-Core 1.5 GHz ARM Cortex-A72", "USB 3.0", "Wi-Fi 2.4/5 GHz + Bluetooth 5.0", "2× micro HDMI (4K)", "Gigabit Ethernet"] },
+        { id: 6, name: "WiFi Pineapple", price_usd: 590, salePrice: null, category: "devices", img: "wifi-pineapple.jpg", desc: "Профессиональный инструмент для анализа Wi-Fi сетей.", fullDesc: "WiFi Pineapple — профессиональный инструмент для анализа Wi-Fi сетей. Создание фейковых точек доступа (Rogue AP, Evil Twin). Мониторинг Wi-Fi сетей: сканирование, анализ, перехват трафика. Готовые модули: PineAP, Karma, SSLstrip, Captive Portal и другие. Удобное управление через веб-интерфейс с ПК, смартфона или Flipper Zero. Широкие возможности: тестирование безопасности сетей, анализ клиентов, исследование Wi-Fi.", specs: ["Создание фейковых точек доступа (Rogue AP, Evil Twin)", "Мониторинг Wi-Fi сетей", "Сканирование, анализ, перехват трафика", "Готовые модули: PineAP, Karma, SSLstrip, Captive Portal", "Управление через веб-интерфейс", "Высокая дальность", "Поддержка модулей", "Полный комплект"] },
+        { id: 7, name: "CC1101 модуль для Flipper Zero", price_usd: 120, salePrice: null, category: "modules", img: "cc1101.jpg", desc: "Расширь возможности твоего Flipper Zero. 300–928 MHz.", fullDesc: "CC1101 модуль для Flipper Zero. Широкий диапазон: 300-348 MHz, 387-464 MHz, 779-928 MHz. Перехват и анализ: сканирование частот, анализ сигналов, мониторинг протоколов. Полная интеграция с Flipper Zero. Работа с протоколами 433/868/915 MHz включая популярные IoT и беспроводные устройства. Простая установка через GPIO.", specs: ["Диапазон: 300-348 / 387-464 / 779-928 MHz", "Перехват и анализ сигналов", "Полная интеграция с Flipper Zero", "Работа с 433/868/915 MHz", "Подключение через GPIO"] },
+        { id: 8, name: "ESP32 Marauder V6 + Flipper Zero", price_usd: 250, salePrice: null, category: "modules", img: "esp32-marauder.jpg", desc: "Расширение возможностей твоего Flipper Zero. Marauder Firmware.", fullDesc: "ESP32 Marauder V6 — расширение возможностей Flipper Zero. 2.4 GHz: сканирование Wi-Fi и анализ сетей. Marauder Firmware: Deauth, Beacon, Probe, Packet Sniffer и др. OLED-дисплей. Полная совместимость с Flipper Zero. ESP32: высокая производительность.", specs: ["2.4 GHz", "Marauder Firmware", "OLED-дисплей", "Полная совместимость с Flipper Zero", "ESP32"] },
+        { id: 9, name: "ESP32 Multi-Tool", price_usd: 160, salePrice: null, category: "devices", img: "esp32-multitool.jpg", desc: "Портативное устройство для беспроводных исследований.", fullDesc: "ESP32 Multi-Tool — портативное устройство для беспроводных исследований. Wi-Fi 2.4/5 GHz, Sub-GHz 433/868/915 МГц, Bluetooth BLE, GPS (опционально), разработка IoT-проектов.", specs: ["Wi-Fi 2.4/5 GHz", "Sub-GHz 433/868/915 МГц", "Bluetooth BLE", "GPS (опционально)", "ESP32-S3", "Разработка IoT-проектов"] },
+        { id: 10, name: "NRF24 для Flipper Zero", price_usd: 150, salePrice: null, category: "modules", img: "nrf24.jpg", desc: "Модуль nRF24L01+ для Flipper Zero. 2.4 GHz.", fullDesc: "Модуль NRF24 для Flipper Zero. Работает в диапазоне 2.4 ГГц. Расширяет возможности вашего устройства.", specs: ["2.4 GHz", "Для Flipper Zero", "Внешняя антенна", "GPIO подключение"] },
+        { id: 11, name: "SUB-GHZ PRO модуль для Flipper Zero", price_usd: 130, salePrice: null, category: "modules", img: "subghz-pro.jpg", desc: "Расширь возможности своего Flipper Zero. 300–928 MHz.", fullDesc: "SUB-GHZ PRO модуль для Flipper Zero. Широкий частотный диапазон: 300-928 MHz (полный Sub-GHz диапазон). Приём и передача: анализ, перехват, отправка и эмуляция Sub-GHz сигналов. Высокая чувствительность. Полная интеграция с Flipper Zero. Простая установка через GPIO. Внешняя антенна в комплекте.", specs: ["300-928 MHz", "Приём и передача", "Высокая чувствительность", "Полная интеграция с Flipper Zero", "Внешняя антенна в комплекте", "GPIO подключение"] },
+        { id: 12, name: "ESP32 Wi-Fi Module для Flipper Zero", price_usd: 150, salePrice: null, category: "modules", img: "esp32-wifi.jpg", desc: "ESP32 Wi-Fi модуль для Flipper Zero.", fullDesc: "ESP32 Wi-Fi Module для Flipper Zero. Высокая производительность и стабильная работа. Сканирование и анализ сетей, мониторинг, анализ и тестирование. Полная совместимость с Flipper Zero. Поддержка кастомных прошивок.", specs: ["2.4 GHz", "ESP32", "Сканирование и анализ сетей", "Полная совместимость с Flipper Zero", "Поддержка кастомных прошивок"] },
+        { id: 13, name: "Кастомная прошивка на Flipper Zero", price_usd: 50, salePrice: null, category: "firmware", img: "custom-firmware.jpg", desc: "Больше возможностей твоего устройства.", fullDesc: "Кастомная прошивка на Flipper Zero. Больше функций: новые приложения, плагины и инструменты. Расширенные возможности: работа с Sub-GHz, NFC, RFID, IR, Bluetooth. Поддержка плагинов. Удобный интерфейс. Регулярные обновления. Безопасность: открытый код и активное сообщество. Популярные прошивки: Unleashed, RogueMaster, Momentum, Xtreme, DarkFlipper.", specs: ["Больше функций", "Расширенные возможности", "Поддержка плагинов", "Удобный интерфейс", "Регулярные обновления", "Безопасность"] },
+        { id: 14, name: "BadUSB для Flipper Zero", price_usd: 80, salePrice: null, category: "accessories", img: "badusb.jpg", desc: "Автоматизация задач через USB.", fullDesc: "BadUSB для Flipper Zero. Выполнение скриптов: автоматизация задач на ПК. Готовые Payload'ы: большая база скриптов и примеров. Простая установка. Широкие возможности: открытие терминала, запуск команд, ввод текста, управление системой. Идеален для обучения.", specs: ["Выполнение скриптов", "Готовые Payload'ы", "Простая установка", "Широкие возможности", "Идеален для обучения"] }
     ];
 
     function checkAuth() {
@@ -350,19 +210,17 @@
 
     // ========== ЗАГРУЗКА ТОВАРОВ ==========
     function loadProducts() {
-        // ВСЕГДА загружаем фиксированный список — игнорируем старые данные
         products = JSON.parse(JSON.stringify(FIXED_PRODUCTS));
         localStorage.setItem('admin_products', JSON.stringify(products));
         console.log('✅ Загружено товаров:', products.length);
         renderProductsList();
     }
 
-    // ========== СБРОС ТОВАРОВ ==========
     window.resetProducts = function() {
         if (confirm('Сбросить все товары и загрузить заново?')) {
             localStorage.removeItem('admin_products');
             loadProducts();
-            showToast("✅ Товары сброшены и загружены заново", "#4ADE80");
+            showToast("✅ Товары сброшены", "#4ADE80");
         }
     };
 
@@ -378,8 +236,8 @@
             const displayPrice = p.salePrice ? `${p.salePrice}$ (было ${p.price_usd}$)` : `${p.price_usd}$`;
             const categoryName = getCategoryName(p.category);
             
-            // Проверяем, есть ли фото
-            const hasImage = p.img && (p.img.startsWith('images/') || p.img.startsWith('http'));
+            // Фото из корня — проверяем имя файла
+            const hasImage = p.img && (p.img.endsWith('.jpg') || p.img.endsWith('.png') || p.img.endsWith('.jpeg') || p.img.startsWith('http'));
             const imgHtml = hasImage 
                 ? `<img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>📦</span>';" style="width:100%;height:100%;object-fit:cover;">` 
                 : `<span>${p.img || '📦'}</span>`;
@@ -589,7 +447,7 @@
     document.getElementById('prodImg').addEventListener('input', function() {
         const preview = document.getElementById('mainPhotoPreview');
         const url = this.value.trim();
-        if (url && (url.startsWith('images/') || url.startsWith('http'))) {
+        if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.jpeg') || url.startsWith('http'))) {
             preview.innerHTML = `<div class="preview-item"><img src="${url}" onerror="this.style.display='none';"><button class="remove-preview" onclick="this.parentElement.remove()">✕</button></div>`;
         } else {
             preview.innerHTML = '';
