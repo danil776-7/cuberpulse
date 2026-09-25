@@ -20,16 +20,19 @@
         .category-btn.active { background: #6C63FF; border-color: #6C63FF; color: white; }
         .sort-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 40px; color: white; margin-bottom: 20px; cursor: pointer; }
         .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin: 30px 0 60px; }
-        .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; transition: all 0.3s; cursor: pointer; }
+        .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; transition: all 0.3s; }
         .product-card:hover { transform: translateY(-5px); border-color: #6C63FF; }
-        .product-img { width: 100%; height: 160px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px; }
+        .product-img { width: 100%; height: 160px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px; cursor: pointer; }
         .product-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
         .product-img .fallback { font-size: 64px; }
-        .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; cursor: pointer; }
+        .product-title:hover { color: #6C63FF; }
         .product-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 8px 0; line-height: 1.4; }
         .product-price { font-size: 24px; font-weight: 700; color: #6C63FF; margin: 12px 0; }
         .old-price { font-size: 14px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 8px; }
         .sale-badge { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 11px; margin-left: 8px; }
+        .btn-details { width: 100%; background: transparent; border: 1px solid rgba(108,99,255,0.5); padding: 10px; border-radius: 40px; color: #6C63FF; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; font-size: 14px; }
+        .btn-details:hover { background: rgba(108,99,255,0.15); border-color: #6C63FF; }
         .btn-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 12px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-cart:hover { transform: scale(1.02); }
         .cart-icon { position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(108, 99, 255, 0.2); padding: 8px 18px; border-radius: 40px; }
@@ -133,7 +136,6 @@
         { id: "accessories", name: "🔧 Аксессуары" }
     ];
 
-    // ========== ЗАГРУЗКА ТОВАРОВ ИЗ АДМИН-ПАНЕЛИ ==========
     function loadProductsFromStorage() {
         const saved = localStorage.getItem('admin_products');
         if (saved && saved !== 'undefined' && saved !== 'null') {
@@ -141,19 +143,15 @@
                 const parsed = JSON.parse(saved);
                 if (parsed && parsed.length > 0) {
                     products = parsed;
-                    console.log('✅ Товары загружены из админ-панели:', products.length);
+                    console.log('✅ Товары загружены:', products.length);
                     renderCategories();
                     renderCatalog();
                     return;
                 }
-            } catch (e) {
-                console.error('Ошибка загрузки:', e);
-            }
+            } catch (e) { console.error(e); }
         }
-        
-        console.warn('⚠️ Товары не найдены. Откройте admin.html и нажмите "Обновить товары"');
         products = [
-            { id: 1, name: "Flipper Zero", price_usd: 390, salePrice: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент для исследования безопасности.", fullDesc: "", specs: [] }
+            { id: 1, name: "Flipper Zero", price_usd: 390, salePrice: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент.", fullDesc: "", specs: [] }
         ];
         localStorage.setItem('admin_products', JSON.stringify(products));
         renderCategories();
@@ -171,7 +169,6 @@
     const contactBtn = document.getElementById('contactBtn');
     const contactModal = document.getElementById('contactModal');
 
-    // ========== КОРЗИНА ==========
     function updateCartCount() {
         const count = cart.reduce((sum, item) => sum + item.quantity, 0);
         cartCountSpan.innerText = count;
@@ -188,12 +185,25 @@
         showToast("✓ Добавлено в корзину", "#4ADE80");
     };
 
+    // ========== ОТКРЫТИЕ СТРАНИЦЫ ТОВАРА ==========
+    window.openProduct = function(id) {
+        console.log('Открываем товар ID:', id);
+        const product = products.find(p => p.id === id);
+        if(product) {
+            localStorage.setItem('currentProduct', JSON.stringify(product));
+            console.log('Товар сохранён:', product.name);
+            window.location.href = 'product.html';
+        } else {
+            console.error('Товар не найден:', id);
+        }
+    };
+
     window.removeFromCart = function(id) {
         cart = cart.filter(item => item.id !== id);
         updateCartCount();
         renderCartModal();
         renderCatalog();
-        showToast("✗ Удалено из корзины", "#F87171");
+        showToast("✗ Удалено", "#F87171");
     };
 
     window.changeQuantity = function(id, delta) {
@@ -241,7 +251,7 @@
 
     function renderCatalog() {
         if(!products || products.length === 0) {
-            catalogDiv.innerHTML = '<div style="text-align:center; padding:60px;">🔄 Загрузка товаров...</div>';
+            catalogDiv.innerHTML = '<div style="text-align:center; padding:60px;">🔄 Загрузка...</div>';
             return;
         }
         
@@ -257,33 +267,24 @@
             const hasSale = p.salePrice && p.salePrice < p.price_usd;
             
             return `
-                <div class="product-card" onclick="goToProduct(${p.id})">
-                    <div class="product-img">
+                <div class="product-card">
+                    <div class="product-img" onclick="openProduct(${p.id})">
                         <img src="${p.img}" alt="${escapeHtml(p.name)}" 
                              onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">
                     </div>
-                    <div class="product-title">${escapeHtml(p.name)}</div>
+                    <div class="product-title" onclick="openProduct(${p.id})">${escapeHtml(p.name)}</div>
                     <div class="product-desc">${escapeHtml(p.desc ? p.desc.substring(0, 80) : '')}...</div>
                     <div class="product-price">
                         ${price.val} ${price.sym}
                         ${price.oldVal ? `<span class="old-price">${price.oldVal} ${price.sym}</span>` : ''}
                         ${hasSale ? `<span class="sale-badge">🔥 Скидка</span>` : ''}
                     </div>
-                    <button class="btn-cart" onclick="event.stopPropagation(); addToCart(${p.id})">${inCart ? '✓ В корзине' : '+ В корзину'}</button>
+                    <button class="btn-details" onclick="openProduct(${p.id})">📖 Подробнее</button>
+                    <button class="btn-cart" onclick="addToCart(${p.id})">${inCart ? '✓ В корзине' : '+ В корзину'}</button>
                 </div>
             `;
         }).join('');
     }
-
-    // ========== ПЕРЕХОД НА СТРАНИЦУ ТОВАРА ==========
-    function goToProduct(id) {
-        const product = products.find(p => p.id === id);
-        if(product) {
-            localStorage.setItem('currentProduct', JSON.stringify(product));
-            window.location.href = 'product.html';
-        }
-    }
-    window.goToProduct = goToProduct;
 
     function escapeHtml(text) {
         if(!text) return '';
@@ -419,7 +420,6 @@
         renderCartModal();
     };
 
-    // ========== ЗАПУСК ==========
     loadProductsFromStorage();
     fetchRubRate();
     updateCartCount();
