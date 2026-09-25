@@ -30,9 +30,60 @@
         .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; transition: all 0.3s; display: flex; flex-direction: column; }
         .product-card:hover { transform: translateY(-5px); border-color: #6C63FF; }
         
-        .product-img { width: 100%; height: 240px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 16px; cursor: pointer; padding: 8px; }
-        .product-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
-        .product-img .fallback { font-size: 64px; }
+        /* ========== ФОТО С ЛЕНИВОЙ ЗАГРУЗКОЙ ========== */
+        .product-img { 
+            width: 100%; 
+            height: 240px; 
+            background: linear-gradient(135deg, #111827, #0F172A); 
+            border-radius: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+            margin-bottom: 16px; 
+            cursor: pointer; 
+            padding: 8px; 
+            position: relative;
+        }
+        
+        /* Скелетон загрузки */
+        .product-img::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmer 1.5s infinite;
+            z-index: 0;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .product-img img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            border-radius: 12px; 
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-img img.loaded { 
+            opacity: 1; 
+        }
+        
+        .product-img .fallback { 
+            font-size: 64px; 
+            position: relative;
+            z-index: 1;
+        }
         
         .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; cursor: pointer; }
         .product-title:hover { color: #6C63FF; }
@@ -87,7 +138,7 @@
             .category-btn { padding: 6px 14px; font-size: 12px; }
             .catalog { grid-template-columns: 1fr; gap: 16px; }
             .product-card { padding: 16px; }
-            .product-img { height: 280px; }
+            .product-img { height: 260px; }
             .product-price { font-size: 20px; }
             .cart-modal { width: 95vw; }
         }
@@ -247,16 +298,13 @@
         renderCatalog();
     }
 
-    // ========== ПОЛУЧЕНИЕ ЦЕНЫ С ДИАПАЗОНОМ ==========
     function getPrice(product) {
         const baseMin = product.salePrice ? product.salePrice : product.price_usd;
         const baseMax = product.salePriceMax ? product.salePriceMax : (product.price_usd_max || null);
         
         if(currentCurrency === 'USD') {
             return { 
-                val: baseMin, 
-                valMax: baseMax,
-                sym: '$', 
+                val: baseMin, valMax: baseMax, sym: '$', 
                 oldVal: (product.salePrice || product.salePriceMax) ? product.price_usd : null,
                 oldValMax: (product.salePrice || product.salePriceMax) ? (product.price_usd_max || null) : null
             };
@@ -271,17 +319,13 @@
     }
 
     function formatPrice(price) {
-        if (price.valMax) {
-            return `от ${price.val} до ${price.valMax} ${price.sym}`;
-        }
+        if (price.valMax) return `от ${price.val} до ${price.valMax} ${price.sym}`;
         return `${price.val} ${price.sym}`;
     }
 
     function formatOldPrice(price) {
         if (!price.oldVal) return '';
-        if (price.oldValMax) {
-            return `от ${price.oldVal} до ${price.oldValMax} ${price.sym}`;
-        }
+        if (price.oldValMax) return `от ${price.oldVal} до ${price.oldValMax} ${price.sym}`;
         return `${price.oldVal} ${price.sym}`;
     }
 
@@ -323,7 +367,11 @@
             return `
                 <div class="product-card">
                     <div class="product-img" onclick="openProduct(${p.id})">
-                        <img src="${p.img}" alt="${escapeHtml(p.name)}" 
+                        <img src="${p.img}" 
+                             alt="${escapeHtml(p.name)}" 
+                             loading="lazy"
+                             decoding="async"
+                             onload="this.classList.add('loaded')"
                              onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">
                     </div>
                     <div class="product-title" onclick="openProduct(${p.id})">${escapeHtml(p.name)}</div>
