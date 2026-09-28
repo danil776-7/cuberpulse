@@ -174,7 +174,7 @@
                         ${oldPrice ? `<span class="old-price">${formatPrice(oldPrice)}</span>` : ''}
                         ${hasSale ? `<span style="background:#FF4D4D; padding:2px 8px; border-radius:20px; font-size:14px; margin-left:12px;">🔥 Скидка</span>` : ''}
                     </div>
-                    <div class="product-full-desc">${escapeHtml(product.fullDesc || product.desc || '')}</div>
+                    <div class="product-full-desc"><strong style="display:block;color:#fff;margin-bottom:8px;font-size:18px;">Описание</strong>${escapeHtml(product.fullDesc || product.desc || '')}</div>
                     <div class="specs">
                         <h3>📋 Характеристики</h3>
                         <ul>${specs.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
