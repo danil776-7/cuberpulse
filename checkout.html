@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberPulse | Оформление заказа</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0A0A0F;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #FFFFFF;
+            line-height: 1.5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo h1 { font-size: 26px; background: linear-gradient(135deg, #FFFFFF, #6C63FF); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
+        .back-link { color: #6C63FF; text-decoration: none; display: inline-block; margin: 20px 0; }
+        .checkout-container { display: grid; grid-template-columns: 1fr 400px; gap: 40px; margin: 40px 0 60px; }
+        @media (max-width: 900px) { .checkout-container { grid-template-columns: 1fr; } }
+        .form-section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; }
+        .form-section h2 { margin-bottom: 24px; font-size: 22px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: rgba(255,255,255,0.7); font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; font-size: 14px; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #6C63FF; }
+        .order-summary { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; position: sticky; top: 20px; height: fit-content; }
+        .order-summary h3 { margin-bottom: 20px; }
+        .order-items { max-height: 350px; overflow-y: auto; margin-bottom: 20px; }
+        .order-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .order-item-info { display: flex; align-items: center; gap: 12px; }
+        .order-item-img { font-size: 32px; }
+        .total-row { display: flex; justify-content: space-between; padding: 16px 0; font-size: 20px; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 16px; }
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 16px; border-radius: 40px; color: white; font-weight: 600; font-size: 16px; cursor: pointer; margin-top: 20px; transition: all 0.3s; }
+        .btn-submit:hover { transform: scale(1.02); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .payment-options { background: rgba(108, 99, 255, 0.1); border-radius: 16px; padding: 16px; margin: 16px 0; }
+        .payment-options label { display: flex; align-items: center; gap: 12px; cursor: pointer; margin: 8px 0; }
+        .payment-note { background: rgba(74, 222, 128, 0.1); border-left: 3px solid #4ADE80; border-radius: 12px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #111118; border-left: 4px solid #6C63FF; padding: 12px 20px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .contact-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 420px; max-width: 90vw; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px; z-index: 2000; text-align: center; }
+        .contact-modal.show { display: block; animation: fadeIn 0.2s ease; }
+        .contact-modal h3 { margin: 12px 0; font-size: 22px; }
+        .contact-modal p { color: rgba(255,255,255,0.7); margin: 8px 0; font-size: 14px; }
+        .contact-link { display: inline-block; background: linear-gradient(135deg, #6C63FF, #4A42D0); padding: 14px 28px; border-radius: 40px; color: white; text-decoration: none; margin: 16px 0; font-weight: 600; transition: all 0.3s; }
+        .contact-link:hover { transform: scale(1.03); }
+        .close-contact { background: rgba(255,255,255,0.1); border: none; padding: 10px 20px; border-radius: 40px; color: white; cursor: pointer; margin-top: 8px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1999; }
+        .overlay.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        select option { background: #1A1A2E; color: white; }
+        .empty-cart { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.5); }
+        .empty-cart .icon { font-size: 64px; margin-bottom: 16px; }
+        .order-number { font-size: 28px; font-weight: 700; color: #6C63FF; letter-spacing: 2px; margin: 8px 0; }
+    </style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+
+<div class="contact-modal" id="contactModal">
+    <div style="font-size: 60px;">✅</div>
+    <h3>Заказ оформлен!</h3>
+    <p>Номер вашего заказа:</p>
+    <div class="order-number" id="orderNumberDisplay">#000000</div>
+    <p>Для оплаты свяжитесь с нашим администратором в Telegram:</p>
+    <a href="https://t.me/TENOR870" target="_blank" rel="noopener noreferrer" class="contact-link">📱 Написать администратору</a>
+    <p style="font-size: 12px; color: rgba(255,255,255,0.5);">@TENOR870</p>
+    <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 8px;">
+        Отправьте номер заказа администратору для оплаты
+    </p>
+    <button class="close-contact" onclick="closeContactModal()">Вернуться в каталог</button>
+</div>
+
+<div class="container">
+    <div class="header">
+        <div class="logo" onclick="location.href='index.html'">
+            <h1>CyberPulse</h1>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-link">← Вернуться в каталог</a>
+
+    <div id="emptyCartMessage" class="empty-cart" style="display:none;">
+        <div class="icon">🛒</div>
+        <p>Корзина пуста</p>
+        <a href="index.html" class="back-link">← Вернуться в каталог</a>
+    </div>
+
+    <div class="checkout-container" id="checkoutContainer">
+        <div class="form-section">
+            <h2>📋 Данные для доставки</h2>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label>ФИО *</label>
+                    <input type="text" id="fullName" required placeholder="Иванов Иван Иванович">
+                </div>
+                <div class="form-group">
+                    <label>Телефон *</label>
+                    <input type="tel" id="phone" required placeholder="+7 999 123-45-67" maxlength="18">
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="email" required placeholder="example@mail.ru">
+                </div>
+                <div class="form-group">
+                    <label>Способ доставки *</label>
+                    <select id="delivery" required>
+                        <option value="" disabled selected>-- Выберите способ доставки --</option>
+                        <option value="cdek">📦 CDEK ($5)</option>
+                        <option value="dhl">✈️ DHL Express ($15)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Город *</label>
+                    <input type="text" id="city" required placeholder="Москва, Санкт-Петербург">
+                </div>
+                <div class="form-group">
+                    <label>Адрес *</label>
+                    <textarea id="address" rows="2" required placeholder="Улица, дом, квартира"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Индекс *</label>
+                    <input type="text" id="zip" required placeholder="123456" maxlength="6">
+                </div>
+                <div class="form-group">
+                    <label>Комментарий</label>
+                    <textarea id="comment" rows="2" placeholder="Дополнительная информация"></textarea>
+                </div>
+
+                <div class="payment-options">
+                    <p style="margin-bottom: 12px;">💳 Способы оплаты:</p>
+                    <label>
+                        <input type="radio" name="payment" value="card" checked> Оплата картой после подтверждения
+                    </label>
+                    <label>
+                        <input type="radio" name="payment" value="crypto"> Криптовалюта (USDT)
+                    </label>
+                </div>
+
+                <div class="payment-note">
+                    💡 <strong>Как происходит оплата:</strong><br>
+                    После оформления заказа вы получите его номер и ссылку на администратора.
+                    Свяжитесь с администратором в Telegram для подтверждения и оплаты заказа.
+                </div>
+
+                <button type="submit" class="btn-submit">✅ Оформить заказ</button>
+            </form>
+        </div>
+
+        <div class="order-summary">
+            <h3>🛒 Ваш заказ</h3>
+            <div id="orderItems" class="order-items"></div>
+            <div class="total-row"><span>Сумма:</span><span id="subtotal">0 $</span></div>
+            <div class="total-row" style="border-top:none;"><span>Доставка:</span><span id="deliveryCost">Выберите доставку</span></div>
+            <div class="total-row"><span>Итого:</span><span id="orderTotal" style="color:#6C63FF; font-size:24px;">0 $</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== ТОВАРЫ ==========
+    const products = [
+        { id: 1, name: "Flipper Zero", price_usd: 390, img: "flipper-zero.png" },
+        { id: 2, name: "HackRF One", price_usd: 590, img: "hackrf-one.png" },
+        { id: 3, name: "HackRF One Portapack H2", price_usd: 890, img: "hackrf-portapack.png" },
+        { id: 4, name: "UConsole", price_usd: 950, img: "uconsole.png" },
+        { id: 5, name: "Raspberry Pi 4 (8GB)", price_usd: 120, img: "raspberry-pi4.png" },
+        { id: 6, name: "WiFi Pineapple", price_usd: 590, img: "wifi-pineapple.png" },
+        { id: 7, name: "CC1101 модуль", price_usd: 120, img: "cc1101.png" },
+        { id: 8, name: "ESP32 Marauder V6", price_usd: 250, img: "esp32-marauder.png" },
+        { id: 9, name: "ESP32 Multi-Tool", price_usd: 160, img: "esp32-multitool.png" },
+        { id: 10, name: "NRF24 для Flipper Zero", price_usd: 150, img: "nrf24.png" },
+        { id: 11, name: "SUB-GHZ PRO модуль", price_usd: 130, img: "subghz-pro.png" },
+        { id: 12, name: "ESP32 Wi-Fi Module", price_usd: 150, img: "esp32-wifi.png" },
+        { id: 13, name: "Кастомная прошивка", price_usd: 50, img: "custom-firmware.png" },
+        { id: 14, name: "BadUSB для Flipper Zero", price_usd: 80, img: "badusb.png" }
+    ];
+
+    // ========== АДМИНИСТРАТОР ==========
+    const ADMIN_USERNAME = "TENOR870";
+    const ADMIN_LINK = "https://t.me/TENOR870";
+
+    // ========== ДАННЫЕ ==========
+    let cart = [];
+    let currency = 'USD';
+    let totalUSD = 0;
+    let rubRate = 92;
+    let deliveryCostUSD = 0;
+    const deliveryPrices = { cdek: 5, dhl: 15 };
+    const deliveryNames = { cdek: "📦 CDEK", dhl: "✈️ DHL Express" };
+
+    function loadCheckoutData() {
+        try {
+            const savedCart = localStorage.getItem('checkoutCart');
+            if (savedCart) cart = JSON.parse(savedCart);
+            const savedCurrency = localStorage.getItem('checkoutCurrency');
+            if (savedCurrency) currency = savedCurrency;
+            cart = Array.isArray(cart) ? cart.filter(item => {
+                const quantity = Number(item?.quantity);
+                return Number.isInteger(quantity) && quantity > 0 && quantity <= 99 && products.some(p => p.id === Number(item.id));
+            }).map(item => ({ id: Number(item.id), quantity: Number(item.quantity) })) : [];
+            totalUSD = cart.reduce((sum, item) => {
+                const product = products.find(p => p.id === item.id);
+                return sum + (product ? product.price_usd * item.quantity : 0);
+            }, 0);
+        } catch(e) { console.error(e); }
+    }
+
+    async function fetchRubRate() {
+        try {
+            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const data = await res.json();
+            rubRate = data.rates.RUB;
+        } catch(e) { rubRate = 92; }
+        renderOrderSummary();
+    }
+
+    function getPrice(priceUSD) {
+        if(currency === 'USD') return { val: priceUSD, sym: '$' };
+        return { val: Math.round(priceUSD * rubRate), sym: '₽' };
+    }
+
+    function renderOrderSummary() {
+        const container = document.getElementById('orderItems');
+        if (!cart || cart.length === 0) {
+            document.getElementById('checkoutContainer').style.display = 'none';
+            document.getElementById('emptyCartMessage').style.display = 'block';
+            return;
+        }
+        document.getElementById('checkoutContainer').style.display = 'grid';
+        document.getElementById('emptyCartMessage').style.display = 'none';
+
+        container.innerHTML = cart.map(item => {
+            const p = products.find(p => p.id === item.id);
+            if (!p) return '';
+            const price = getPrice(p.price_usd);
+            const total = getPrice(p.price_usd * item.quantity);
+            return `
+                <div class="order-item">
+                    <div class="order-item-info">
+                        <span class="order-item-img">${p.img}</span>
+                        <div>
+                            <strong>${escapeHtml(p.name)}</strong>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.5);">${price.val} ${price.sym} × ${item.quantity}</div>
+                        </div>
+                    </div>
+                    <div>${total.val} ${total.sym}</div>
+                </div>
+            `;
+        }).join('');
+
+        const subtotal = getPrice(totalUSD);
+        const delivery = getPrice(deliveryCostUSD);
+        const total = getPrice(totalUSD + deliveryCostUSD);
+        document.getElementById('subtotal').innerHTML = `${subtotal.val} ${subtotal.sym}`;
+        document.getElementById('deliveryCost').innerHTML = deliveryCostUSD === 0 ? 'Выберите доставку' : `${delivery.val} ${delivery.sym}`;
+        document.getElementById('orderTotal').innerHTML = `${total.val} ${total.sym}`;
+    }
+
+    document.getElementById('delivery').onchange = (e) => {
+        deliveryCostUSD = deliveryPrices[e.target.value] || 0;
+        renderOrderSummary();
+    };
+
+    function generateOrderNumber() {
+        const date = new Date();
+        const year = date.getFullYear().toString().slice(-2);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 9000) + 1000;
+        return `CP-${year}${month}${day}-${random}`;
+    }
+
+    // GitHub Pages is a static host: secrets must never be embedded in browser code.
+    // The order is prepared locally and the customer sends it to the administrator in Telegram.
+    function buildOrderMessage(orderData) {
+        return `НОВЫЙ ЗАКАЗ
+Заказ №: ${orderData.orderNumber}
+
+КЛИЕНТ:
+ФИО: ${orderData.fullName}
+Телефон: ${orderData.phone}
+Email: ${orderData.email}
+
+ДОСТАВКА:
+Способ: ${orderData.delivery}
+Город: ${orderData.city}
+Адрес: ${orderData.address}
+Индекс: ${orderData.zip}
+
+ТОВАРЫ:
+${orderData.items}
+
+ОПЛАТА:
+Способ: ${orderData.payment}
+Сумма: ${orderData.total}
+
+КОММЕНТАРИЙ:
+${orderData.comment || "Нет"}`;
+    }
+
+    async function copyOrderMessage(orderData) {
+        const message = buildOrderMessage(orderData);
+        try {
+            await navigator.clipboard.writeText(message);
+            return true;
+        } catch (_) {
+            const textarea = document.createElement('textarea');
+            textarea.value = message;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            const ok = document.execCommand('copy');
+            textarea.remove();
+            return ok;
+        }
+    }
+
+    function showToast(msg, color) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.borderLeftColor = color;
+        toast.textContent = String(msg);
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function openContactModal(orderNumber) {
+        document.getElementById('orderNumberDisplay').textContent = `#${orderNumber}`;
+        document.getElementById('contactModal').classList.add('show');
+        document.getElementById('overlay').classList.add('show');
+    }
+
+    function closeContactModal() {
+        document.getElementById('contactModal').classList.remove('show');
+        document.getElementById('overlay').classList.remove('show');
+        localStorage.removeItem('checkoutCart');
+        localStorage.removeItem('cart');
+        window.location.href = 'index.html';
+    }
+
+    window.closeContactModal = closeContactModal;
+
+    document.getElementById('checkoutForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const delivery = document.getElementById('delivery').value;
+        const city = document.getElementById('city').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const zip = document.getElementById('zip').value.trim();
+        const comment = document.getElementById('comment').value.trim();
+        const payment = document.querySelector('input[name="payment"]:checked').value;
+        
+        if (!fullName) { showToast("Введите ФИО", "#F87171"); return; }
+        if (!phone) { showToast("Введите телефон", "#F87171"); return; }
+        if (!email) { showToast("Введите Email", "#F87171"); return; }
+        if (!delivery) { showToast("Выберите способ доставки", "#F87171"); return; }
+        if (!city) { showToast("Введите город", "#F87171"); return; }
+        if (!address) { showToast("Введите адрес", "#F87171"); return; }
+        if (!zip) { showToast("Введите индекс", "#F87171"); return; }
+        
+        const phoneDigits = phone.replace(/\D/g, '');
+        if (phoneDigits.length !== 11) {
+            showToast("Неверный номер телефона", "#F87171");
+            return;
+        }
+        
+        const orderNumber = generateOrderNumber();
+        
+        const itemsList = cart.map(item => {
+            const p = products.find(pp => pp.id === item.id);
+            if (!p) return '';
+            const price = getPrice(p.price_usd);
+            return `  • ${p.name} × ${item.quantity} = ${price.val * item.quantity} ${price.sym}`;
+        }).filter(Boolean).join('\n');
+        
+        const paymentNames = { card: "💳 Оплата картой после подтверждения", crypto: "🪙 Криптовалюта (USDT)" };
+        const total = getPrice(totalUSD + deliveryCostUSD);
+        
+        const orderData = {
+            orderNumber, fullName, phone, email,
+            delivery: deliveryNames[delivery] || delivery,
+            city, address, zip,
+            items: itemsList,
+            payment: paymentNames[payment] || payment,
+            total: `${total.val} ${total.sym}`,
+            comment
+        };
+        
+        const btn = document.querySelector('.btn-submit');
+        btn.disabled = true;
+        btn.innerText = "⏳ Формирование заказа...";
+        
+        const copied = await copyOrderMessage(orderData);
+        showToast(copied ? "✅ Данные заказа скопированы. Отправьте их администратору." : "Заказ сформирован. Отправьте номер заказа администратору.", copied ? "#4ADE80" : "#FBBF24");
+        
+        localStorage.removeItem('cart');
+        localStorage.removeItem('checkoutCart');
+        
+        setTimeout(() => {
+            openContactModal(orderNumber);
+            btn.disabled = false;
+            btn.innerText = "✅ Оформить заказ";
+        }, 800);
+    };
+
+    loadCheckoutData();
+    fetchRubRate();
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <title>CyberPulse | Магазин устройств безопасности</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { overflow-x: hidden; width: 100%; }
+        body { background: #0A0A0F; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #FFFFFF; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 12px; }
+        .logo h1 { font-size: 24px; background: linear-gradient(135deg, #FFFFFF, #6C63FF); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
+        .logo p { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .nav-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; border-radius: 40px; color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        .btn-outline:hover { border-color: #6C63FF; color: #6C63FF; }
+        .btn-outline:active { transform: scale(0.96); }
+        
+        .search-input { width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 14px 18px; border-radius: 40px; color: white; margin: 20px 0 16px; font-size: 16px; }
+        .search-input:focus { outline: none; border-color: #6C63FF; }
+        
+        .categories { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .category-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 40px; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s; font-size: 14px; white-space: nowrap; }
+        .category-btn.active { background: #6C63FF; border-color: #6C63FF; color: white; }
+        .category-btn:active { transform: scale(0.96); }
+        
+        .sort-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 40px; color: white; margin-bottom: 16px; cursor: pointer; font-size: 14px; }
+        
+        .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 24px 0 60px; }
+        .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; transition: all 0.3s; display: flex; flex-direction: column; }
+        
+        .product-img { width: 100%; height: 240px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 14px; cursor: pointer; padding: 8px; }
+        .product-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+        .product-img .fallback { font-size: 64px; }
+        
+        .product-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; cursor: pointer; }
+        .product-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 6px 0; line-height: 1.4; flex-grow: 1; }
+        .product-price { font-size: 22px; font-weight: 700; color: #6C63FF; margin: 10px 0; }
+        .old-price { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 6px; }
+        .sale-badge { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 11px; margin-left: 6px; }
+        
+        .btn-details { width: 100%; background: transparent; border: 1px solid rgba(108,99,255,0.5); padding: 12px; border-radius: 40px; color: #6C63FF; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; font-size: 14px; }
+        .btn-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        
+        .cart-icon { position: relative; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(108, 99, 255, 0.2); padding: 10px 16px; border-radius: 40px; font-size: 14px; }
+        .cart-count { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 12px; }
+        
+        .cart-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; max-width: 94vw; max-height: 85vh; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; z-index: 1001; overflow: hidden; }
+        .cart-modal.show { display: flex; flex-direction: column; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .cart-items { flex: 1; overflow-y: auto; padding: 14px; }
+        .cart-item { display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
+        .cart-item-img { font-size: 28px; width: 40px; text-align: center; flex-shrink: 0; }
+        .cart-item-info { flex: 1; min-width: 100px; }
+        .cart-item-name { font-weight: 600; font-size: 13px; }
+        .cart-item-price { font-size: 11px; color: #6C63FF; }
+        .cart-item-controls { display: flex; align-items: center; gap: 6px; }
+        .cart-qty-btn { background: rgba(255,255,255,0.1); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; color: white; font-size: 16px; }
+        .cart-footer { padding: 18px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+        .btn-checkout { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 16px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; font-size: 16px; }
+        .close-cart { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 26px; cursor: pointer; padding: 4px 12px; }
+        
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; }
+        .overlay.show { display: block; }
+        .toast { position: fixed; bottom: 20px; right: 16px; left: 16px; max-width: 400px; margin-left: auto; background: #111118; border-left: 4px solid #6C63FF; padding: 14px 18px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; font-size: 14px; }
+        .contact-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; max-width: 94vw; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 28px 20px; z-index: 2000; text-align: center; }
+        .contact-modal.show { display: block; animation: fadeIn 0.2s ease; }
+        .contact-link { display: inline-block; background: linear-gradient(135deg, #6C63FF, #4A42D0); padding: 14px 28px; border-radius: 40px; color: white; text-decoration: none; margin: 8px 0; font-size: 16px; }
+        .close-contact { background: rgba(255,255,255,0.1); border: none; padding: 12px 24px; border-radius: 40px; color: white; cursor: pointer; margin-top: 16px; font-size: 14px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        
+        @media (max-width: 768px) {
+            .container { padding: 0 12px; }
+            .logo h1 { font-size: 20px; }
+            .logo p { font-size: 10px; }
+            .nav-buttons { gap: 6px; width: 100%; }
+            .btn-outline { padding: 10px 14px; font-size: 13px; flex: 1; text-align: center; }
+            .cart-icon { padding: 10px 14px; font-size: 13px; }
+            .search-input { font-size: 15px; padding: 12px 16px; }
+            .category-btn { padding: 8px 16px; font-size: 13px; }
+            .catalog { grid-template-columns: 1fr; gap: 14px; }
+            .product-card { padding: 14px; border-radius: 16px; }
+            .product-img { height: 260px; }
+            .product-price { font-size: 20px; }
+            .cart-modal { width: 96vw; }
+        }
+    </style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="container">
+    <div class="header">
+        <div class="logo" onclick="location.reload()">
+            <h1>CyberPulse</h1>
+            <p>professional hardware · security research</p>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-outline" id="usdBtn">USD</button>
+            <button class="btn-outline" id="rubBtn">RUB</button>
+            <button class="btn-outline" id="contactBtn">📞</button>
+            <div class="cart-icon" id="cartIcon">
+                🛒 <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск...">
+
+    <div class="categories" id="categories"></div>
+    
+    <select id="sortSelect" class="sort-select">
+        <option value="default">По умолчанию</option>
+        <option value="price_asc">Цена ↑</option>
+        <option value="price_desc">Цена ↓</option>
+    </select>
+
+    <div id="catalog" class="catalog"></div>
+</div>
+
+<div class="cart-modal" id="cartModal">
+    <div class="cart-header">
+        <span style="font-weight:600;">🛒 Корзина</span>
+        <button class="close-cart" id="closeCartBtn">✕</button>
+    </div>
+    <div id="cartItemsList" class="cart-items">
+        <div style="text-align:center; padding:40px;">Корзина пуста</div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none;">
+        <div class="cart-total">
+            <span>Итого:</span>
+            <span id="cartTotal">0 $</span>
+        </div>
+        <button class="btn-checkout" id="checkoutBtn">Оформить заказ</button>
+    </div>
+</div>
+
+<div class="contact-modal" id="contactModal">
+    <h3>📞 Свяжитесь с нами</h3>
+    <p>По всем вопросам обращайтесь к нашему менеджеру:</p>
+    <a href="https://t.me/TENOR870" target="_blank" rel="noopener noreferrer" class="contact-link">@TENOR870</a>
+    <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
+</div>
+
+<script>
+    // ========== ФИКСИРОВАННЫЙ СПИСОК ТОВАРОВ (ВСЕГДА ЗАГРУЖАЕТСЯ) ==========
+    const ALL_PRODUCTS = [
+        { id: 1, name: "Flipper Zero", price_usd: 390, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент для исследования безопасности. Оригинал, новый, запечатанный.", fullDesc: "Flipper Zero — универсальный инструмент для исследования безопасности.", specs: ["SUB-GHZ: анализ и работа с радиосигналами", "2.4 GHz: Wi-Fi исследования", "NFC / RFID: чтение и эмуляция карт", "IR: управление устройствами", "Bluetooth: анализ BLE", "USB: подключение модулей"] },
+        { id: 2, name: "HackRF One", price_usd: 590, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "hackrf-one.png", desc: "Software Defined Radio (SDR) платформа 0.1–6 ГГц.", fullDesc: "HackRF One — SDR платформа 1 МГц – 6 ГГц.", specs: ["SDR", "0.1 – 6 ГГц", "USB 2.0", "Full duplex"] },
+        { id: 3, name: "HackRF One Portapack H2", price_usd: 890, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "hackrf-portapack.png", desc: "Портативная SDR платформа 1 MHz – 6 GHz.", fullDesc: "Портативная SDR платформа с LCD экраном.", specs: ["1 MHz – 6 GHz", "LCD экран", "SMA разъемы", "microSD, USB"] },
+        { id: 4, name: "UConsole", price_usd: 950, price_usd_max: 1240, salePrice: null, salePriceMax: null, category: "devices", img: "uconsole.png", desc: "Портативная консоль. Kali Linux.", fullDesc: "UConsole — портативная консоль с Linux.", specs: ["Kali Linux", "CPU: ARM", "RAM: 2GB", "480x320"] },
+        { id: 5, name: "Raspberry Pi 4 (8GB)", price_usd: 120, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "raspberry-pi4.png", desc: "Мощный мини-компьютер.", fullDesc: "Raspberry Pi 4 8GB.", specs: ["8 GB RAM", "ARM Cortex-A72", "USB 3.0", "Wi-Fi + BT"] },
+        { id: 6, name: "WiFi Pineapple", price_usd: 590, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "wifi-pineapple.png", desc: "Инструмент для анализа Wi-Fi сетей.", fullDesc: "WiFi Pineapple — анализ Wi-Fi сетей.", specs: ["Rogue AP", "Мониторинг", "PineAP", "Веб-интерфейс"] },
+        { id: 7, name: "CC1101 модуль", price_usd: 120, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "cc1101.png", desc: "Расширь возможности Flipper Zero.", fullDesc: "CC1101 модуль для Flipper Zero.", specs: ["300-928 MHz", "Перехват", "433/868/915 MHz", "GPIO"] },
+        { id: 8, name: "ESP32 Marauder V6", price_usd: 250, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "esp32-marauder.png", desc: "Расширение для Flipper Zero.", fullDesc: "ESP32 Marauder V6.", specs: ["2.4 GHz", "Marauder Firmware", "OLED", "ESP32"] },
+        { id: 9, name: "ESP32 Multi-Tool", price_usd: 160, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "esp32-multitool.png", desc: "Портативное устройство для исследований.", fullDesc: "ESP32 Multi-Tool.", specs: ["Wi-Fi 2.4/5 GHz", "Sub-GHz", "BLE", "ESP32-S3"] },
+        { id: 10, name: "NRF24 для Flipper Zero", price_usd: 150, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "nrf24.png", desc: "Модуль nRF24L01+.", fullDesc: "NRF24 для Flipper Zero.", specs: ["2.4 GHz", "Внешняя антенна", "GPIO"] },
+        { id: 11, name: "SUB-GHZ PRO модуль", price_usd: 130, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "subghz-pro.png", desc: "Расширь возможности Flipper Zero.", fullDesc: "SUB-GHZ PRO модуль.", specs: ["300-928 MHz", "Приём и передача", "GPIO"] },
+        { id: 12, name: "ESP32 Wi-Fi Module", price_usd: 150, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "esp32-wifi.png", desc: "ESP32 Wi-Fi модуль.", fullDesc: "ESP32 Wi-Fi Module.", specs: ["2.4 GHz", "ESP32", "Сканирование сетей"] },
+        { id: 13, name: "Кастомная прошивка", price_usd: 50, price_usd_max: null, salePrice: null, salePriceMax: null, category: "firmware", img: "custom-firmware.png", desc: "Больше возможностей Flipper Zero.", fullDesc: "Кастомная прошивка.", specs: ["Unleashed", "RogueMaster", "Momentum", "Xtreme"] },
+        { id: 14, name: "BadUSB для Flipper Zero", price_usd: 80, price_usd_max: null, salePrice: null, salePriceMax: null, category: "accessories", img: "badusb.png", desc: "Автоматизация задач через USB.", fullDesc: "BadUSB для Flipper Zero.", specs: ["Выполнение скриптов", "Payload'ы", "Для обучения"] }
+    ];
+
+    let products = [];
+    let currentCategory = "all";
+    let searchQuery = "";
+    let currentCurrency = 'USD';
+    let rubRate = 92;
+    let sortType = "default";
+    let cart = [];
+    try { const parsed = JSON.parse(localStorage.getItem('cart') || '[]'); cart = Array.isArray(parsed) ? parsed : []; } catch (_) { cart = []; }
+
+    const categories = [
+        { id: "all", name: "🏠 Все" },
+        { id: "devices", name: "📟 Устройства" },
+        { id: "modules", name: "🔌 Модули" },
+        { id: "firmware", name: "⚙️ Прошивки" },
+        { id: "accessories", name: "🔧 Аксессуары" }
+    ];
+
+    // ========== ВСЕГДА ЗАГРУЖАЕМ ПОЛНЫЙ СПИСОК ==========
+    function loadProductsFromStorage() {
+        // Всегда берём полный список из ALL_PRODUCTS
+        products = JSON.parse(JSON.stringify(ALL_PRODUCTS));
+        console.log('✅ Загружено товаров:', products.length);
+        renderCategories();
+        renderCatalog();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    const catalogDiv = document.getElementById('catalog');
+    const categoriesDiv = document.getElementById('categories');
+    const searchInput = document.getElementById('searchInput');
+    const cartCountSpan = document.getElementById('cartCount');
+    const cartIcon = document.getElementById('cartIcon');
+    const cartModal = document.getElementById('cartModal');
+    const overlay = document.getElementById('overlay');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const contactBtn = document.getElementById('contactBtn');
+    const contactModal = document.getElementById('contactModal');
+
+    function updateCartCount() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCountSpan.innerText = count;
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    window.addToCart = function(id) {
+        const existing = cart.find(item => item.id === id);
+        if(existing) existing.quantity++;
+        else cart.push({ id: id, quantity: 1 });
+        updateCartCount();
+        renderCatalog();
+        renderCartModal();
+        showToast("✓ Добавлено", "#4ADE80");
+    };
+
+    window.openProduct = function(id) {
+        const product = products.find(p => p.id === id);
+        if(product) {
+            localStorage.setItem('currentProduct', JSON.stringify(product));
+            window.location.href = 'product.html';
+        }
+    };
+
+    window.removeFromCart = function(id) {
+        cart = cart.filter(item => item.id !== id);
+        updateCartCount();
+        renderCartModal();
+        renderCatalog();
+        showToast("✗ Удалено", "#F87171");
+    };
+
+    window.changeQuantity = function(id, delta) {
+        const item = cart.find(i => i.id === id);
+        if(item) {
+            item.quantity += delta;
+            if(item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+            updateCartCount();
+            renderCartModal();
+            renderCatalog();
+        }
+    };
+
+    async function fetchRubRate() {
+        try {
+            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const data = await res.json();
+            rubRate = data.rates.RUB || 92;
+        } catch(e) { rubRate = 92; }
+        renderCatalog();
+    }
+
+    function getPrice(product) {
+        const baseMin = product.salePrice ? product.salePrice : product.price_usd;
+        const baseMax = product.salePriceMax ? product.salePriceMax : (product.price_usd_max || null);
+        
+        if(currentCurrency === 'USD') {
+            return { val: baseMin, valMax: baseMax, sym: '$', oldVal: (product.salePrice || product.salePriceMax) ? product.price_usd : null, oldValMax: (product.salePrice || product.salePriceMax) ? (product.price_usd_max || null) : null };
+        }
+        return { val: Math.round(baseMin * rubRate), valMax: baseMax ? Math.round(baseMax * rubRate) : null, sym: '₽', oldVal: (product.salePrice || product.salePriceMax) ? Math.round(product.price_usd * rubRate) : null, oldValMax: (product.salePrice || product.salePriceMax) && product.price_usd_max ? Math.round(product.price_usd_max * rubRate) : null };
+    }
+
+    function formatPrice(price) {
+        if (price.valMax) return `от ${price.val} до ${price.valMax} ${price.sym}`;
+        return `${price.val} ${price.sym}`;
+    }
+
+    function formatOldPrice(price) {
+        if (!price.oldVal) return '';
+        if (price.oldValMax) return `от ${price.oldVal} до ${price.oldValMax} ${price.sym}`;
+        return `${price.oldVal} ${price.sym}`;
+    }
+
+    function getTotalUSD() {
+        return cart.reduce((sum, item) => {
+            const product = products.find(p => p.id === item.id);
+            const price = product ? (product.salePrice || product.price_usd) : 0;
+            return sum + (price * item.quantity);
+        }, 0);
+    }
+
+    function getFilteredProducts() {
+        let filtered = products;
+        if(currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
+        if(searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q));
+        }
+        if(sortType === 'price_asc') filtered.sort((a,b) => (a.salePrice || a.price_usd) - (b.salePrice || b.price_usd));
+        if(sortType === 'price_desc') filtered.sort((a,b) => (b.salePrice || b.price_usd) - (a.salePrice || a.price_usd));
+        return filtered;
+    }
+
+    function renderCatalog() {
+        if(!products || products.length === 0) {
+            catalogDiv.innerHTML = '<div style="text-align:center; padding:60px;">🔄 Загрузка...</div>';
+            return;
+        }
+        
+        const filtered = getFilteredProducts();
+        if(filtered.length === 0) {
+            catalogDiv.innerHTML = '<div style="text-align:center; padding:60px;">🔍 Ничего не найдено</div>';
+            return;
+        }
+        
+        catalogDiv.innerHTML = filtered.map(p => {
+            const price = getPrice(p);
+            const inCart = cart.find(i => i.id === p.id);
+            const hasSale = (p.salePrice && p.salePrice < p.price_usd) || (p.salePriceMax && p.salePriceMax < p.price_usd_max);
+            const oldPriceText = formatOldPrice(price);
+            
+            return `
+                <div class="product-card">
+                    <div class="product-img" onclick="openProduct(${p.id})">
+                        <img src="${escapeHtml(p.img)}" 
+                             alt="${escapeHtml(p.name)}" 
+                             loading="lazy"
+                             decoding="async"
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">
+                    </div>
+                    <div class="product-title" onclick="openProduct(${p.id})">${escapeHtml(p.name)}</div>
+                    <div class="product-desc">${escapeHtml((p.desc || '').substring(0, 100))}...</div>
+                    <div class="product-price">
+                        ${formatPrice(price)}
+                        ${oldPriceText ? `<span class="old-price">${oldPriceText}</span>` : ''}
+                        ${hasSale ? `<span class="sale-badge">🔥</span>` : ''}
+                    </div>
+                    <button class="btn-details" onclick="openProduct(${p.id})">📖 Подробнее</button>
+                    <button class="btn-cart" onclick="addToCart(${p.id})">${inCart ? '✓ В корзине' : '+ В корзину'}</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderCartModal() {
+        const container = document.getElementById('cartItemsList');
+        const footer = document.getElementById('cartFooter');
+        
+        if(cart.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px;">🛒 Корзина пуста</div>';
+            footer.style.display = 'none';
+            return;
+        }
+        
+        footer.style.display = 'block';
+        let totalUSD = 0;
+        
+        container.innerHTML = cart.map(item => {
+            const product = products.find(p => p.id === item.id);
+            if(!product) return '';
+            const price = getPrice(product);
+            totalUSD += (product.salePrice || product.price_usd) * item.quantity;
+            const itemTotal = getPrice({ price_usd: (product.salePrice || product.price_usd), price_usd_max: null });
+            return `
+                <div class="cart-item">
+                    <div class="cart-item-img">📦</div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${escapeHtml(product.name)}</div>
+                        <div class="cart-item-price">${price.val} ${price.sym}</div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="cart-qty-btn" onclick="changeQuantity(${item.id}, -1)">−</button>
+                        <span style="min-width:24px;text-align:center;font-size:13px;">${item.quantity}</span>
+                        <button class="cart-qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                        <button class="cart-qty-btn" onclick="removeFromCart(${item.id})" style="background:#FF4D4D20;">✕</button>
+                    </div>
+                    <div style="min-width:60px;text-align:right;color:#6C63FF;font-size:13px;">${itemTotal.val * item.quantity} ${itemTotal.sym}</div>
+                </div>
+            `;
+        }).join('');
+        
+        const total = getPrice({ price_usd: totalUSD, price_usd_max: null });
+        document.getElementById('cartTotal').innerHTML = `${total.val} ${total.sym}`;
+    }
+
+    function openCartModal() {
+        renderCartModal();
+        cartModal.classList.add('show');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCartModal() {
+        cartModal.classList.remove('show');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    function openContactModal() {
+        contactModal.classList.add('show');
+        overlay.classList.add('show');
+    }
+
+    function closeContactModal() {
+        contactModal.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
+    if (cartIcon) cartIcon.onclick = () => openCartModal();
+    if (closeCartBtn) closeCartBtn.onclick = () => closeCartModal();
+    if (overlay) overlay.onclick = () => { closeCartModal(); closeContactModal(); };
+    if (contactBtn) contactBtn.onclick = () => openContactModal();
+    window.closeContactModal = closeContactModal;
+
+    document.getElementById('checkoutBtn').onclick = function() {
+        if (cart.length === 0) { showToast("Корзина пуста", "#F87171"); return; }
+        localStorage.setItem('checkoutCart', JSON.stringify(cart));
+        localStorage.setItem('checkoutProducts', JSON.stringify(products));
+        localStorage.setItem('checkoutCurrency', currentCurrency);
+        localStorage.setItem('checkoutTotal', JSON.stringify(getTotalUSD()));
+        window.location.href = 'checkout.html';
+    };
+
+    function renderCategories() {
+        categoriesDiv.innerHTML = categories.map(cat => `
+            <button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
+                ${cat.name}
+            </button>
+        `).join('');
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.onclick = () => {
+                currentCategory = btn.dataset.cat;
+                renderCategories();
+                renderCatalog();
+            };
+        });
+    }
+
+    function showToast(msg, color) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.borderLeftColor = color;
+        toast.textContent = String(msg);
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+
+    if (searchInput) searchInput.oninput = () => { searchQuery = searchInput.value; renderCatalog(); };
+    document.getElementById('sortSelect').onchange = (e) => { sortType = e.target.value; renderCatalog(); };
+    document.getElementById('usdBtn').onclick = () => { currentCurrency = 'USD'; renderCatalog(); renderCartModal(); };
+    document.getElementById('rubBtn').onclick = () => { currentCurrency = 'RUB'; renderCatalog(); renderCartModal(); };
+
+    loadProductsFromStorage();
+    fetchRubRate();
+    updateCartCount();
+</script>
+</body>
+</html>
