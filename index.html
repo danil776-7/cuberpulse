@@ -2,115 +2,120 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>CuberPulse | Магазин устройств безопасности</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { overflow-x: hidden; }
-        body { background: #0A0A0F; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #FFFFFF; line-height: 1.5; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { overflow-x: hidden; width: 100%; }
+        body { background: #0A0A0F; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #FFFFFF; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 16px; }
-        .logo h1 { font-size: 28px; background: linear-gradient(135deg, #FFFFFF, #6C63FF); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
-        .logo p { font-size: 12px; color: rgba(255,255,255,0.4); }
-        .nav-buttons { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 18px; border-radius: 40px; color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 12px; }
+        .logo h1 { font-size: 24px; background: linear-gradient(135deg, #FFFFFF, #6C63FF); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
+        .logo p { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .nav-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; border-radius: 40px; color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.2s; font-size: 14px; }
         .btn-outline:hover { border-color: #6C63FF; color: #6C63FF; }
+        .btn-outline:active { transform: scale(0.96); }
         
-        .search-input { width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 40px; color: white; margin: 30px 0 20px; font-size: 15px; }
+        .search-input { width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 14px 18px; border-radius: 40px; color: white; margin: 20px 0 16px; font-size: 16px; }
         .search-input:focus { outline: none; border-color: #6C63FF; }
         
-        .categories { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .category-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 40px; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s; font-size: 14px; white-space: nowrap; }
+        .categories { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .category-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 40px; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s; font-size: 14px; white-space: nowrap; }
         .category-btn.active { background: #6C63FF; border-color: #6C63FF; color: white; }
+        .category-btn:active { transform: scale(0.96); }
         
-        .sort-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 40px; color: white; margin-bottom: 20px; cursor: pointer; }
+        .sort-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 40px; color: white; margin-bottom: 16px; cursor: pointer; font-size: 14px; }
         
-        .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin: 30px 0 60px; }
-        .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; transition: all 0.3s; display: flex; flex-direction: column; }
-        .product-card:hover { transform: translateY(-5px); border-color: #6C63FF; }
+        .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 24px 0 60px; }
+        .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; transition: all 0.3s; display: flex; flex-direction: column; }
+        .product-card:active { transform: scale(0.98); }
         
-        .product-img { 
-            width: 100%; 
-            height: 240px; 
-            background: rgba(255,255,255,0.02); 
-            border-radius: 16px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            margin-bottom: 16px; 
-            cursor: pointer; 
-            padding: 8px; 
-        }
+        .product-img { width: 100%; height: 240px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 14px; cursor: pointer; padding: 8px; }
+        .product-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+        .product-img .fallback { font-size: 64px; }
         
-        .product-img img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            border-radius: 12px; 
-        }
+        .product-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; cursor: pointer; }
+        .product-title:active { color: #6C63FF; }
+        .product-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 6px 0; line-height: 1.4; flex-grow: 1; }
+        .product-price { font-size: 22px; font-weight: 700; color: #6C63FF; margin: 10px 0; }
+        .old-price { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 6px; }
+        .sale-badge { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 11px; margin-left: 6px; }
         
-        .product-img .fallback { 
-            font-size: 64px; 
-        }
+        .btn-details { width: 100%; background: transparent; border: 1px solid rgba(108,99,255,0.5); padding: 12px; border-radius: 40px; color: #6C63FF; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; font-size: 14px; }
+        .btn-details:active { background: rgba(108,99,255,0.15); }
+        .btn-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        .btn-cart:active { transform: scale(0.97); }
         
-        .product-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; cursor: pointer; }
-        .product-title:hover { color: #6C63FF; }
-        .product-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 8px 0; line-height: 1.4; flex-grow: 1; }
-        .product-price { font-size: 22px; font-weight: 700; color: #6C63FF; margin: 12px 0; }
-        .old-price { font-size: 14px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 8px; }
-        .sale-badge { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 11px; margin-left: 8px; }
-        
-        .btn-details { width: 100%; background: transparent; border: 1px solid rgba(108,99,255,0.5); padding: 10px; border-radius: 40px; color: #6C63FF; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; font-size: 14px; }
-        .btn-details:hover { background: rgba(108,99,255,0.15); border-color: #6C63FF; }
-        .btn-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 12px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-cart:hover { transform: scale(1.02); }
-        
-        .cart-icon { position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(108, 99, 255, 0.2); padding: 8px 18px; border-radius: 40px; }
+        .cart-icon { position: relative; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(108, 99, 255, 0.2); padding: 10px 16px; border-radius: 40px; font-size: 14px; }
         .cart-count { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 12px; }
         
-        .cart-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; max-width: 92vw; max-height: 80vh; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; z-index: 1001; overflow: hidden; }
+        .cart-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px; max-width: 94vw; max-height: 85vh; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; z-index: 1001; overflow: hidden; }
         .cart-modal.show { display: flex; flex-direction: column; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .cart-items { flex: 1; overflow-y: auto; padding: 16px; }
-        .cart-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
-        .cart-item-img { font-size: 32px; width: 50px; text-align: center; flex-shrink: 0; }
-        .cart-item-info { flex: 1; min-width: 120px; }
-        .cart-item-name { font-weight: 600; font-size: 14px; }
-        .cart-item-price { font-size: 12px; color: #6C63FF; }
-        .cart-item-controls { display: flex; align-items: center; gap: 8px; }
-        .cart-qty-btn { background: rgba(255,255,255,0.1); border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; color: white; font-size: 16px; }
-        .cart-qty-btn:hover { background: #6C63FF; }
-        .cart-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-        .btn-checkout { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; }
-        .close-cart { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 24px; cursor: pointer; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .cart-items { flex: 1; overflow-y: auto; padding: 14px; }
+        .cart-item { display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
+        .cart-item-img { font-size: 28px; width: 40px; text-align: center; flex-shrink: 0; }
+        .cart-item-info { flex: 1; min-width: 100px; }
+        .cart-item-name { font-weight: 600; font-size: 13px; }
+        .cart-item-price { font-size: 11px; color: #6C63FF; }
+        .cart-item-controls { display: flex; align-items: center; gap: 6px; }
+        .cart-qty-btn { background: rgba(255,255,255,0.1); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; color: white; font-size: 16px; }
+        .cart-qty-btn:active { background: #6C63FF; }
+        .cart-footer { padding: 18px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+        .btn-checkout { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 16px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; font-size: 16px; }
+        .close-cart { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 26px; cursor: pointer; padding: 4px 12px; }
         
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; }
         .overlay.show { display: block; }
-        .toast { position: fixed; bottom: 30px; right: 30px; left: 30px; max-width: 400px; margin-left: auto; background: #111118; border-left: 4px solid #6C63FF; padding: 12px 20px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; }
-        .contact-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; max-width: 92vw; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px; z-index: 2000; text-align: center; }
+        .toast { position: fixed; bottom: 20px; right: 16px; left: 16px; max-width: 400px; margin-left: auto; background: #111118; border-left: 4px solid #6C63FF; padding: 14px 18px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; font-size: 14px; }
+        .contact-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; max-width: 94vw; background: #111118; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 28px 20px; z-index: 2000; text-align: center; }
         .contact-modal.show { display: block; animation: fadeIn 0.2s ease; }
-        .contact-link { display: inline-block; background: linear-gradient(135deg, #6C63FF, #4A42D0); padding: 12px 28px; border-radius: 40px; color: white; text-decoration: none; margin: 8px 0; }
-        .close-contact { background: rgba(255,255,255,0.1); border: none; padding: 10px 20px; border-radius: 40px; color: white; cursor: pointer; margin-top: 16px; }
+        .contact-link { display: inline-block; background: linear-gradient(135deg, #6C63FF, #4A42D0); padding: 14px 28px; border-radius: 40px; color: white; text-decoration: none; margin: 8px 0; font-size: 16px; }
+        .close-contact { background: rgba(255,255,255,0.1); border: none; padding: 12px 24px; border-radius: 40px; color: white; cursor: pointer; margin-top: 16px; font-size: 14px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         
+        /* ========== МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
         @media (max-width: 768px) {
-            .container { padding: 0 16px; }
-            .logo h1 { font-size: 22px; }
+            .container { padding: 0 12px; }
+            .logo h1 { font-size: 20px; }
             .logo p { font-size: 10px; }
-            .nav-buttons { gap: 8px; width: 100%; }
-            .btn-outline { padding: 6px 14px; font-size: 12px; flex: 1; text-align: center; }
-            .cart-icon { padding: 6px 14px; font-size: 14px; }
-            .search-input { font-size: 14px; padding: 10px 16px; }
-            .category-btn { padding: 6px 14px; font-size: 12px; }
-            .catalog { grid-template-columns: 1fr; gap: 16px; }
-            .product-card { padding: 16px; }
+            .nav-buttons { gap: 6px; width: 100%; }
+            .btn-outline { padding: 10px 14px; font-size: 13px; flex: 1; text-align: center; min-width: 0; }
+            .cart-icon { padding: 10px 14px; font-size: 13px; }
+            
+            .search-input { font-size: 15px; padding: 12px 16px; }
+            .category-btn { padding: 8px 16px; font-size: 13px; }
+            .sort-select { font-size: 13px; padding: 8px 14px; }
+            
+            .catalog { grid-template-columns: 1fr; gap: 14px; margin: 16px 0 40px; }
+            .product-card { padding: 14px; border-radius: 16px; }
             .product-img { height: 260px; }
+            .product-title { font-size: 16px; }
             .product-price { font-size: 20px; }
-            .cart-modal { width: 95vw; }
+            .btn-details, .btn-cart { padding: 13px; font-size: 14px; }
+            
+            .cart-modal { width: 96vw; max-height: 88vh; }
+            .cart-item { padding: 10px 4px; gap: 8px; }
+            .cart-item-controls { margin-left: auto; }
+            .cart-qty-btn { width: 32px; height: 32px; font-size: 17px; }
+            
+            .toast { bottom: 14px; right: 12px; left: 12px; font-size: 13px; padding: 12px 16px; }
+            .contact-modal { padding: 24px 18px; }
+        }
+        
+        @media (max-width: 480px) {
+            .logo h1 { font-size: 18px; }
+            .product-img { height: 230px; }
+            .product-price { font-size: 18px; }
+            .btn-details { font-size: 13px; padding: 11px; }
+            .btn-cart { font-size: 14px; padding: 13px; }
+            .cart-item-img { width: 36px; font-size: 24px; }
+            .cart-item-info { min-width: 90px; }
         }
     </style>
 </head>
@@ -123,8 +128,8 @@
             <p>professional hardware · security research</p>
         </div>
         <div class="nav-buttons">
-            <button class="btn-outline" id="usdBtn">USD $</button>
-            <button class="btn-outline" id="rubBtn">RUB ₽</button>
+            <button class="btn-outline" id="usdBtn">USD</button>
+            <button class="btn-outline" id="rubBtn">RUB</button>
             <button class="btn-outline" id="contactBtn">📞</button>
             <div class="cart-icon" id="cartIcon">
                 🛒 <span class="cart-count" id="cartCount">0</span>
@@ -132,7 +137,7 @@
         </div>
     </div>
 
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск устройств, модулей...">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск...">
 
     <div class="categories" id="categories"></div>
     
@@ -165,11 +170,43 @@
 <div class="contact-modal" id="contactModal">
     <h3>📞 Свяжитесь с нами</h3>
     <p>По всем вопросам обращайтесь к нашему менеджеру:</p>
-    <a href="https://t.me/TENOR870" target="_blank" class="contact-link">@TENOR870</a>
+    <a href="https://t.me/TENOR870" target="_blank" rel="noopener noreferrer" class="contact-link">@TENOR870</a>
     <button class="close-contact" onclick="closeContactModal()">Закрыть</button>
 </div>
 
 <script>
+    // ========== ЗАЩИТА: Санитизация ==========
+    function sanitizeInput(str, maxLength = 200) {
+        if (!str) return '';
+        return String(str).slice(0, maxLength);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ========== ЗАЩИТА: Валидация данных из localStorage ==========
+    function validateProduct(p) {
+        if (!p || typeof p !== 'object') return null;
+        if (!p.id || !p.name || !p.price_usd) return null;
+        return {
+            id: parseInt(p.id) || 0,
+            name: sanitizeInput(p.name, 100),
+            price_usd: Math.max(0, parseInt(p.price_usd) || 0),
+            price_usd_max: p.price_usd_max ? Math.max(0, parseInt(p.price_usd_max)) : null,
+            salePrice: p.salePrice ? Math.max(0, parseInt(p.salePrice)) : null,
+            salePriceMax: p.salePriceMax ? Math.max(0, parseInt(p.salePriceMax)) : null,
+            category: sanitizeInput(p.category, 50),
+            img: sanitizeInput(p.img, 100),
+            desc: sanitizeInput(p.desc, 500),
+            fullDesc: sanitizeInput(p.fullDesc || '', 2000),
+            specs: Array.isArray(p.specs) ? p.specs.map(s => sanitizeInput(s, 100)) : []
+        };
+    }
+
     let products = [];
     let currentCategory = "all";
     let searchQuery = "";
@@ -191,14 +228,15 @@
         if (saved && saved !== 'undefined' && saved !== 'null') {
             try {
                 const parsed = JSON.parse(saved);
-                if (parsed && parsed.length > 0) {
-                    products = parsed;
-                    console.log('✅ Товары загружены:', products.length);
-                    renderCategories();
-                    renderCatalog();
-                    return;
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    products = parsed.map(validateProduct).filter(Boolean);
+                    if (products.length > 0) {
+                        renderCategories();
+                        renderCatalog();
+                        return;
+                    }
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error('Ошибка загрузки:', e); }
         }
         products = [{ id: 1, name: "Flipper Zero", price_usd: 390, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент.", fullDesc: "", specs: [] }];
         localStorage.setItem('admin_products', JSON.stringify(products));
@@ -230,7 +268,7 @@
         updateCartCount();
         renderCatalog();
         renderCartModal();
-        showToast("✓ Добавлено в корзину", "#4ADE80");
+        showToast("✓ Добавлено", "#4ADE80");
     };
 
     window.openProduct = function(id) {
@@ -264,7 +302,7 @@
         try {
             const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
             const data = await res.json();
-            rubRate = data.rates.RUB;
+            rubRate = data.rates.RUB || 92;
         } catch(e) { rubRate = 92; }
         renderCatalog();
     }
@@ -311,7 +349,10 @@
     function getFilteredProducts() {
         let filtered = products;
         if(currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
-        if(searchQuery) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.desc.toLowerCase().includes(searchQuery.toLowerCase()));
+        if(searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q));
+        }
         if(sortType === 'price_asc') filtered.sort((a,b) => (a.salePrice || a.price_usd) - (b.salePrice || b.price_usd));
         if(sortType === 'price_desc') filtered.sort((a,b) => (b.salePrice || b.price_usd) - (a.salePrice || a.price_usd));
         return filtered;
@@ -338,14 +379,14 @@
             return `
                 <div class="product-card">
                     <div class="product-img" onclick="openProduct(${p.id})">
-                        <img src="${p.img}" 
+                        <img src="${escapeHtml(p.img)}" 
                              alt="${escapeHtml(p.name)}" 
                              loading="lazy"
                              decoding="async"
                              onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'fallback\\'>📦</span>';">
                     </div>
                     <div class="product-title" onclick="openProduct(${p.id})">${escapeHtml(p.name)}</div>
-                    <div class="product-desc">${escapeHtml(p.desc ? p.desc.substring(0, 100) : '')}...</div>
+                    <div class="product-desc">${escapeHtml((p.desc || '').substring(0, 100))}...</div>
                     <div class="product-price">
                         ${formatPrice(price)}
                         ${oldPriceText ? `<span class="old-price">${oldPriceText}</span>` : ''}
@@ -356,13 +397,6 @@
                 </div>
             `;
         }).join('');
-    }
-
-    function escapeHtml(text) {
-        if(!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 
     function renderCartModal() {
