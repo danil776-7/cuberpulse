@@ -31,23 +31,19 @@
         
         .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 24px 0 60px; }
         .product-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; transition: all 0.3s; display: flex; flex-direction: column; }
-        .product-card:active { transform: scale(0.98); }
         
         .product-img { width: 100%; height: 240px; background: rgba(255,255,255,0.02); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 14px; cursor: pointer; padding: 8px; }
         .product-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
         .product-img .fallback { font-size: 64px; }
         
         .product-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; cursor: pointer; }
-        .product-title:active { color: #6C63FF; }
         .product-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 6px 0; line-height: 1.4; flex-grow: 1; }
         .product-price { font-size: 22px; font-weight: 700; color: #6C63FF; margin: 10px 0; }
         .old-price { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: line-through; margin-left: 6px; }
         .sale-badge { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 11px; margin-left: 6px; }
         
         .btn-details { width: 100%; background: transparent; border: 1px solid rgba(108,99,255,0.5); padding: 12px; border-radius: 40px; color: #6C63FF; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; font-size: 14px; }
-        .btn-details:active { background: rgba(108,99,255,0.15); }
         .btn-cart { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; }
-        .btn-cart:active { transform: scale(0.97); }
         
         .cart-icon { position: relative; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(108, 99, 255, 0.2); padding: 10px 16px; border-radius: 40px; font-size: 14px; }
         .cart-count { background: #FF4D4D; border-radius: 20px; padding: 2px 8px; font-size: 12px; }
@@ -64,7 +60,6 @@
         .cart-item-price { font-size: 11px; color: #6C63FF; }
         .cart-item-controls { display: flex; align-items: center; gap: 6px; }
         .cart-qty-btn { background: rgba(255,255,255,0.1); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; color: white; font-size: 16px; }
-        .cart-qty-btn:active { background: #6C63FF; }
         .cart-footer { padding: 18px; border-top: 1px solid rgba(255,255,255,0.1); }
         .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 14px; }
         .btn-checkout { width: 100%; background: linear-gradient(135deg, #6C63FF, #4A42D0); border: none; padding: 16px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; font-size: 16px; }
@@ -79,43 +74,20 @@
         .close-contact { background: rgba(255,255,255,0.1); border: none; padding: 12px 24px; border-radius: 40px; color: white; cursor: pointer; margin-top: 16px; font-size: 14px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         
-        /* ========== МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
         @media (max-width: 768px) {
             .container { padding: 0 12px; }
             .logo h1 { font-size: 20px; }
             .logo p { font-size: 10px; }
             .nav-buttons { gap: 6px; width: 100%; }
-            .btn-outline { padding: 10px 14px; font-size: 13px; flex: 1; text-align: center; min-width: 0; }
+            .btn-outline { padding: 10px 14px; font-size: 13px; flex: 1; text-align: center; }
             .cart-icon { padding: 10px 14px; font-size: 13px; }
-            
             .search-input { font-size: 15px; padding: 12px 16px; }
             .category-btn { padding: 8px 16px; font-size: 13px; }
-            .sort-select { font-size: 13px; padding: 8px 14px; }
-            
-            .catalog { grid-template-columns: 1fr; gap: 14px; margin: 16px 0 40px; }
+            .catalog { grid-template-columns: 1fr; gap: 14px; }
             .product-card { padding: 14px; border-radius: 16px; }
             .product-img { height: 260px; }
-            .product-title { font-size: 16px; }
             .product-price { font-size: 20px; }
-            .btn-details, .btn-cart { padding: 13px; font-size: 14px; }
-            
-            .cart-modal { width: 96vw; max-height: 88vh; }
-            .cart-item { padding: 10px 4px; gap: 8px; }
-            .cart-item-controls { margin-left: auto; }
-            .cart-qty-btn { width: 32px; height: 32px; font-size: 17px; }
-            
-            .toast { bottom: 14px; right: 12px; left: 12px; font-size: 13px; padding: 12px 16px; }
-            .contact-modal { padding: 24px 18px; }
-        }
-        
-        @media (max-width: 480px) {
-            .logo h1 { font-size: 18px; }
-            .product-img { height: 230px; }
-            .product-price { font-size: 18px; }
-            .btn-details { font-size: 13px; padding: 11px; }
-            .btn-cart { font-size: 14px; padding: 13px; }
-            .cart-item-img { width: 36px; font-size: 24px; }
-            .cart-item-info { min-width: 90px; }
+            .cart-modal { width: 96vw; }
         }
     </style>
 </head>
@@ -175,37 +147,23 @@
 </div>
 
 <script>
-    // ========== ЗАЩИТА: Санитизация ==========
-    function sanitizeInput(str, maxLength = 200) {
-        if (!str) return '';
-        return String(str).slice(0, maxLength);
-    }
-
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // ========== ЗАЩИТА: Валидация данных из localStorage ==========
-    function validateProduct(p) {
-        if (!p || typeof p !== 'object') return null;
-        if (!p.id || !p.name || !p.price_usd) return null;
-        return {
-            id: parseInt(p.id) || 0,
-            name: sanitizeInput(p.name, 100),
-            price_usd: Math.max(0, parseInt(p.price_usd) || 0),
-            price_usd_max: p.price_usd_max ? Math.max(0, parseInt(p.price_usd_max)) : null,
-            salePrice: p.salePrice ? Math.max(0, parseInt(p.salePrice)) : null,
-            salePriceMax: p.salePriceMax ? Math.max(0, parseInt(p.salePriceMax)) : null,
-            category: sanitizeInput(p.category, 50),
-            img: sanitizeInput(p.img, 100),
-            desc: sanitizeInput(p.desc, 500),
-            fullDesc: sanitizeInput(p.fullDesc || '', 2000),
-            specs: Array.isArray(p.specs) ? p.specs.map(s => sanitizeInput(s, 100)) : []
-        };
-    }
+    // ========== ФИКСИРОВАННЫЙ СПИСОК ТОВАРОВ (ВСЕГДА ЗАГРУЖАЕТСЯ) ==========
+    const ALL_PRODUCTS = [
+        { id: 1, name: "Flipper Zero", price_usd: 390, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент для исследования безопасности. Оригинал, новый, запечатанный.", fullDesc: "Flipper Zero — универсальный инструмент для исследования безопасности.", specs: ["SUB-GHZ: анализ и работа с радиосигналами", "2.4 GHz: Wi-Fi исследования", "NFC / RFID: чтение и эмуляция карт", "IR: управление устройствами", "Bluetooth: анализ BLE", "USB: подключение модулей"] },
+        { id: 2, name: "HackRF One", price_usd: 590, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "hackrf-one.png", desc: "Software Defined Radio (SDR) платформа 0.1–6 ГГц.", fullDesc: "HackRF One — SDR платформа 1 МГц – 6 ГГц.", specs: ["SDR", "0.1 – 6 ГГц", "USB 2.0", "Full duplex"] },
+        { id: 3, name: "HackRF One Portapack H2", price_usd: 890, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "hackrf-portapack.png", desc: "Портативная SDR платформа 1 MHz – 6 GHz.", fullDesc: "Портативная SDR платформа с LCD экраном.", specs: ["1 MHz – 6 GHz", "LCD экран", "SMA разъемы", "microSD, USB"] },
+        { id: 4, name: "UConsole", price_usd: 950, price_usd_max: 1240, salePrice: null, salePriceMax: null, category: "devices", img: "uconsole.png", desc: "Портативная консоль. Kali Linux.", fullDesc: "UConsole — портативная консоль с Linux.", specs: ["Kali Linux", "CPU: ARM", "RAM: 2GB", "480x320"] },
+        { id: 5, name: "Raspberry Pi 4 (8GB)", price_usd: 120, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "raspberry-pi4.png", desc: "Мощный мини-компьютер.", fullDesc: "Raspberry Pi 4 8GB.", specs: ["8 GB RAM", "ARM Cortex-A72", "USB 3.0", "Wi-Fi + BT"] },
+        { id: 6, name: "WiFi Pineapple", price_usd: 590, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "wifi-pineapple.png", desc: "Инструмент для анализа Wi-Fi сетей.", fullDesc: "WiFi Pineapple — анализ Wi-Fi сетей.", specs: ["Rogue AP", "Мониторинг", "PineAP", "Веб-интерфейс"] },
+        { id: 7, name: "CC1101 модуль", price_usd: 120, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "cc1101.png", desc: "Расширь возможности Flipper Zero.", fullDesc: "CC1101 модуль для Flipper Zero.", specs: ["300-928 MHz", "Перехват", "433/868/915 MHz", "GPIO"] },
+        { id: 8, name: "ESP32 Marauder V6", price_usd: 250, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "esp32-marauder.png", desc: "Расширение для Flipper Zero.", fullDesc: "ESP32 Marauder V6.", specs: ["2.4 GHz", "Marauder Firmware", "OLED", "ESP32"] },
+        { id: 9, name: "ESP32 Multi-Tool", price_usd: 160, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "esp32-multitool.png", desc: "Портативное устройство для исследований.", fullDesc: "ESP32 Multi-Tool.", specs: ["Wi-Fi 2.4/5 GHz", "Sub-GHz", "BLE", "ESP32-S3"] },
+        { id: 10, name: "NRF24 для Flipper Zero", price_usd: 150, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "nrf24.png", desc: "Модуль nRF24L01+.", fullDesc: "NRF24 для Flipper Zero.", specs: ["2.4 GHz", "Внешняя антенна", "GPIO"] },
+        { id: 11, name: "SUB-GHZ PRO модуль", price_usd: 130, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "subghz-pro.png", desc: "Расширь возможности Flipper Zero.", fullDesc: "SUB-GHZ PRO модуль.", specs: ["300-928 MHz", "Приём и передача", "GPIO"] },
+        { id: 12, name: "ESP32 Wi-Fi Module", price_usd: 150, price_usd_max: null, salePrice: null, salePriceMax: null, category: "modules", img: "esp32-wifi.png", desc: "ESP32 Wi-Fi модуль.", fullDesc: "ESP32 Wi-Fi Module.", specs: ["2.4 GHz", "ESP32", "Сканирование сетей"] },
+        { id: 13, name: "Кастомная прошивка", price_usd: 50, price_usd_max: null, salePrice: null, salePriceMax: null, category: "firmware", img: "custom-firmware.png", desc: "Больше возможностей Flipper Zero.", fullDesc: "Кастомная прошивка.", specs: ["Unleashed", "RogueMaster", "Momentum", "Xtreme"] },
+        { id: 14, name: "BadUSB для Flipper Zero", price_usd: 80, price_usd_max: null, salePrice: null, salePriceMax: null, category: "accessories", img: "badusb.png", desc: "Автоматизация задач через USB.", fullDesc: "BadUSB для Flipper Zero.", specs: ["Выполнение скриптов", "Payload'ы", "Для обучения"] }
+    ];
 
     let products = [];
     let currentCategory = "all";
@@ -223,25 +181,22 @@
         { id: "accessories", name: "🔧 Аксессуары" }
     ];
 
+    // ========== ВСЕГДА ЗАГРУЖАЕМ ПОЛНЫЙ СПИСОК ==========
     function loadProductsFromStorage() {
-        const saved = localStorage.getItem('admin_products');
-        if (saved && saved !== 'undefined' && saved !== 'null') {
-            try {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    products = parsed.map(validateProduct).filter(Boolean);
-                    if (products.length > 0) {
-                        renderCategories();
-                        renderCatalog();
-                        return;
-                    }
-                }
-            } catch (e) { console.error('Ошибка загрузки:', e); }
-        }
-        products = [{ id: 1, name: "Flipper Zero", price_usd: 390, price_usd_max: null, salePrice: null, salePriceMax: null, category: "devices", img: "flipper-zero.png", desc: "Универсальный инструмент.", fullDesc: "", specs: [] }];
+        // Всегда берём полный список из ALL_PRODUCTS
+        products = JSON.parse(JSON.stringify(ALL_PRODUCTS));
+        // И сохраняем в localStorage (для админки)
         localStorage.setItem('admin_products', JSON.stringify(products));
+        console.log('✅ Загружено товаров:', products.length);
         renderCategories();
         renderCatalog();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     const catalogDiv = document.getElementById('catalog');
@@ -312,19 +267,9 @@
         const baseMax = product.salePriceMax ? product.salePriceMax : (product.price_usd_max || null);
         
         if(currentCurrency === 'USD') {
-            return { 
-                val: baseMin, valMax: baseMax, sym: '$', 
-                oldVal: (product.salePrice || product.salePriceMax) ? product.price_usd : null,
-                oldValMax: (product.salePrice || product.salePriceMax) ? (product.price_usd_max || null) : null
-            };
+            return { val: baseMin, valMax: baseMax, sym: '$', oldVal: (product.salePrice || product.salePriceMax) ? product.price_usd : null, oldValMax: (product.salePrice || product.salePriceMax) ? (product.price_usd_max || null) : null };
         }
-        return { 
-            val: Math.round(baseMin * rubRate), 
-            valMax: baseMax ? Math.round(baseMax * rubRate) : null,
-            sym: '₽', 
-            oldVal: (product.salePrice || product.salePriceMax) ? Math.round(product.price_usd * rubRate) : null,
-            oldValMax: (product.salePrice || product.salePriceMax) && product.price_usd_max ? Math.round(product.price_usd_max * rubRate) : null
-        };
+        return { val: Math.round(baseMin * rubRate), valMax: baseMax ? Math.round(baseMax * rubRate) : null, sym: '₽', oldVal: (product.salePrice || product.salePriceMax) ? Math.round(product.price_usd * rubRate) : null, oldValMax: (product.salePrice || product.salePriceMax) && product.price_usd_max ? Math.round(product.price_usd_max * rubRate) : null };
     }
 
     function formatPrice(price) {
@@ -470,10 +415,7 @@
     window.closeContactModal = closeContactModal;
 
     document.getElementById('checkoutBtn').onclick = function() {
-        if (cart.length === 0) {
-            showToast("Корзина пуста", "#F87171");
-            return;
-        }
+        if (cart.length === 0) { showToast("Корзина пуста", "#F87171"); return; }
         localStorage.setItem('checkoutCart', JSON.stringify(cart));
         localStorage.setItem('checkoutCurrency', currentCurrency);
         localStorage.setItem('checkoutTotal', JSON.stringify(getTotalUSD()));
@@ -504,27 +446,10 @@
         setTimeout(() => toast.remove(), 2500);
     }
 
-    searchInput.oninput = () => {
-        searchQuery = searchInput.value;
-        renderCatalog();
-    };
-    
-    document.getElementById('sortSelect').onchange = (e) => {
-        sortType = e.target.value;
-        renderCatalog();
-    };
-    
-    document.getElementById('usdBtn').onclick = () => {
-        currentCurrency = 'USD';
-        renderCatalog();
-        renderCartModal();
-    };
-    
-    document.getElementById('rubBtn').onclick = () => {
-        currentCurrency = 'RUB';
-        renderCatalog();
-        renderCartModal();
-    };
+    searchInput.oninput = () => { searchQuery = searchInput.value; renderCatalog(); };
+    document.getElementById('sortSelect').onchange = (e) => { sortType = e.target.value; renderCatalog(); };
+    document.getElementById('usdBtn').onclick = () => { currentCurrency = 'USD'; renderCatalog(); renderCartModal(); };
+    document.getElementById('rubBtn').onclick = () => { currentCurrency = 'RUB'; renderCatalog(); renderCartModal(); };
 
     loadProductsFromStorage();
     fetchRubRate();
